@@ -176,3 +176,62 @@ module ROLE =
     /// `topN` follows the same semantics as `bestWingersAttackRight`.
     let bestWingersAttackRightNames (players: HTML.Player list) (topN: int) : string list =
         bestWingersAttackRight players topN |> List.map fst
+
+
+    /// Calculate a normalized role rating for "Inverted Winger (Support)" — targeted at left midfield/wing (ML/LW).
+    /// Inverted wingers on the left in a support role link play and create chances by cutting inside and combining.
+    /// Emphasise passing, technique, off-the-ball movement and dribbling; crossing and finishing are de-emphasised.
+    let roleRatingInvertedWingerSupportLeft (p: HTML.Player) : float option =
+        // only consider players who have a left-sided wide midfield/wing position
+        let isLeftWingPosition =
+            p.Position
+            |> Option.exists (fun s ->
+                let up = s.ToUpperInvariant()
+                up.Contains("M") && up.Contains("L"))
+
+        if not isLeftWingPosition then None
+        else
+            let toFloatOpt = Option.map float
+
+            // Weights chosen to favour chance creation and link-up play rather than pure scoring.
+            let weightedAttrs : (float * float option) list = [
+                (0.40, toFloatOpt p.Cro)      // Crossing (useful but not primary for inverted support)
+                (0.90, toFloatOpt p.Pas)      // Passing (key for creating chances and link-up)
+                (0.80, toFloatOpt p.Tec)      // Technique
+                (0.80, toFloatOpt p.OtB)      // Off the ball (movement into pockets)
+                (0.80, toFloatOpt p.Dri)      // Dribbling (ability to beat and combine)
+                (0.60, toFloatOpt p.Fla)      // Flair (creative play)
+                (0.50, toFloatOpt p.OneVOne)  // Ability to beat defender 1v1
+                (0.60, toFloatOpt p.Cmp)      // Composure (under pressure)
+                (0.50, toFloatOpt p.Ant)      // Anticipation
+                (0.60, toFloatOpt p.Acc)      // Acceleration
+                (0.60, toFloatOpt p.Pac)      // Pace (to exploit spaces)
+                (0.40, toFloatOpt p.Agi)      // Agility
+                (0.20, toFloatOpt p.Sta)      // Stamina
+                (0.20, toFloatOpt p.Fin)      // Finishing (support role: occasional)
+            ]
+
+            let totalWeight, weightedSum =
+                weightedAttrs
+                |> List.fold (fun (tw, ws) (w, vOpt) ->
+                    match vOpt with
+                    | Some v -> (tw + w, ws + w * v)
+                    | None -> (tw, ws)) (0.0, 0.0)
+
+            if totalWeight = 0.0 then None
+            else Some (5.0 * weightedSum / totalWeight)
+
+    /// Return the best inverted wingers (support, left side) as a list of (Name, Score) sorted descending by score.
+    /// If `topN` <= 0 all players with a score are returned; otherwise only the top `topN` are returned.
+    let bestInvertedWingersSupportLeft (players: HTML.Player list) (topN: int) : (string * float) list =
+        let sorted =
+            players
+            |> List.choose (fun p -> roleRatingInvertedWingerSupportLeft p |> Option.map (fun s -> (p.Name, s)))
+            |> List.sortByDescending snd
+
+        if topN <= 0 then sorted else List.truncate topN sorted
+
+    /// Return only the names of the best inverted wingers (support, left side), ordered by rating (highest first).
+    /// `topN` follows the same semantics as `bestInvertedWingersSupportLeft`.
+    let bestInvertedWingersSupportLeftNames (players: HTML.Player list) (topN: int) : string list =
+        bestInvertedWingersSupportLeft players topN |> List.map fst
