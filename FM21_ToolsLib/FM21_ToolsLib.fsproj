@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="HTML.fs" />
     <Compile Include="ROLE.fs" />
+    <Compile Include="TEAM.fs" />
   </ItemGroup>
 
 </Project>
