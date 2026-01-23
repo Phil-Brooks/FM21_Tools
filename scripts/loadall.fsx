@@ -26,3 +26,7 @@ let bestaps = ROLE.bestAdvancedPlaymakersSupport players 20
 let bestbwms = ROLE.bestBallWinningMidfieldersSupport players 20
 
 let bestbpd = ROLE.bestBallPlayingDefenders players 20
+
+let bestiwbsr = ROLE.bestInvertedWingBacksSupportRight players 20
+
+let bestiwbsl = ROLE.bestInvertedWingBacksSupportLeft players 20

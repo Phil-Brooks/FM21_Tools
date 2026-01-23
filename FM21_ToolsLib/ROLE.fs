@@ -403,3 +403,127 @@ module ROLE =
     /// Return only the names of the best ball-playing central defenders, ordered by rating (highest first).
     let bestBallPlayingDefendersNames (players: HTML.Player list) (topN: int) : string list =
         bestBallPlayingDefenders players topN |> List.map fst
+
+    // -- inserted: Inverted Wing Back (Support) — right side (DR)
+    /// Calculate a normalized role rating for "Inverted Wing Back (Support)" — targeted at right fullback/wing-back (DR/RWB).
+    /// Inverted wing-backs on the right in a support role tuck inside to link play and create chances while still
+    /// providing defensive cover. Emphasises passing, technique, off-the-ball movement, dribbling and crossing,
+    /// with reasonable stamina, pace and defensive basics.
+    let roleRatingInvertedWingBackSupportRight (p: HTML.Player) : float option =
+        // only consider players who have a right-sided defensive/wing-back position
+        let isRightDefender =
+            p.Position
+            |> Option.exists (fun s ->
+                let up = s.ToUpperInvariant()
+                ((up.Contains("D") && up.Contains("R")) || up.Contains("RB") || up.Contains("RWB")))
+
+        if not isRightDefender then None
+        else
+            let toFloatOpt = Option.map float
+
+            // Weights chosen to favour linking play and progressive passing from right-back while retaining
+            // pace/stamina for overlapping and enough defensive skill to cover the flank.
+            let weightedAttrs : (float * float option) list = [
+                (1.00, toFloatOpt p.Pas)      // Passing (primary for link play)
+                (0.90, toFloatOpt p.Tec)      // Technique (control and short distribution)
+                (0.80, toFloatOpt p.OtB)      // Off the ball (movement into pockets)
+                (0.80, toFloatOpt p.Cro)      // Crossing (useful when overlapping)
+                (0.80, toFloatOpt p.Dri)      // Dribbling (carry the ball inside)
+                (0.70, toFloatOpt p.Pac)      // Pace (recoveries and attacking runs)
+                (0.60, toFloatOpt p.Acc)      // Acceleration (short bursts)
+                (0.60, toFloatOpt p.Sta)      // Stamina (up/down the flank)
+                (0.60, toFloatOpt p.Wor)      // Work rate (team duties)
+                (0.60, toFloatOpt p.Cmp)      // Composure (under pressure)
+                (0.50, toFloatOpt p.Dec)      // Decisions (when to overlap / tuck in)
+                (0.50, toFloatOpt p.Tck)      // Tackling (defensive duty)
+                (0.50, toFloatOpt p.Mar)      // Marking (defensive positioning)
+                (0.40, toFloatOpt p.Ant)      // Anticipation
+                (0.40, toFloatOpt p.Agi)      // Agility
+                (0.30, toFloatOpt p.Str)      // Strength (duels)
+            ]
+
+            let totalWeight, weightedSum =
+                weightedAttrs
+                |> List.fold (fun (tw, ws) (w, vOpt) ->
+                    match vOpt with
+                    | Some v -> (tw + w, ws + w * v)
+                    | None -> (tw, ws)) (0.0, 0.0)
+
+            if totalWeight = 0.0 then None
+            else Some (5.0 * weightedSum / totalWeight)
+
+    /// Return the best inverted wing-backs (support, right side) as a list of (Name, Score) sorted descending by score.
+    /// If `topN` <= 0 all players with a score are returned; otherwise only the top `topN` are returned.
+    let bestInvertedWingBacksSupportRight (players: HTML.Player list) (topN: int) : (string * float) list =
+        let sorted =
+            players
+            |> List.choose (fun p -> roleRatingInvertedWingBackSupportRight p |> Option.map (fun s -> (p.Name, s)))
+            |> List.sortByDescending snd
+
+        if topN <= 0 then sorted else List.truncate topN sorted
+
+    /// Return only the names of the best inverted wing-backs (support, right side), ordered by rating (highest first).
+    let bestInvertedWingBacksSupportRightNames (players: HTML.Player list) (topN: int) : string list =
+        bestInvertedWingBacksSupportRight players topN |> List.map fst
+
+    // -- inserted: Inverted Wing Back (Support) — left side (DL)
+    /// Calculate a normalized role rating for "Inverted Wing Back (Support)" — targeted at left fullback/wing-back (DL/LWB).
+    /// Inverted wing-backs on the left in a support role tuck inside to link play and create chances while still
+    /// providing defensive cover. Emphasises passing, technique, off-the-ball movement, dribbling and crossing,
+    /// with reasonable stamina, pace and defensive basics.
+    let roleRatingInvertedWingBackSupportLeft (p: HTML.Player) : float option =
+        // only consider players who have a left-sided defensive/wing-back position
+        let isLeftDefender =
+            p.Position
+            |> Option.exists (fun s ->
+                let up = s.ToUpperInvariant()
+                ((up.Contains("D") && up.Contains("L")) || up.Contains("LB") || up.Contains("LWB")))
+
+        if not isLeftDefender then None
+        else
+            let toFloatOpt = Option.map float
+
+            // Weights chosen to favour linking play and progressive passing from left-back while retaining
+            // pace/stamina for overlapping and enough defensive skill to cover the flank.
+            let weightedAttrs : (float * float option) list = [
+                (1.00, toFloatOpt p.Pas)      // Passing (primary for link play)
+                (0.90, toFloatOpt p.Tec)      // Technique (control and short distribution)
+                (0.80, toFloatOpt p.OtB)      // Off the ball (movement into pockets)
+                (0.80, toFloatOpt p.Cro)      // Crossing (useful when overlapping)
+                (0.80, toFloatOpt p.Dri)      // Dribbling (carry the ball inside)
+                (0.70, toFloatOpt p.Pac)      // Pace (recoveries and attacking runs)
+                (0.60, toFloatOpt p.Acc)      // Acceleration (short bursts)
+                (0.60, toFloatOpt p.Sta)      // Stamina (up/down the flank)
+                (0.60, toFloatOpt p.Wor)      // Work rate (team duties)
+                (0.60, toFloatOpt p.Cmp)      // Composure (under pressure)
+                (0.50, toFloatOpt p.Dec)      // Decisions (when to overlap / tuck in)
+                (0.50, toFloatOpt p.Tck)      // Tackling (defensive duty)
+                (0.50, toFloatOpt p.Mar)      // Marking (defensive positioning)
+                (0.40, toFloatOpt p.Ant)      // Anticipation
+                (0.40, toFloatOpt p.Agi)      // Agility
+                (0.30, toFloatOpt p.Str)      // Strength (duels)
+            ]
+
+            let totalWeight, weightedSum =
+                weightedAttrs
+                |> List.fold (fun (tw, ws) (w, vOpt) ->
+                    match vOpt with
+                    | Some v -> (tw + w, ws + w * v)
+                    | None -> (tw, ws)) (0.0, 0.0)
+
+            if totalWeight = 0.0 then None
+            else Some (5.0 * weightedSum / totalWeight)
+
+    /// Return the best inverted wing-backs (support, left side) as a list of (Name, Score) sorted descending by score.
+    /// If `topN` <= 0 all players with a score are returned; otherwise only the top `topN` are returned.
+    let bestInvertedWingBacksSupportLeft (players: HTML.Player list) (topN: int) : (string * float) list =
+        let sorted =
+            players
+            |> List.choose (fun p -> roleRatingInvertedWingBackSupportLeft p |> Option.map (fun s -> (p.Name, s)))
+            |> List.sortByDescending snd
+
+        if topN <= 0 then sorted else List.truncate topN sorted
+
+    /// Return only the names of the best inverted wing-backs (support, left side), ordered by rating (highest first).
+    let bestInvertedWingBacksSupportLeftNames (players: HTML.Player list) (topN: int) : string list =
+        bestInvertedWingBacksSupportLeft players topN |> List.map fst
