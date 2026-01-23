@@ -131,3 +131,35 @@ module TEAM =
     let teamAsStrings (team: Team) : string list =
         teamAsPositionNameOptions team
         |> List.map (fun (role, nameOpt) -> sprintf "%s: %s" role (Option.defaultValue "Unassigned" nameOpt))
+
+    // Compute team score as the sum of each role's rating.
+    // - `teamScore` treats missing ratings as 0.0 and returns a float total.
+    // - `teamScoreOption` returns None if any role has no rating; otherwise Some total.
+    let teamScore (team: Team) : float =
+        let ratings =
+            [ team.SweeperKeeper.Rating
+              team.InvertedWingBackRight.Rating
+              team.InvertedWingBackLeft.Rating ]
+            @ (team.BallPlayingDefs |> List.map (fun p -> p.Rating))
+            @ [ team.WingerAttackRight.Rating
+                team.InvertedWingerLeft.Rating
+                team.BallWinningMidfielderSupport.Rating
+                team.AdvancedPlaymakerSupport.Rating
+                team.AdvancedForwardAttack.Rating
+                team.TargetManAttack.Rating ]
+        ratings |> List.sumBy (Option.defaultValue 0.0)
+
+    let teamScoreOption (team: Team) : float option =
+        let ratings =
+            [ team.SweeperKeeper.Rating
+              team.InvertedWingBackRight.Rating
+              team.InvertedWingBackLeft.Rating ]
+            @ (team.BallPlayingDefs |> List.map (fun p -> p.Rating))
+            @ [ team.WingerAttackRight.Rating
+                team.InvertedWingerLeft.Rating
+                team.BallWinningMidfielderSupport.Rating
+                team.AdvancedPlaymakerSupport.Rating
+                team.AdvancedForwardAttack.Rating
+                team.TargetManAttack.Rating ]
+        if List.exists Option.isNone ratings then None
+        else Some (ratings |> List.sumBy (Option.defaultValue 0.0))

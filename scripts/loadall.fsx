@@ -22,11 +22,18 @@ printfn "Loaded %d players from %s" (List.length players) path
 //let bestiwbsl = ROLE.bestInvertedWingBacksSupportLeft players 20
 //let bestskd = ROLE.bestSweeperKeepersDefend players 20
 
-let besttm = TEAM.buildTeam players|> TEAM.teamAsStrings
+let besttm = TEAM.buildTeam players
+let bestnms = besttm |> TEAM.teamAsStrings
+let bestscr = besttm |> TEAM.teamScore
 
 //let clubs = CLUB.allClubs players
 //let divs = CLUB.allDivisions players
 //let engdivs = divs|>List.filter (fun d -> d.Contains("England"))
 
 let div = "England (Sky Bet League Two)"
-let clubsInDiv = CLUB.clubsInDivision div players
+let clubs = CLUB.clubsInDivision div players
+let club = clubs[0]
+let clubPlayers = players|>List.filter (fun p -> p.Extras["Club"] = Some(club))
+let clubbesttm = TEAM.buildTeam clubPlayers
+let clubbestnms = clubbesttm |> TEAM.teamAsStrings
+let clubbestscr = clubbesttm |> TEAM.teamScore
