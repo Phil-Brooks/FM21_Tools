@@ -346,3 +346,60 @@ module ROLE =
     /// Return only the names of the best ball-winning midfielders (support, central midfield), ordered by rating (highest first).
     let bestBallWinningMidfieldersSupportNames (players: HTML.Player list) (topN: int) : string list =
         bestBallWinningMidfieldersSupport players topN |> List.map fst
+
+
+    /// Calculate a normalized role rating for "Ball Playing Defender (Defence, Central)" — targeted at central defenders (DC).
+    /// Emphasises passing, technique and composure while retaining defensive attributes for duels and positioning.
+    let roleRatingBallPlayingDefender (p: HTML.Player) : float option =
+        // only consider players who have a central defender position
+        let isCentralDefender =
+            p.Position
+            |> Option.exists (fun s ->
+                let up = s.ToUpperInvariant()
+                ((up.Contains("D") && up.Contains("C")) || up.Contains("CB")))
+
+        if not isCentralDefender then None
+        else
+            let toFloatOpt = Option.map float
+
+            // Weights chosen to favour passing and ball progression from the back while keeping defensive solidity.
+            let weightedAttrs : (float * float option) list = [
+                (1.20, toFloatOpt p.Pas)    // Passing (primary for ball-playing)
+                (0.90, toFloatOpt p.Tec)    // Technique (control and distribution)
+                (0.90, toFloatOpt p.Cmp)    // Composure (under pressure)
+                (0.80, toFloatOpt p.Dec)    // Decisions (choosing when to pass/drive)
+                (0.70, toFloatOpt p.Ant)    // Anticipation (reading play)
+                (0.70, toFloatOpt p.Tck)    // Tackling (defensive duty)
+                (0.60, toFloatOpt p.Mar)    // Marking
+                (0.60, toFloatOpt p.Str)    // Strength (duels)
+                (0.50, toFloatOpt p.Hea)    // Heading (defensive and attacking set pieces)
+                (0.40, toFloatOpt p.Jum)    // Jumping reach
+                (0.40, toFloatOpt p.Pac)    // Pace (recovery)
+                (0.30, toFloatOpt p.Acc)    // Acceleration
+                (0.30, toFloatOpt p.Sta)    // Stamina (sustained concentration/work)
+                (0.30, toFloatOpt p.Agg)    // Aggression
+            ]
+
+            let totalWeight, weightedSum =
+                weightedAttrs
+                |> List.fold (fun (tw, ws) (w, vOpt) ->
+                    match vOpt with
+                    | Some v -> (tw + w, ws + w * v)
+                    | None -> (tw, ws)) (0.0, 0.0)
+
+            if totalWeight = 0.0 then None
+            else Some (5.0 * weightedSum / totalWeight)
+
+    /// Return the best ball-playing central defenders as a list of (Name, Score) sorted descending by score.
+    /// If `topN` <= 0 all players with a score are returned; otherwise only the top `topN` are returned.
+    let bestBallPlayingDefenders (players: HTML.Player list) (topN: int) : (string * float) list =
+        let sorted =
+            players
+            |> List.choose (fun p -> roleRatingBallPlayingDefender p |> Option.map (fun s -> (p.Name, s)))
+            |> List.sortByDescending snd
+
+        if topN <= 0 then sorted else List.truncate topN sorted
+
+    /// Return only the names of the best ball-playing central defenders, ordered by rating (highest first).
+    let bestBallPlayingDefendersNames (players: HTML.Player list) (topN: int) : string list =
+        bestBallPlayingDefenders players topN |> List.map fst
