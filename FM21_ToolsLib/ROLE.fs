@@ -290,3 +290,59 @@ module ROLE =
     /// `topN` follows the same semantics as `bestAdvancedPlaymakersSupportMC`.
     let bestAdvancedPlaymakersSupportNames (players: HTML.Player list) (topN: int) : string list =
         bestAdvancedPlaymakersSupport players topN |> List.map fst
+
+
+    /// Calculate a normalized role rating for "Ball Winning Midfielder (Support)" — targeted at central midfield (MC).
+    /// Emphasises tackling, marking, aggression, stamina and work-rate while retaining some positional/decision attributes for support.
+    let roleRatingBallWinningMidfielderSupport (p: HTML.Player) : float option =
+        // only consider players who have a central midfield position
+        let isCentralMidPosition =
+            p.Position
+            |> Option.exists (fun s ->
+                let up = s.ToUpperInvariant()
+                up.Contains("M") && up.Contains("C"))
+
+        if not isCentralMidPosition then None
+        else
+            let toFloatOpt = Option.map float
+
+            // Weights chosen to prioritise defensive midfield attributes that win the ball and press.
+            let weightedAttrs : (float * float option) list = [
+                (1.20, toFloatOpt p.Tck)    // Tackling (primary)
+                (1.00, toFloatOpt p.Mar)    // Marking
+                (0.80, toFloatOpt p.Agg)    // Aggression
+                (0.80, toFloatOpt p.Sta)    // Stamina (sustain pressing)
+                (0.70, toFloatOpt p.Wor)    // Work rate / team work
+                (0.70, toFloatOpt p.Str)    // Strength (hold-up / duels)
+                (0.60, toFloatOpt p.Ant)    // Anticipation (reading play)
+                (0.60, toFloatOpt p.Dec)    // Decisions (positioning choices)
+                (0.50, toFloatOpt p.Cmp)    // Composure (ball retention after winning)
+                (0.40, toFloatOpt p.Pas)    // Passing (simple retention/redistribution)
+                (0.30, toFloatOpt p.Pac)    // Pace (cover ground)
+                (0.30, toFloatOpt p.Acc)    // Acceleration
+                (0.20, toFloatOpt p.Tec)    // Technique (basic ball control)
+            ]
+
+            let totalWeight, weightedSum =
+                weightedAttrs
+                |> List.fold (fun (tw, ws) (w, vOpt) ->
+                    match vOpt with
+                    | Some v -> (tw + w, ws + w * v)
+                    | None -> (tw, ws)) (0.0, 0.0)
+
+            if totalWeight = 0.0 then None
+            else Some (5.0 * weightedSum / totalWeight)
+
+    /// Return the best ball-winning midfielders (support, central midfield) as a list of (Name, Score) sorted descending by score.
+    /// If `topN` <= 0 all players with a score are returned; otherwise only the top `topN` are returned.
+    let bestBallWinningMidfieldersSupport (players: HTML.Player list) (topN: int) : (string * float) list =
+        let sorted =
+            players
+            |> List.choose (fun p -> roleRatingBallWinningMidfielderSupport p |> Option.map (fun s -> (p.Name, s)))
+            |> List.sortByDescending snd
+
+        if topN <= 0 then sorted else List.truncate topN sorted
+
+    /// Return only the names of the best ball-winning midfielders (support, central midfield), ordered by rating (highest first).
+    let bestBallWinningMidfieldersSupportNames (players: HTML.Player list) (topN: int) : string list =
+        bestBallWinningMidfieldersSupport players topN |> List.map fst
