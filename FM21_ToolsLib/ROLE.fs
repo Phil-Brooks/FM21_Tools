@@ -7,6 +7,17 @@ module ROLE =
     // small helpers to reduce repetition
     let private toFloatOpt = Option.map float
 
+    // Helpers to adapt to new Player shape (Extras: Map<string,string option>, Attributes: Map<string,int option>)
+    let private getExtra (p: HTML.Player) (key: string) : string option =
+        match Map.tryFind key p.Extras with
+        | Some v -> v
+        | None -> None
+
+    let private getAttr (p: HTML.Player) (key: string) : int option =
+        match Map.tryFind key p.Attributes with
+        | Some v -> v
+        | None -> None
+
     let private weightedScore (weightedAttrs: (float * float option) list) : float option =
         let totalWeight, weightedSum =
             weightedAttrs
@@ -18,7 +29,7 @@ module ROLE =
         if totalWeight = 0.0 then None else Some (5.0 * weightedSum / totalWeight)
 
     let private posMatches (p: HTML.Player) (predicate: string -> bool) =
-        p.Position |> Option.exists (fun s -> predicate (s.ToUpperInvariant()))
+        getExtra p "Position" |> Option.exists (fun s -> predicate (s.ToUpperInvariant()))
 
     let private bestBy (rating: HTML.Player -> float option) (players: HTML.Player list) (topN: int) : (string * float) list =
         let sorted =
@@ -36,19 +47,19 @@ module ROLE =
         if not isForwardPosition then None
         else
             let weightedAttrs : (float * float option) list = [
-                (0.40, toFloatOpt p.Dri)
-                (0.60, toFloatOpt p.Fin)
-                (0.60, toFloatOpt p.Fir)
-                (0.60, toFloatOpt p.Hea)
-                (0.20, toFloatOpt p.Pas)
-                (0.40, toFloatOpt p.Tec)
-                (0.40, toFloatOpt p.Ant)
-                (0.60, toFloatOpt p.Cmp)
-                (1.00, toFloatOpt p.Acc)
-                (0.40, toFloatOpt p.Agi)
-                (0.60, toFloatOpt p.Jum)
-                (1.00, toFloatOpt p.Pac)
-                (0.60, toFloatOpt p.Str)
+                (0.40, toFloatOpt (getAttr p "Dri"))
+                (0.60, toFloatOpt (getAttr p "Fin"))
+                (0.60, toFloatOpt (getAttr p "Fir"))
+                (0.60, toFloatOpt (getAttr p "Hea"))
+                (0.20, toFloatOpt (getAttr p "Pas"))
+                (0.40, toFloatOpt (getAttr p "Tec"))
+                (0.40, toFloatOpt (getAttr p "Ant"))
+                (0.60, toFloatOpt (getAttr p "Cmp"))
+                (1.00, toFloatOpt (getAttr p "Acc"))
+                (0.40, toFloatOpt (getAttr p "Agi"))
+                (0.60, toFloatOpt (getAttr p "Jum"))
+                (1.00, toFloatOpt (getAttr p "Pac"))
+                (0.60, toFloatOpt (getAttr p "Str"))
             ]
             weightedScore weightedAttrs
 
@@ -66,19 +77,19 @@ module ROLE =
         if not isForwardPosition then None
         else
             let weightedAttrs : (float * float option) list = [
-                (1.00, toFloatOpt p.Pac)
-                (1.00, toFloatOpt p.Acc)
-                (1.00, toFloatOpt p.Fin)
-                (0.80, toFloatOpt p.Dri)
-                (0.60, toFloatOpt p.Fir)
-                (0.60, toFloatOpt p.OtB)
-                (0.60, toFloatOpt p.Tec)
-                (0.60, toFloatOpt p.Ant)
-                (0.60, toFloatOpt p.Cmp)
-                (0.40, toFloatOpt p.Agi)
-                (0.40, toFloatOpt p.Bal)
-                (0.20, toFloatOpt p.Sta)
-                (0.20, toFloatOpt p.Pas)
+                (1.00, toFloatOpt (getAttr p "Pac"))
+                (1.00, toFloatOpt (getAttr p "Acc"))
+                (1.00, toFloatOpt (getAttr p "Fin"))
+                (0.80, toFloatOpt (getAttr p "Dri"))
+                (0.60, toFloatOpt (getAttr p "Fir"))
+                (0.60, toFloatOpt (getAttr p "OtB"))
+                (0.60, toFloatOpt (getAttr p "Tec"))
+                (0.60, toFloatOpt (getAttr p "Ant"))
+                (0.60, toFloatOpt (getAttr p "Cmp"))
+                (0.40, toFloatOpt (getAttr p "Agi"))
+                (0.40, toFloatOpt (getAttr p "Bal"))
+                (0.20, toFloatOpt (getAttr p "Sta"))
+                (0.20, toFloatOpt (getAttr p "Pas"))
             ]
             weightedScore weightedAttrs
 
@@ -96,18 +107,18 @@ module ROLE =
         if not isRightWingPosition then None
         else
             let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt p.Cro)
-                (1.00, toFloatOpt p.Pac)
-                (1.00, toFloatOpt p.Acc)
-                (0.80, toFloatOpt p.Dri)
-                (0.60, toFloatOpt p.Tec)
-                (0.60, toFloatOpt p.Pas)
-                (0.60, toFloatOpt p.OtB)
-                (0.40, toFloatOpt p.OneVOne)
-                (0.40, toFloatOpt p.Agi)
-                (0.40, toFloatOpt p.Fla)
-                (0.20, toFloatOpt p.Sta)
-                (0.20, toFloatOpt p.Fin)
+                (1.20, toFloatOpt (getAttr p "Cro"))
+                (1.00, toFloatOpt (getAttr p "Pac"))
+                (1.00, toFloatOpt (getAttr p "Acc"))
+                (0.80, toFloatOpt (getAttr p "Dri"))
+                (0.60, toFloatOpt (getAttr p "Tec"))
+                (0.60, toFloatOpt (getAttr p "Pas"))
+                (0.60, toFloatOpt (getAttr p "OtB"))
+                (0.40, toFloatOpt (getAttr p "OneVOne"))
+                (0.40, toFloatOpt (getAttr p "Agi"))
+                (0.40, toFloatOpt (getAttr p "Fla"))
+                (0.20, toFloatOpt (getAttr p "Sta"))
+                (0.20, toFloatOpt (getAttr p "Fin"))
             ]
             weightedScore weightedAttrs
 
@@ -125,20 +136,20 @@ module ROLE =
         if not isLeftWingPosition then None
         else
             let weightedAttrs : (float * float option) list = [
-                (0.40, toFloatOpt p.Cro)
-                (0.90, toFloatOpt p.Pas)
-                (0.80, toFloatOpt p.Tec)
-                (0.80, toFloatOpt p.OtB)
-                (0.80, toFloatOpt p.Dri)
-                (0.60, toFloatOpt p.Fla)
-                (0.50, toFloatOpt p.OneVOne)
-                (0.60, toFloatOpt p.Cmp)
-                (0.50, toFloatOpt p.Ant)
-                (0.60, toFloatOpt p.Acc)
-                (0.60, toFloatOpt p.Pac)
-                (0.40, toFloatOpt p.Agi)
-                (0.20, toFloatOpt p.Sta)
-                (0.20, toFloatOpt p.Fin)
+                (0.40, toFloatOpt (getAttr p "Cro"))
+                (0.90, toFloatOpt (getAttr p "Pas"))
+                (0.80, toFloatOpt (getAttr p "Tec"))
+                (0.80, toFloatOpt (getAttr p "OtB"))
+                (0.80, toFloatOpt (getAttr p "Dri"))
+                (0.60, toFloatOpt (getAttr p "Fla"))
+                (0.50, toFloatOpt (getAttr p "OneVOne"))
+                (0.60, toFloatOpt (getAttr p "Cmp"))
+                (0.50, toFloatOpt (getAttr p "Ant"))
+                (0.60, toFloatOpt (getAttr p "Acc"))
+                (0.60, toFloatOpt (getAttr p "Pac"))
+                (0.40, toFloatOpt (getAttr p "Agi"))
+                (0.20, toFloatOpt (getAttr p "Sta"))
+                (0.20, toFloatOpt (getAttr p "Fin"))
             ]
             weightedScore weightedAttrs
 
@@ -156,17 +167,17 @@ module ROLE =
         if not isCentralMidPosition then None
         else
             let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt p.Pas)
-                (0.90, toFloatOpt p.Tec)
-                (0.90, toFloatOpt p.OtB)
-                (0.80, toFloatOpt p.Ant)
-                (0.80, toFloatOpt p.Cmp)
-                (0.60, toFloatOpt p.Fir)
-                (0.60, toFloatOpt p.Dri)
-                (0.50, toFloatOpt p.Fla)
-                (0.40, toFloatOpt p.Acc)
-                (0.40, toFloatOpt p.Pac)
-                (0.30, toFloatOpt p.Sta)
+                (1.20, toFloatOpt (getAttr p "Pas"))
+                (0.90, toFloatOpt (getAttr p "Tec"))
+                (0.90, toFloatOpt (getAttr p "OtB"))
+                (0.80, toFloatOpt (getAttr p "Ant"))
+                (0.80, toFloatOpt (getAttr p "Cmp"))
+                (0.60, toFloatOpt (getAttr p "Fir"))
+                (0.60, toFloatOpt (getAttr p "Dri"))
+                (0.50, toFloatOpt (getAttr p "Fla"))
+                (0.40, toFloatOpt (getAttr p "Acc"))
+                (0.40, toFloatOpt (getAttr p "Pac"))
+                (0.30, toFloatOpt (getAttr p "Sta"))
             ]
             weightedScore weightedAttrs
 
@@ -184,19 +195,19 @@ module ROLE =
         if not isCentralMidPosition then None
         else
             let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt p.Tck)
-                (1.00, toFloatOpt p.Mar)
-                (0.80, toFloatOpt p.Agg)
-                (0.80, toFloatOpt p.Sta)
-                (0.70, toFloatOpt p.Wor)
-                (0.70, toFloatOpt p.Str)
-                (0.60, toFloatOpt p.Ant)
-                (0.60, toFloatOpt p.Dec)
-                (0.50, toFloatOpt p.Cmp)
-                (0.40, toFloatOpt p.Pas)
-                (0.30, toFloatOpt p.Pac)
-                (0.30, toFloatOpt p.Acc)
-                (0.20, toFloatOpt p.Tec)
+                (1.20, toFloatOpt (getAttr p "Tck"))
+                (1.00, toFloatOpt (getAttr p "Mar"))
+                (0.80, toFloatOpt (getAttr p "Agg"))
+                (0.80, toFloatOpt (getAttr p "Sta"))
+                (0.70, toFloatOpt (getAttr p "Wor"))
+                (0.70, toFloatOpt (getAttr p "Str"))
+                (0.60, toFloatOpt (getAttr p "Ant"))
+                (0.60, toFloatOpt (getAttr p "Dec"))
+                (0.50, toFloatOpt (getAttr p "Cmp"))
+                (0.40, toFloatOpt (getAttr p "Pas"))
+                (0.30, toFloatOpt (getAttr p "Pac"))
+                (0.30, toFloatOpt (getAttr p "Acc"))
+                (0.20, toFloatOpt (getAttr p "Tec"))
             ]
             weightedScore weightedAttrs
 
@@ -214,20 +225,20 @@ module ROLE =
         if not isCentralDefender then None
         else
             let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt p.Pas)
-                (0.90, toFloatOpt p.Tec)
-                (0.90, toFloatOpt p.Cmp)
-                (0.80, toFloatOpt p.Dec)
-                (0.70, toFloatOpt p.Ant)
-                (0.70, toFloatOpt p.Tck)
-                (0.60, toFloatOpt p.Mar)
-                (0.60, toFloatOpt p.Str)
-                (0.50, toFloatOpt p.Hea)
-                (0.40, toFloatOpt p.Jum)
-                (0.40, toFloatOpt p.Pac)
-                (0.30, toFloatOpt p.Acc)
-                (0.30, toFloatOpt p.Sta)
-                (0.30, toFloatOpt p.Agg)
+                (1.20, toFloatOpt (getAttr p "Pas"))
+                (0.90, toFloatOpt (getAttr p "Tec"))
+                (0.90, toFloatOpt (getAttr p "Cmp"))
+                (0.80, toFloatOpt (getAttr p "Dec"))
+                (0.70, toFloatOpt (getAttr p "Ant"))
+                (0.70, toFloatOpt (getAttr p "Tck"))
+                (0.60, toFloatOpt (getAttr p "Mar"))
+                (0.60, toFloatOpt (getAttr p "Str"))
+                (0.50, toFloatOpt (getAttr p "Hea"))
+                (0.40, toFloatOpt (getAttr p "Jum"))
+                (0.40, toFloatOpt (getAttr p "Pac"))
+                (0.30, toFloatOpt (getAttr p "Acc"))
+                (0.30, toFloatOpt (getAttr p "Sta"))
+                (0.30, toFloatOpt (getAttr p "Agg"))
             ]
             weightedScore weightedAttrs
 
@@ -245,22 +256,22 @@ module ROLE =
         if not isRightDefender then None
         else
             let weightedAttrs : (float * float option) list = [
-                (1.00, toFloatOpt p.Pas)
-                (0.90, toFloatOpt p.Tec)
-                (0.80, toFloatOpt p.OtB)
-                (0.80, toFloatOpt p.Cro)
-                (0.80, toFloatOpt p.Dri)
-                (0.70, toFloatOpt p.Pac)
-                (0.60, toFloatOpt p.Acc)
-                (0.60, toFloatOpt p.Sta)
-                (0.60, toFloatOpt p.Wor)
-                (0.60, toFloatOpt p.Cmp)
-                (0.50, toFloatOpt p.Dec)
-                (0.50, toFloatOpt p.Tck)
-                (0.50, toFloatOpt p.Mar)
-                (0.40, toFloatOpt p.Ant)
-                (0.40, toFloatOpt p.Agi)
-                (0.30, toFloatOpt p.Str)
+                (1.00, toFloatOpt (getAttr p "Pas"))
+                (0.90, toFloatOpt (getAttr p "Tec"))
+                (0.80, toFloatOpt (getAttr p "OtB"))
+                (0.80, toFloatOpt (getAttr p "Cro"))
+                (0.80, toFloatOpt (getAttr p "Dri"))
+                (0.70, toFloatOpt (getAttr p "Pac"))
+                (0.60, toFloatOpt (getAttr p "Acc"))
+                (0.60, toFloatOpt (getAttr p "Sta"))
+                (0.60, toFloatOpt (getAttr p "Wor"))
+                (0.60, toFloatOpt (getAttr p "Cmp"))
+                (0.50, toFloatOpt (getAttr p "Dec"))
+                (0.50, toFloatOpt (getAttr p "Tck"))
+                (0.50, toFloatOpt (getAttr p "Mar"))
+                (0.40, toFloatOpt (getAttr p "Ant"))
+                (0.40, toFloatOpt (getAttr p "Agi"))
+                (0.30, toFloatOpt (getAttr p "Str"))
             ]
             weightedScore weightedAttrs
 
@@ -278,22 +289,22 @@ module ROLE =
         if not isLeftDefender then None
         else
             let weightedAttrs : (float * float option) list = [
-                (1.00, toFloatOpt p.Pas)
-                (0.90, toFloatOpt p.Tec)
-                (0.80, toFloatOpt p.OtB)
-                (0.80, toFloatOpt p.Cro)
-                (0.80, toFloatOpt p.Dri)
-                (0.70, toFloatOpt p.Pac)
-                (0.60, toFloatOpt p.Acc)
-                (0.60, toFloatOpt p.Sta)
-                (0.60, toFloatOpt p.Wor)
-                (0.60, toFloatOpt p.Cmp)
-                (0.50, toFloatOpt p.Dec)
-                (0.50, toFloatOpt p.Tck)
-                (0.50, toFloatOpt p.Mar)
-                (0.40, toFloatOpt p.Ant)
-                (0.40, toFloatOpt p.Agi)
-                (0.30, toFloatOpt p.Str)
+                (1.00, toFloatOpt (getAttr p "Pas"))
+                (0.90, toFloatOpt (getAttr p "Tec"))
+                (0.80, toFloatOpt (getAttr p "OtB"))
+                (0.80, toFloatOpt (getAttr p "Cro"))
+                (0.80, toFloatOpt (getAttr p "Dri"))
+                (0.70, toFloatOpt (getAttr p "Pac"))
+                (0.60, toFloatOpt (getAttr p "Acc"))
+                (0.60, toFloatOpt (getAttr p "Sta"))
+                (0.60, toFloatOpt (getAttr p "Wor"))
+                (0.60, toFloatOpt (getAttr p "Cmp"))
+                (0.50, toFloatOpt (getAttr p "Dec"))
+                (0.50, toFloatOpt (getAttr p "Tck"))
+                (0.50, toFloatOpt (getAttr p "Mar"))
+                (0.40, toFloatOpt (getAttr p "Ant"))
+                (0.40, toFloatOpt (getAttr p "Agi"))
+                (0.30, toFloatOpt (getAttr p "Str"))
             ]
             weightedScore weightedAttrs
 
@@ -311,19 +322,19 @@ module ROLE =
         if not isGoalkeeper then None
         else
             let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt p.Ref)
-                (1.00, toFloatOpt p.Han)
-                (0.90, toFloatOpt p.Pos)
-                (0.80, toFloatOpt p.Kic)
-                (0.70, toFloatOpt p.Cmd)
-                (0.60, toFloatOpt p.Thr)
-                (0.60, toFloatOpt p.OneVOne)
-                (0.50, toFloatOpt p.Pun)
-                (0.40, toFloatOpt p.Com)
-                (0.30, toFloatOpt p.Ecc)
-                (0.30, toFloatOpt p.Aer)
-                (0.20, toFloatOpt p.Acc)
-                (0.20, toFloatOpt p.Pac)
+                (1.20, toFloatOpt (getAttr p "Ref"))
+                (1.00, toFloatOpt (getAttr p "Han"))
+                (0.90, toFloatOpt (getAttr p "Pos"))
+                (0.80, toFloatOpt (getAttr p "Kic"))
+                (0.70, toFloatOpt (getAttr p "Cmd"))
+                (0.60, toFloatOpt (getAttr p "Thr"))
+                (0.60, toFloatOpt (getAttr p "OneVOne"))
+                (0.50, toFloatOpt (getAttr p "Pun"))
+                (0.40, toFloatOpt (getAttr p "Com"))
+                (0.30, toFloatOpt (getAttr p "Ecc"))
+                (0.30, toFloatOpt (getAttr p "Aer"))
+                (0.20, toFloatOpt (getAttr p "Acc"))
+                (0.20, toFloatOpt (getAttr p "Pac"))
             ]
             weightedScore weightedAttrs
 

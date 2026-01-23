@@ -7,68 +7,18 @@ open System.Net
 
 module HTML =
 
-    /// Player record matching the columns in `data/all.html`
+    /// Simplified player record:
+    /// - keeps original leading string columns
+    /// - groups the six inserted string columns into `Extras`
+    /// - groups the many numeric attributes into `Attributes` by name
     type Player = {
         Rec: string
         Inf: string
         Name: string
         DoB: string
         Height: string
-        // new columns inserted after Height in the HTML table
-        Value: string option
-        TransferStatus: string option
-        LoanStatus: string option
-        /// Position text (e.g. "ST, AMR" or "F C") — used to filter by role
-        Position: string option
-        Based: string option
-        Club: string option
-        Acc: int option
-        Agi: int option
-        Bal: int option
-        Jum: int option
-        Nat: int option
-        Pac: int option
-        Sta: int option
-        Str: int option
-        Agg: int option
-        Ant: int option
-        Bra: int option
-        Cmp: int option
-        Cnt: int option
-        Dec: int option
-        Det: int option
-        Fla: int option
-        Ldr: int option
-        OtB: int option
-        Pos: int option
-        Tea: int option
-        Vis: int option
-        Wor: int option
-        Cor: int option
-        Cro: int option
-        Dri: int option
-        Fin: int option
-        Fir: int option
-        Fre: int option
-        Hea: int option
-        Lon: int option
-        LTh: int option
-        Mar: int option
-        Pas: int option
-        Pen: int option
-        Tck: int option
-        Tec: int option
-        Aer: int option
-        Cmd: int option
-        Com: int option
-        OneVOne: int option
-        Han: int option
-        Kic: int option
-        Ecc: int option
-        Pun: int option
-        Ref: int option
-        TRO: int option
-        Thr: int option
+        Extras: Map<string,string option>
+        Attributes: Map<string,int option>
     }
 
     let private tryParseInt (s: string) : int option =
@@ -85,8 +35,7 @@ module HTML =
         let withoutTags = Regex.Replace(s, "<.*?>", "", RegexOptions.Singleline)
         WebUtility.HtmlDecode(withoutTags).Trim()
 
-    /// Load players from an HTML file containing the table like `data/test.html`.
-    /// Path should point to the HTML file (relative or absolute).
+    /// Load players from an HTML file containing the table like `data/all.html`.
     let loadPlayers (path: string) : Player list =
         let content = File.ReadAllText(path)
         // find the first <table> ... </table> (singleline + ignore case)
@@ -101,6 +50,14 @@ module HTML =
                 [ for i = 0 to trMatches.Count - 1 do
                     yield trMatches.[i].Groups.[1].Value ]
             // first tr is header — skip it
+            let extraNames = [ "Value"; "TransferStatus"; "LoanStatus"; "Position"; "Based"; "Club" ]
+            let numericNames = [
+                "Acc"; "Agi"; "Bal"; "Jum"; "Nat"; "Pac"; "Sta"; "Str"; "Agg"; "Ant"; "Bra"; "Cmp";
+                "Cnt"; "Dec"; "Det"; "Fla"; "Ldr"; "OtB"; "Pos"; "Tea"; "Vis"; "Wor"; "Cor"; "Cro";
+                "Dri"; "Fin"; "Fir"; "Fre"; "Hea"; "Lon"; "LTh"; "Mar"; "Pas"; "Pen"; "Tck"; "Tec";
+                "Aer"; "Cmd"; "Com"; "OneVOne"; "Han"; "Kic"; "Ecc"; "Pun"; "Ref"; "TRO"; "Thr"
+            ]
+
             trList
             |> List.skip 1
             |> List.choose (fun trHtml ->
@@ -110,13 +67,23 @@ module HTML =
                     [ for i = 0 to tdMatches.Count - 1 do
                         yield stripHtml(tdMatches.[i].Groups.[1].Value) ]
 
-                // updated to expect the new number of columns (58) — six additional columns
-                // (Value, Transfer Status, Loan Status, Position, Based, Club) inserted after Height
+                // expect at least 58 columns (0..57) as before
                 if tds.Length >= 58 then
-                    // small helpers to reduce repetition
+                    // helpers
                     let td i = tds.[i]
-                    let p i = tryParseInt (td i)
                     let maybe s = if String.IsNullOrWhiteSpace s then None else Some s
+
+                    // build extras map from indices 5..10
+                    let extras =
+                        extraNames
+                        |> List.mapi (fun idx name -> name, maybe (td (5 + idx)))
+                        |> Map.ofList
+
+                    // build attributes map from indices 11..
+                    let attributes =
+                        numericNames
+                        |> List.mapi (fun idx name -> name, tryParseInt (td (11 + idx)))
+                        |> Map.ofList
 
                     Some {
                         Rec = td 0
@@ -124,61 +91,8 @@ module HTML =
                         Name = td 2
                         DoB = td 3
                         Height = td 4
-                        // new string fields from the inserted columns
-                        Value = maybe (td 5)
-                        TransferStatus = maybe (td 6)
-                        LoanStatus = maybe (td 7)
-                        Position = maybe (td 8)
-                        Based = maybe (td 9)
-                        Club = maybe (td 10)
-                        // numeric fields (shifted by +6 between Height and Acc)
-                        Acc = p 11
-                        Agi = p 12
-                        Bal = p 13
-                        Jum = p 14
-                        Nat = p 15
-                        Pac = p 16
-                        Sta = p 17
-                        Str = p 18
-                        Agg = p 19
-                        Ant = p 20
-                        Bra = p 21
-                        Cmp = p 22
-                        Cnt = p 23
-                        Dec = p 24
-                        Det = p 25
-                        Fla = p 26
-                        Ldr = p 27
-                        OtB = p 28
-                        Pos = p 29
-                        Tea = p 30
-                        Vis = p 31
-                        Wor = p 32
-                        Cor = p 33
-                        Cro = p 34
-                        Dri = p 35
-                        Fin = p 36
-                        Fir = p 37
-                        Fre = p 38
-                        Hea = p 39
-                        Lon = p 40
-                        LTh = p 41
-                        Mar = p 42
-                        Pas = p 43
-                        Pen = p 44
-                        Tck = p 45
-                        Tec = p 46
-                        Aer = p 47
-                        Cmd = p 48
-                        Com = p 49
-                        OneVOne = p 50
-                        Han = p 51
-                        Kic = p 52
-                        Ecc = p 53
-                        Pun = p 54
-                        Ref = p 55
-                        TRO = p 56
-                        Thr = p 57
+                        Extras = extras
+                        Attributes = attributes
                     }
                 else None)
 
