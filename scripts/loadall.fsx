@@ -16,3 +16,5 @@ let tma =
 let besttma = ROLE.bestTargetMenAttack players 20
 
 let bestafa = ROLE.bestAdvancedForwardsAttack players 20
+
+let bestwar = ROLE.bestWingersAttackRight players 20
