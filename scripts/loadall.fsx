@@ -1,0 +1,16 @@
+#r "../FM21_ToolsLib/bin/Debug/net10.0/FM21_ToolsLib.dll"
+
+open FM21_ToolsLib
+
+let path = "../data/all.html"
+let players = HTML.loadPlayers path
+
+printfn "Loaded %d players from %s" (List.length players) path
+
+let messi = players |> List.find (fun p -> p.Name = "Lionel Messi")
+
+let tma =
+    ROLE.roleRatingTargetManAttack messi
+    |> Option.defaultWith (fun () -> failwith "No Target Man Attack rating for Lionel Messi")
+
+let best = ROLE.bestTargetMenAttack players 20
