@@ -14,6 +14,14 @@ module HTML =
         Name: string
         DoB: string
         Height: string
+        // new columns inserted after Height in the HTML table
+        Value: string option
+        TransferStatus: string option
+        LoanStatus: string option
+        /// Position text (e.g. "ST, AMR" or "F C") — used to filter by role
+        Position: string option
+        Based: string option
+        Club: string option
         Acc: int option
         Agi: int option
         Bal: int option
@@ -32,8 +40,6 @@ module HTML =
         Fla: int option
         Ldr: int option
         OtB: int option
-        /// Position text (e.g. "ST, AMR" or "F C") — used to filter by role
-        Position: string option
         Pos: int option
         Tea: int option
         Vis: int option
@@ -118,7 +124,13 @@ module HTML =
                         Name = td 2
                         DoB = td 3
                         Height = td 4
+                        // new string fields from the inserted columns
+                        Value = maybe (td 5)
+                        TransferStatus = maybe (td 6)
+                        LoanStatus = maybe (td 7)
                         Position = maybe (td 8)
+                        Based = maybe (td 9)
+                        Club = maybe (td 10)
                         // numeric fields (shifted by +6 between Height and Acc)
                         Acc = p 11
                         Agi = p 12
