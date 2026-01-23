@@ -30,3 +30,5 @@ let bestbpd = ROLE.bestBallPlayingDefenders players 20
 let bestiwbsr = ROLE.bestInvertedWingBacksSupportRight players 20
 
 let bestiwbsl = ROLE.bestInvertedWingBacksSupportLeft players 20
+
+let bestskd = ROLE.bestSweeperKeepersDefend players 20

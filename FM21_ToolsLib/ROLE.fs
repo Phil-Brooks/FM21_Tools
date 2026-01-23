@@ -527,3 +527,59 @@ module ROLE =
     /// Return only the names of the best inverted wing-backs (support, left side), ordered by rating (highest first).
     let bestInvertedWingBacksSupportLeftNames (players: HTML.Player list) (topN: int) : string list =
         bestInvertedWingBacksSupportLeft players topN |> List.map fst
+
+
+    /// Calculate a normalized role rating for "Sweeper Keeper (Defend)" — targeted at goalkeepers (GK).
+    /// Emphasises reflexes, handling, positioning and distribution for a keeper who acts as an outfield sweeper.
+    let roleRatingSweeperKeeperDefend (p: HTML.Player) : float option =
+        // only consider players who have a goalkeeper position
+        let isGoalkeeper =
+            p.Position
+            |> Option.exists (fun s ->
+                let up = s.ToUpperInvariant()
+                up.Contains("GK") || up.Contains("G K") || up.Contains("GOAL"))
+
+        if not isGoalkeeper then None
+        else
+            let toFloatOpt = Option.map float
+
+            // Weights chosen to favour shot-stopping and modern sweeper-keeper traits (distribution + speed).
+            let weightedAttrs : (float * float option) list = [
+                (1.20, toFloatOpt p.Ref)       // Reflexes (primary shot-stopping)
+                (1.00, toFloatOpt p.Han)       // Handling
+                (0.90, toFloatOpt p.Pos)       // Positioning (numeric Pos)
+                (0.80, toFloatOpt p.Kic)       // Kicking (long distribution)
+                (0.70, toFloatOpt p.Cmd)       // Command of area
+                (0.60, toFloatOpt p.Thr)       // Throwing (short distribution)
+                (0.60, toFloatOpt p.OneVOne)   // 1v1 (sweeper actions)
+                (0.50, toFloatOpt p.Pun)       // Punching
+                (0.40, toFloatOpt p.Com)       // Communication / composure
+                (0.30, toFloatOpt p.Ecc)       // Eccentricity (risk-taking)
+                (0.30, toFloatOpt p.Aer)       // Aerial reach / dealing with crosses
+                (0.20, toFloatOpt p.Acc)       // Acceleration (get off line quickly)
+                (0.20, toFloatOpt p.Pac)       // Pace (cover behind defence)
+            ]
+
+            let totalWeight, weightedSum =
+                weightedAttrs
+                |> List.fold (fun (tw, ws) (w, vOpt) ->
+                    match vOpt with
+                    | Some v -> (tw + w, ws + w * v)
+                    | None -> (tw, ws)) (0.0, 0.0)
+
+            if totalWeight = 0.0 then None
+            else Some (5.0 * weightedSum / totalWeight)
+
+    /// Return the best sweeper-keepers (defend) as a list of (Name, Score) sorted descending by score.
+    /// If `topN` <= 0 all players with a score are returned; otherwise only the top `topN` are returned.
+    let bestSweeperKeepersDefend (players: HTML.Player list) (topN: int) : (string * float) list =
+        let sorted =
+            players
+            |> List.choose (fun p -> roleRatingSweeperKeeperDefend p |> Option.map (fun s -> (p.Name, s)))
+            |> List.sortByDescending snd
+
+        if topN <= 0 then sorted else List.truncate topN sorted
+
+    /// Return only the names of the best sweeper-keepers (defend), ordered by rating (highest first).
+    let bestSweeperKeepersDefendNames (players: HTML.Player list) (topN: int) : string list =
+        bestSweeperKeepersDefend players topN |> List.map fst
