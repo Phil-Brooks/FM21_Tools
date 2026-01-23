@@ -111,3 +111,23 @@ module TEAM =
           AdvancedPlaymakerSupport = apPos
           AdvancedForwardAttack = afaPos
           TargetManAttack = tmaPos }
+
+    // Return list of (RoleName * PlayerName option) preserving the same ordering used by buildTeam.
+    let teamAsPositionNameOptions (team: Team) : (string * string option) list =
+        let posToTuple (p: Position) = (p.RoleName, p.PlayerName)
+        let bpd = team.BallPlayingDefs |> List.map posToTuple
+        [ posToTuple team.SweeperKeeper
+          posToTuple team.InvertedWingBackRight
+          posToTuple team.InvertedWingBackLeft ]
+        @ bpd
+        @ [ posToTuple team.WingerAttackRight
+            posToTuple team.InvertedWingerLeft
+            posToTuple team.BallWinningMidfielderSupport
+            posToTuple team.AdvancedPlaymakerSupport
+            posToTuple team.AdvancedForwardAttack
+            posToTuple team.TargetManAttack ]
+
+    // Convenience: return list of "RoleName: PlayerName" strings, with "Unassigned" for missing names.
+    let teamAsStrings (team: Team) : string list =
+        teamAsPositionNameOptions team
+        |> List.map (fun (role, nameOpt) -> sprintf "%s: %s" role (Option.defaultValue "Unassigned" nameOpt))
