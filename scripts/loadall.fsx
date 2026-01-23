@@ -13,4 +13,6 @@ let tma =
     ROLE.roleRatingTargetManAttack messi
     |> Option.defaultWith (fun () -> failwith "No Target Man Attack rating for Lionel Messi")
 
-let best = ROLE.bestTargetMenAttack players 20
+let besttma = ROLE.bestTargetMenAttack players 20
+
+let bestafa = ROLE.bestAdvancedForwardsAttack players 20
