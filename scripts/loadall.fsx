@@ -20,3 +20,5 @@ let bestafa = ROLE.bestAdvancedForwardsAttack players 20
 let bestwar = ROLE.bestWingersAttackRight players 20
 
 let bestiwsl = ROLE.bestInvertedWingersSupportLeft players 20
+
+let bestaps = ROLE.bestAdvancedPlaymakersSupport players 20

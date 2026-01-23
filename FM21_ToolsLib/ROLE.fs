@@ -235,3 +235,58 @@ module ROLE =
     /// `topN` follows the same semantics as `bestInvertedWingersSupportLeft`.
     let bestInvertedWingersSupportLeftNames (players: HTML.Player list) (topN: int) : string list =
         bestInvertedWingersSupportLeft players topN |> List.map fst
+
+
+    /// Calculate a normalized role rating for "Advanced Playmaker (Support)" — targeted at central midfield (MC).
+    /// Emphasises passing, technique, off-the-ball movement, anticipation and composure.
+    let roleRatingAdvancedPlaymakerSupport (p: HTML.Player) : float option =
+        // only consider players who have a central midfield position
+        let isCentralMidPosition =
+            p.Position
+            |> Option.exists (fun s ->
+                let up = s.ToUpperInvariant()
+                up.Contains("M") && up.Contains("C"))
+
+        if not isCentralMidPosition then None
+        else
+            let toFloatOpt = Option.map float
+
+            // Weights chosen to prioritise chance creation and control in midfield.
+            let weightedAttrs : (float * float option) list = [
+                (1.20, toFloatOpt p.Pas)    // Passing (primary)
+                (0.90, toFloatOpt p.Tec)    // Technique
+                (0.90, toFloatOpt p.OtB)    // Off the ball (movement into pockets)
+                (0.80, toFloatOpt p.Ant)    // Anticipation
+                (0.80, toFloatOpt p.Cmp)    // Composure
+                (0.60, toFloatOpt p.Fir)    // First touch
+                (0.60, toFloatOpt p.Dri)    // Dribbling (retain ball and combine)
+                (0.50, toFloatOpt p.Fla)    // Flair (creative instinct)
+                (0.40, toFloatOpt p.Acc)    // Acceleration (short bursts)
+                (0.40, toFloatOpt p.Pac)    // Pace (covering ground)
+                (0.30, toFloatOpt p.Sta)    // Stamina (work rate)
+            ]
+
+            let totalWeight, weightedSum =
+                weightedAttrs
+                |> List.fold (fun (tw, ws) (w, vOpt) ->
+                    match vOpt with
+                    | Some v -> (tw + w, ws + w * v)
+                    | None -> (tw, ws)) (0.0, 0.0)
+
+            if totalWeight = 0.0 then None
+            else Some (5.0 * weightedSum / totalWeight)
+
+    /// Return the best advanced playmakers (support, central midfield) as a list of (Name, Score) sorted descending by score.
+    /// If `topN` <= 0 all players with a score are returned; otherwise only the top `topN` are returned.
+    let bestAdvancedPlaymakersSupport (players: HTML.Player list) (topN: int) : (string * float) list =
+        let sorted =
+            players
+            |> List.choose (fun p -> roleRatingAdvancedPlaymakerSupport p |> Option.map (fun s -> (p.Name, s)))
+            |> List.sortByDescending snd
+
+        if topN <= 0 then sorted else List.truncate topN sorted
+
+    /// Return only the names of the best advanced playmakers (support, central midfield), ordered by rating (highest first).
+    /// `topN` follows the same semantics as `bestAdvancedPlaymakersSupportMC`.
+    let bestAdvancedPlaymakersSupportNames (players: HTML.Player list) (topN: int) : string list =
+        bestAdvancedPlaymakersSupport players topN |> List.map fst
