@@ -10,6 +10,7 @@
     <Compile Include="ROLE.fs" />
     <Compile Include="TEAM.fs" />
     <Compile Include="CLUB.fs" />
+    <Compile Include="DIVISION.fs" />
   </ItemGroup>
 
 </Project>

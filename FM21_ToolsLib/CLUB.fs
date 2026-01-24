@@ -25,24 +25,3 @@ module CLUB =
         |> List.distinct
         |> List.sort
 
-    /// Return a sorted, distinct list of all divisions (based) present in the player list.
-    /// Players without a based value (None or empty) are ignored.
-    let allDivisions (players: HTML.Player list) : string list =
-        players
-        |> List.choose getBased
-        |> List.filter (fun s -> not (String.IsNullOrWhiteSpace s))
-        |> List.distinct
-        |> List.sort
-
-    /// Return a sorted, distinct list of all clubs for the specified division (based).
-    /// Players not in the given division or without a club are ignored.
-    let clubsInDivision (division: string) (players: HTML.Player list) : string list =
-        players
-        |> List.filter (fun p ->
-            match getBased p with
-            | Some d when String.Equals(d, division, StringComparison.Ordinal) -> true
-            | _ -> false)
-        |> List.choose getClub
-        |> List.filter (fun s -> not (String.IsNullOrWhiteSpace s))
-        |> List.distinct
-        |> List.sort
