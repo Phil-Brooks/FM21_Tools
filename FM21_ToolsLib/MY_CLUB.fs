@@ -51,7 +51,7 @@ module MY_CLUB =
     // -- Weakest relevant attribute per player --
 
     /// Return all position objects from a Team as a flat list (preserves role names).
-    let private teamPositions (t: TEAM.Team) : TEAM.Position list =
+    let teamPositions (t: TEAM.Team) : TEAM.Position list =
         List.concat [
             [ t.SweeperKeeper; t.InvertedWingBackRight; t.InvertedWingBackLeft ]
             t.BallPlayingDefs
@@ -88,3 +88,33 @@ module MY_CLUB =
     /// Public: get weakest relevant attribute for each assigned player in the second team.
     let getSecondTeamWeakestAttributes () =
         getSecondTeam () |> getWeakestAttributesForTeam
+
+    /// For the first team, find the single assigned player whose role rating is most below
+    /// the average rating for that role in the specified division.
+    /// Returns a formatted string describing the player and the difference, or None if not computable.
+    let getFirstTeamWeakestRelativeToDivision (division: string) : string option =
+        let team = getFirstTeam ()
+        let positions = teamPositions team
+
+        // precompute averages for the requested division: Map<RoleName, float option>
+        let roleAverages = DIVISION.averageRatingsByRole division |> Map.ofList
+
+        // for each assigned position with a rating and a division-average for the role, compute delta = player - avg
+        let rels =
+            positions
+            |> List.choose (fun pos ->
+                match pos.Player, pos.Rating with
+                | Some player, Some rating ->
+                    match Map.tryFind pos.RoleName roleAverages with
+                    | Some (Some avg) ->
+                        let delta = rating - avg
+                        Some (pos.RoleName, player.Name, rating, avg, delta)
+                    | _ -> None
+                | _ -> None)
+
+        match rels with
+        | [] -> None
+        | _ ->
+            // weakest relative = minimum delta
+            let (role, name, rating, avg, delta) = List.minBy (fun (_,_,_,_,d) -> d) rels
+            Some (sprintf "%s: %s -> delta: %.2f (player %.2f vs avg %.2f)" role name delta rating avg)
