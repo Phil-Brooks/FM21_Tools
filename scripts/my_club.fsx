@@ -10,3 +10,5 @@ let myteam = MY_CLUB.getFirstTeamAsStrings ()
 let scr = MY_CLUB.getFirstTeamScore ()
 let myteam2 = MY_CLUB.getSecondTeamAsStrings ()
 let scr2 = MY_CLUB.getSecondTeamScore ()
+
+let wka =  MY_CLUB.getFirstTeamWeakestAttributes()

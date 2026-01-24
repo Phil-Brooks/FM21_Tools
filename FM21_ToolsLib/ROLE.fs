@@ -36,6 +36,37 @@ module ROLE =
 
         if topN <= 0 then sorted else List.truncate topN sorted
 
+    // --- lists of relevant attributes for each role (exposed for diagnostics) ---
+    let private attrsTargetManAttack = [ "Dri"; "Fin"; "Fir"; "Hea"; "Pas"; "Tec"; "Ant"; "Cmp"; "Acc"; "Agi"; "Jum"; "Pac"; "Str" ]
+    let private attrsAdvancedForwardAttack = [ "Pac"; "Acc"; "Fin"; "Dri"; "Fir"; "OtB"; "Tec"; "Ant"; "Cmp"; "Agi"; "Bal"; "Sta"; "Pas" ]
+    let private attrsWingerAttackRight = [ "Cro"; "Pac"; "Acc"; "Dri"; "Tec"; "Pas"; "OtB"; "OneVOne"; "Agi"; "Fla"; "Sta"; "Fin" ]
+    let private attrsInvertedWingerSupportLeft = [ "Cro"; "Pas"; "Tec"; "OtB"; "Dri"; "Fla"; "OneVOne"; "Cmp"; "Ant"; "Acc"; "Pac"; "Agi"; "Sta"; "Fin" ]
+    let private attrsAdvancedPlaymakerSupport = [ "Pas"; "Tec"; "OtB"; "Ant"; "Cmp"; "Fir"; "Dri"; "Fla"; "Acc"; "Pac"; "Sta" ]
+    let private attrsBallWinningMidfielderSupport = [ "Tck"; "Mar"; "Agg"; "Sta"; "Wor"; "Str"; "Ant"; "Dec"; "Cmp"; "Pas"; "Pac"; "Acc"; "Tec" ]
+    let private attrsBallPlayingDefender = [ "Pas"; "Tec"; "Cmp"; "Dec"; "Ant"; "Tck"; "Mar"; "Str"; "Hea"; "Jum"; "Pac"; "Acc"; "Sta"; "Agg" ]
+    let private attrsInvertedWingBackSupportRight = [ "Pas"; "Tec"; "OtB"; "Cro"; "Dri"; "Pac"; "Acc"; "Sta"; "Wor"; "Cmp"; "Dec"; "Tck"; "Mar"; "Ant"; "Agi"; "Str" ]
+    let private attrsInvertedWingBackSupportLeft = attrsInvertedWingBackSupportRight
+    let private attrsSweeperKeeperDefend = [ "Ref"; "Han"; "Pos"; "Kic"; "Cmd"; "Thr"; "OneVOne"; "Pun"; "Com"; "Ecc"; "Aer"; "Acc"; "Pac" ]
+
+    /// Return the list of relevant attribute keys for a TEAM position role name.
+    /// Matches the RoleName strings used in TEAM.Position.RoleName (handles "Ball Playing Defender #n").
+    let getRelevantAttributesForRole (roleName: string) : string list =
+        if roleName.StartsWith("Ball Playing Defender", StringComparison.InvariantCultureIgnoreCase) then
+            attrsBallPlayingDefender
+        else
+            match roleName with
+            | "Target Man (Attack)" -> attrsTargetManAttack
+            | "Advanced Forward (Attack)" -> attrsAdvancedForwardAttack
+            | "Winger (Attack) R" -> attrsWingerAttackRight
+            | "Inverted Winger (L)" -> attrsInvertedWingerSupportLeft
+            | "Advanced Playmaker (Support)" -> attrsAdvancedPlaymakerSupport
+            | "Ball Winning Midfielder (Support)" -> attrsBallWinningMidfielderSupport
+            | "Inverted Wing Back (R)" -> attrsInvertedWingBackSupportRight
+            | "Inverted Wing Back (L)" -> attrsInvertedWingBackSupportLeft
+            | "Sweeper Keeper" -> attrsSweeperKeeperDefend
+            // default: no relevant attributes known
+            | _ -> []
+            
     // Target Man (Attack)
     let roleRatingTargetManAttack (p: HTML.Player) : float option =
         let isForwardPosition =
