@@ -39,8 +39,8 @@ module ROLE =
     // --- lists of relevant attributes for each role (exposed for diagnostics) ---
     let private attrsTargetManAttack = [ "Dri"; "Fin"; "Fir"; "Hea"; "Pas"; "Tec"; "Ant"; "Cmp"; "Acc"; "Agi"; "Jum"; "Pac"; "Str" ]
     let private attrsAdvancedForwardAttack = [ "Pac"; "Acc"; "Fin"; "Dri"; "Fir"; "OtB"; "Tec"; "Ant"; "Cmp"; "Agi"; "Bal"; "Sta"; "Pas" ]
-    let private attrsWingerAttackRight = [ "Cro"; "Pac"; "Acc"; "Dri"; "Tec"; "Pas"; "OtB"; "OneVOne"; "Agi"; "Fla"; "Sta"; "Fin" ]
-    let private attrsInvertedWingerSupportLeft = [ "Cro"; "Pas"; "Tec"; "OtB"; "Dri"; "Fla"; "OneVOne"; "Cmp"; "Ant"; "Acc"; "Pac"; "Agi"; "Sta"; "Fin" ]
+    let private attrsWingerAttackRight = [ "Cro"; "Pac"; "Acc"; "Dri"; "Tec"; "Pas"; "OtB"; "Agi"; "Fla"; "Sta"; "Fin" ]
+    let private attrsInvertedWingerSupportLeft = [ "Cro"; "Pas"; "Tec"; "OtB"; "Dri"; "Fla"; "Cmp"; "Ant"; "Acc"; "Pac"; "Agi"; "Sta"; "Fin" ]
     let private attrsAdvancedPlaymakerSupport = [ "Pas"; "Tec"; "OtB"; "Ant"; "Cmp"; "Fir"; "Dri"; "Fla"; "Acc"; "Pac"; "Sta" ]
     let private attrsBallWinningMidfielderSupport = [ "Tck"; "Mar"; "Agg"; "Sta"; "Wor"; "Str"; "Ant"; "Dec"; "Cmp"; "Pas"; "Pac"; "Acc"; "Tec" ]
     let private attrsBallPlayingDefender = [ "Pas"; "Tec"; "Cmp"; "Dec"; "Ant"; "Tck"; "Mar"; "Str"; "Hea"; "Jum"; "Pac"; "Acc"; "Sta"; "Agg" ]
@@ -142,7 +142,6 @@ module ROLE =
                 (0.60, toFloatOpt (getAttr p "Tec"))
                 (0.60, toFloatOpt (getAttr p "Pas"))
                 (0.60, toFloatOpt (getAttr p "OtB"))
-                (0.40, toFloatOpt (getAttr p "OneVOne"))
                 (0.40, toFloatOpt (getAttr p "Agi"))
                 (0.40, toFloatOpt (getAttr p "Fla"))
                 (0.20, toFloatOpt (getAttr p "Sta"))
@@ -170,7 +169,6 @@ module ROLE =
                 (0.80, toFloatOpt (getAttr p "OtB"))
                 (0.80, toFloatOpt (getAttr p "Dri"))
                 (0.60, toFloatOpt (getAttr p "Fla"))
-                (0.50, toFloatOpt (getAttr p "OneVOne"))
                 (0.60, toFloatOpt (getAttr p "Cmp"))
                 (0.50, toFloatOpt (getAttr p "Ant"))
                 (0.60, toFloatOpt (getAttr p "Acc"))
