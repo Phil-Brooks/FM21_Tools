@@ -2,15 +2,15 @@
 
 open FM21_ToolsLib
 
+let path = "../data/all.html"
+do HTML.loadPlayers path
 //let div2 = "England (Sky Bet League Two)"
 //let div1 = "England (Sky Bet League One)"
 let div = "England (Sky Bet Championship)"
 
 // output
 let output() =
-    let path = "../data/all.html"
-    let players = HTML.loadPlayers path
-    let (bestName, bestTeam, bestScoreOpt) = DIVISION.bestClub div players
+    let (bestName, bestTeam, bestScoreOpt) = DIVISION.bestClub div
     printfn "Best club in %s: %s" div bestName
     match bestScoreOpt with
     | Some s -> printfn "Team score: %.2f" s

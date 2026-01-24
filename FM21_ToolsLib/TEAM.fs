@@ -4,162 +4,108 @@ open System
 
 module TEAM =
 
-    // A simple container for a role assignment
-    type Position =
-        { RoleName: string
-          PlayerName: string option
-          Rating: float option
-          // keep a reference to the Player record from HTML.fs (new Player shape)
-          Player: HTML.Player option }
+    type Position = {
+        RoleName: string
+        PlayerName: string option
+        Rating: float option
+        Player: HTML.Player option
+    }
 
-    type Team =
-        { SweeperKeeper: Position
-          InvertedWingBackRight: Position
-          InvertedWingBackLeft: Position
-          BallPlayingDefs: Position list          // expecting 2
-          WingerAttackRight: Position
-          InvertedWingerLeft: Position
-          BallWinningMidfielderSupport: Position
-          AdvancedPlaymakerSupport: Position
-          AdvancedForwardAttack: Position
-          TargetManAttack: Position }
+    type Team = {
+        SweeperKeeper: Position
+        InvertedWingBackRight: Position
+        InvertedWingBackLeft: Position
+        BallPlayingDefs: Position list
+        WingerAttackRight: Position
+        InvertedWingerLeft: Position
+        BallWinningMidfielderSupport: Position
+        AdvancedPlaymakerSupport: Position
+        AdvancedForwardAttack: Position
+        TargetManAttack: Position
+    }
 
-    // helper to convert (name * rating) option -> Position (no Player reference available)
-    let private toPosition role (candidate: (string * float) option) =
-        match candidate with
-        | Some (n, r) -> { RoleName = role; PlayerName = Some n; Rating = Some r; Player = None }
-        | None -> { RoleName = role; PlayerName = None; Rating = None; Player = None }
+    let private mkUnassigned role = { RoleName = role; PlayerName = None; Rating = None; Player = None }
+    let private mkAssigned role (name:string) (rating:float) (playerOpt: HTML.Player option) =
+        { RoleName = role; PlayerName = Some name; Rating = Some rating; Player = playerOpt }
 
-    // helper to convert (name * rating * player option) option -> Position (keeps Player reference)
-    let private toPositionWithPlayer role (candidate: (string * float * HTML.Player option) option) =
-        match candidate with
-        | Some (n, r, pOpt) -> { RoleName = role; PlayerName = Some n; Rating = Some r; Player = pOpt }
-        | None -> { RoleName = role; PlayerName = None; Rating = None; Player = None }
-
-    // remove selected player names from the remaining pool
-    let private removeSelected (remaining: HTML.Player list) (selectedNames: string list) =
-        remaining |> List.filter (fun p -> not (List.contains p.Name selectedNames))
-
-    // pick N best using a ROLE.* function that returns (string * float) list
-    // returns picks annotated with the corresponding Player record (if present in the remaining pool)
-    let private pickBestN (bestFn: HTML.Player list -> int -> (string * float) list) (count: int) (remaining: HTML.Player list) =
-        let picks = bestFn remaining count
-        // annotate each pick with the Player object from the pool (if found)
+    // pick helper: call ROLE.* fn to get top N (name * rating), attach matching Player from pool, remove selected from pool
+    let private pickN (bestFn: HTML.Player list -> int -> (string * float) list) count (pool: HTML.Player list) =
+        let picks = bestFn pool count
         let picksWithPlayer =
-            picks
-            |> List.map (fun (name, rating) ->
-                let playerOpt = remaining |> List.tryFind (fun p -> p.Name = name)
-                (name, rating, playerOpt))
-        let names = picksWithPlayer |> List.map (fun (n,_,_) -> n)
-        let remaining' = removeSelected remaining names
-        picksWithPlayer, remaining'
+            picks |> List.map (fun (n,r) -> (n, r, pool |> List.tryFind (fun p -> p.Name = n)))
+        let selectedNames = picksWithPlayer |> List.map (fun (n,_,_) -> n)
+        let remaining = pool |> List.filter (fun p -> not (List.exists ((=) p.Name) selectedNames))
+        picksWithPlayer, remaining
 
-    // Build a Team from a list of players. Picks greedily in a stable order and ensures uniqueness.
     let buildTeam (players: HTML.Player list) : Team =
-        // start with full pool
-        let remaining0 = players
+        let pool0 = players
 
-        // 1 Sweeper Keeper
-        let skPicks, remaining1 = pickBestN ROLE.bestSweeperKeepersDefend 1 remaining0
-        let skPos = toPositionWithPlayer "Sweeper Keeper" (skPicks |> List.tryHead)
+        let sk, pool1 = pickN ROLE.bestSweeperKeepersDefend 1 pool0
+        let skPos = match sk |> List.tryHead with | Some (n,r,p) -> mkAssigned "Sweeper Keeper" n r p | None -> mkUnassigned "Sweeper Keeper"
 
-        // 1 Inverted Wing Back Right
-        let iwbR, remaining2 = pickBestN ROLE.bestInvertedWingBacksSupportRight 1 remaining1
-        let iwbRPos = toPositionWithPlayer "Inverted Wing Back (R)" (iwbR |> List.tryHead)
+        let iwbR, pool2 = pickN ROLE.bestInvertedWingBacksSupportRight 1 pool1
+        let iwbRPos = match iwbR |> List.tryHead with | Some (n,r,p) -> mkAssigned "Inverted Wing Back (R)" n r p | None -> mkUnassigned "Inverted Wing Back (R)"
 
-        // 1 Inverted Wing Back Left
-        let iwbL, remaining3 = pickBestN ROLE.bestInvertedWingBacksSupportLeft 1 remaining2
-        let iwbLPos = toPositionWithPlayer "Inverted Wing Back (L)" (iwbL |> List.tryHead)
+        let iwbL, pool3 = pickN ROLE.bestInvertedWingBacksSupportLeft 1 pool2
+        let iwbLPos = match iwbL |> List.tryHead with | Some (n,r,p) -> mkAssigned "Inverted Wing Back (L)" n r p | None -> mkUnassigned "Inverted Wing Back (L)"
 
-        // 2 Ball Playing Defenders (CBs)
-        let bpdPicks, remaining4 = pickBestN ROLE.bestBallPlayingDefenders 2 remaining3
-        let bpdPositions =
-            bpdPicks
-            |> List.mapi (fun i (n, r, pOpt) -> toPositionWithPlayer (sprintf "Ball Playing Defender #%d" (i+1)) (Some (n, r, pOpt)))
+        let bpd, pool4 = pickN ROLE.bestBallPlayingDefenders 2 pool3
+        let bpdPos =
+            bpd |> List.mapi (fun i (n,r,p) -> mkAssigned (sprintf "Ball Playing Defender #%d" (i+1)) n r p)
 
-        // Winger Attack Right
-        let wgrPicks, remaining5 = pickBestN ROLE.bestWingersAttackRight 1 remaining4
-        let wgrPos = toPositionWithPlayer "Winger (Attack) R" (wgrPicks |> List.tryHead)
+        let wgr, pool5 = pickN ROLE.bestWingersAttackRight 1 pool4
+        let wgrPos = match wgr |> List.tryHead with | Some (n,r,p) -> mkAssigned "Winger (Attack) R" n r p | None -> mkUnassigned "Winger (Attack) R"
 
-        // Inverted Winger Left (attacking/support role)
-        let iwL_Picks, remaining6 = pickBestN ROLE.bestInvertedWingersSupportLeft 1 remaining5
-        let iwLPos = toPositionWithPlayer "Inverted Winger (L)" (iwL_Picks |> List.tryHead)
+        let iwL, pool6 = pickN ROLE.bestInvertedWingersSupportLeft 1 pool5
+        let iwLPos = match iwL |> List.tryHead with | Some (n,r,p) -> mkAssigned "Inverted Winger (L)" n r p | None -> mkUnassigned "Inverted Winger (L)"
 
-        // Ball Winning Midfielder (Support)
-        let bwmPicks, remaining7 = pickBestN ROLE.bestBallWinningMidfieldersSupport 1 remaining6
-        let bwmPos = toPositionWithPlayer "Ball Winning Midfielder (Support)" (bwmPicks |> List.tryHead)
+        let bwm, pool7 = pickN ROLE.bestBallWinningMidfieldersSupport 1 pool6
+        let bwmPos = match bwm |> List.tryHead with | Some (n,r,p) -> mkAssigned "Ball Winning Midfielder (Support)" n r p | None -> mkUnassigned "Ball Winning Midfielder (Support)"
 
-        // Advanced Playmaker (Support)
-        let apPicks, remaining8 = pickBestN ROLE.bestAdvancedPlaymakersSupport 1 remaining7
-        let apPos = toPositionWithPlayer "Advanced Playmaker (Support)" (apPicks |> List.tryHead)
+        let ap, pool8 = pickN ROLE.bestAdvancedPlaymakersSupport 1 pool7
+        let apPos = match ap |> List.tryHead with | Some (n,r,p) -> mkAssigned "Advanced Playmaker (Support)" n r p | None -> mkUnassigned "Advanced Playmaker (Support)"
 
-        // Advanced Forward (Attack)
-        let afaPicks, remaining9 = pickBestN ROLE.bestAdvancedForwardsAttack 1 remaining8
-        let afaPos = toPositionWithPlayer "Advanced Forward (Attack)" (afaPicks |> List.tryHead)
+        let afa, pool9 = pickN ROLE.bestAdvancedForwardsAttack 1 pool8
+        let afaPos = match afa |> List.tryHead with | Some (n,r,p) -> mkAssigned "Advanced Forward (Attack)" n r p | None -> mkUnassigned "Advanced Forward (Attack)"
 
-        // Target Man (Attack)
-        let tmaPicks, _remaining10 = pickBestN ROLE.bestTargetMenAttack 1 remaining9
-        let tmaPos = toPositionWithPlayer "Target Man (Attack)" (tmaPicks |> List.tryHead)
+        let tma, _ = pickN ROLE.bestTargetMenAttack 1 pool9
+        let tmaPos = match tma |> List.tryHead with | Some (n,r,p) -> mkAssigned "Target Man (Attack)" n r p | None -> mkUnassigned "Target Man (Attack)"
 
-        { SweeperKeeper = skPos
-          InvertedWingBackRight = iwbRPos
-          InvertedWingBackLeft = iwbLPos
-          BallPlayingDefs = bpdPositions
-          WingerAttackRight = wgrPos
-          InvertedWingerLeft = iwLPos
-          BallWinningMidfielderSupport = bwmPos
-          AdvancedPlaymakerSupport = apPos
-          AdvancedForwardAttack = afaPos
-          TargetManAttack = tmaPos }
+        {
+            SweeperKeeper = skPos
+            InvertedWingBackRight = iwbRPos
+            InvertedWingBackLeft = iwbLPos
+            BallPlayingDefs = bpdPos
+            WingerAttackRight = wgrPos
+            InvertedWingerLeft = iwLPos
+            BallWinningMidfielderSupport = bwmPos
+            AdvancedPlaymakerSupport = apPos
+            AdvancedForwardAttack = afaPos
+            TargetManAttack = tmaPos
+        }
 
-    // Return list of (RoleName * PlayerName option) preserving the same ordering used by buildTeam.
-    let teamAsPositionNameOptions (team: Team) : (string * string option) list =
-        let posToTuple (p: Position) = (p.RoleName, p.PlayerName)
-        let bpd = team.BallPlayingDefs |> List.map posToTuple
-        [ posToTuple team.SweeperKeeper
-          posToTuple team.InvertedWingBackRight
-          posToTuple team.InvertedWingBackLeft ]
-        @ bpd
-        @ [ posToTuple team.WingerAttackRight
-            posToTuple team.InvertedWingerLeft
-            posToTuple team.BallWinningMidfielderSupport
-            posToTuple team.AdvancedPlaymakerSupport
-            posToTuple team.AdvancedForwardAttack
-            posToTuple team.TargetManAttack ]
+    let teamAsPositionNameOptions (t: Team) =
+        let toTuple p = (p.RoleName, p.PlayerName)
+        [ toTuple t.SweeperKeeper; toTuple t.InvertedWingBackRight; toTuple t.InvertedWingBackLeft ]
+        @ (t.BallPlayingDefs |> List.map (fun p -> (p.RoleName, p.PlayerName)))
+        @ [ toTuple t.WingerAttackRight; toTuple t.InvertedWingerLeft; toTuple t.BallWinningMidfielderSupport;
+            toTuple t.AdvancedPlaymakerSupport; toTuple t.AdvancedForwardAttack; toTuple t.TargetManAttack ]
 
-    // Convenience: return list of "RoleName: PlayerName" strings, with "Unassigned" for missing names.
-    let teamAsStrings (team: Team) : string list =
-        teamAsPositionNameOptions team
-        |> List.map (fun (role, nameOpt) -> sprintf "%s: %s" role (Option.defaultValue "Unassigned" nameOpt))
+    let teamAsStrings t =
+        teamAsPositionNameOptions t |> List.map (fun (r,n) -> sprintf "%s: %s" r (defaultArg n "Unassigned"))
 
-    // Compute team score as the sum of each role's rating.
-    // - `teamScore` treats missing ratings as 0.0 and returns a float total.
-    // - `teamScoreOption` returns None if any role has no rating; otherwise Some total.
-    let teamScore (team: Team) : float =
+    let teamScore t =
         let ratings =
-            [ team.SweeperKeeper.Rating
-              team.InvertedWingBackRight.Rating
-              team.InvertedWingBackLeft.Rating ]
-            @ (team.BallPlayingDefs |> List.map (fun p -> p.Rating))
-            @ [ team.WingerAttackRight.Rating
-                team.InvertedWingerLeft.Rating
-                team.BallWinningMidfielderSupport.Rating
-                team.AdvancedPlaymakerSupport.Rating
-                team.AdvancedForwardAttack.Rating
-                team.TargetManAttack.Rating ]
-        ratings |> List.sumBy (Option.defaultValue 0.0)
+            [ t.SweeperKeeper.Rating; t.InvertedWingBackRight.Rating; t.InvertedWingBackLeft.Rating ]
+            @ (t.BallPlayingDefs |> List.map (fun p -> p.Rating))
+            @ [ t.WingerAttackRight.Rating; t.InvertedWingerLeft.Rating; t.BallWinningMidfielderSupport.Rating;
+                t.AdvancedPlaymakerSupport.Rating; t.AdvancedForwardAttack.Rating; t.TargetManAttack.Rating ]
+        ratings |> List.sumBy (fun o -> defaultArg o 0.0)
 
-    let teamScoreOption (team: Team) : float option =
+    let teamScoreOption t =
         let ratings =
-            [ team.SweeperKeeper.Rating
-              team.InvertedWingBackRight.Rating
-              team.InvertedWingBackLeft.Rating ]
-            @ (team.BallPlayingDefs |> List.map (fun p -> p.Rating))
-            @ [ team.WingerAttackRight.Rating
-                team.InvertedWingerLeft.Rating
-                team.BallWinningMidfielderSupport.Rating
-                team.AdvancedPlaymakerSupport.Rating
-                team.AdvancedForwardAttack.Rating
-                team.TargetManAttack.Rating ]
-        if List.exists Option.isNone ratings then None
-        else Some (ratings |> List.sumBy (Option.defaultValue 0.0))
+            [ t.SweeperKeeper.Rating; t.InvertedWingBackRight.Rating; t.InvertedWingBackLeft.Rating ]
+            @ (t.BallPlayingDefs |> List.map (fun p -> p.Rating))
+            @ [ t.WingerAttackRight.Rating; t.InvertedWingerLeft.Rating; t.BallWinningMidfielderSupport.Rating;
+                t.AdvancedPlaymakerSupport.Rating; t.AdvancedForwardAttack.Rating; t.TargetManAttack.Rating ]
+        if List.exists Option.isNone ratings then None else Some (ratings |> List.sumBy (fun o -> defaultArg o 0.0))

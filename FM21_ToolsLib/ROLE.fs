@@ -7,16 +7,13 @@ module ROLE =
     // small helpers to reduce repetition
     let private toFloatOpt = Option.map float
 
-    // Helpers to adapt to new Player shape (Extras: Map<string,string option>, Attributes: Map<string,int option>)
+    // Helpers adapted to current Player shape (Extras: Map<string,string>, Attributes: Map<string,int>)
     let private getExtra (p: HTML.Player) (key: string) : string option =
-        match Map.tryFind key p.Extras with
-        | Some v -> v
-        | None -> None
+        Map.tryFind key p.Extras
+        |> Option.filter (fun s -> not (String.IsNullOrWhiteSpace s))
 
     let private getAttr (p: HTML.Player) (key: string) : int option =
-        match Map.tryFind key p.Attributes with
-        | Some v -> v
-        | None -> None
+        Map.tryFind key p.Attributes
 
     let private weightedScore (weightedAttrs: (float * float option) list) : float option =
         let totalWeight, weightedSum =

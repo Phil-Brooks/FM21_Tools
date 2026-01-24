@@ -3,30 +3,10 @@
 open FM21_ToolsLib
 
 let path = "../data/all.html"
-let players = HTML.loadPlayers path
+HTML.loadPlayers path
+printfn "Loaded %d players from %s" (List.length HTML.AllPlayers) path
 
-printfn "Loaded %d players from %s" (List.length players) path
-
-//let messi = players |> List.find (fun p -> p.Name = "Lionel Messi")
-//let tma =
-//    ROLE.roleRatingTargetManAttack messi
-//    |> Option.defaultWith (fun () -> failwith "No Target Man Attack rating for Lionel Messi")
-//let besttma = ROLE.bestTargetMenAttack players 20
-//let bestafa = ROLE.bestAdvancedForwardsAttack players 20
-//let bestwar = ROLE.bestWingersAttackRight players 20
-//let bestiwsl = ROLE.bestInvertedWingersSupportLeft players 20
-//let bestaps = ROLE.bestAdvancedPlaymakersSupport players 20
-//let bestbwms = ROLE.bestBallWinningMidfieldersSupport players 20
-//let bestbpd = ROLE.bestBallPlayingDefenders players 20
-//let bestiwbsr = ROLE.bestInvertedWingBacksSupportRight players 20
-//let bestiwbsl = ROLE.bestInvertedWingBacksSupportLeft players 20
-//let bestskd = ROLE.bestSweeperKeepersDefend players 20
-
-let besttm = TEAM.buildTeam players
-let bestnms = besttm |> TEAM.teamAsStrings
-let bestscr = besttm |> TEAM.teamScore
-
-//let clubs = CLUB.allClubs players
-let divs = DIVISION.allDivisions players
-let engdivs = divs|>List.filter (fun d -> d.Contains("England"))
+let team = TEAM.buildTeam HTML.AllPlayers
+team |> TEAM.teamAsStrings |> List.iter (printfn "%s")
+printfn "Team score: %f" (TEAM.teamScore team)
 

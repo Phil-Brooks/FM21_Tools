@@ -6,93 +6,84 @@ open System.Text.RegularExpressions
 open System.Net
 
 module HTML =
-
-    /// Simplified player record:
-    /// - keeps original leading string columns
-    /// - groups the six inserted string columns into `Extras`
-    /// - groups the many numeric attributes into `Attributes` by name
     type Player = {
         Rec: string
         Inf: string
         Name: string
         DoB: string
         Height: string
-        Extras: Map<string,string option>
-        Attributes: Map<string,int option>
+        Extras: Map<string,string>
+        Attributes: Map<string,int>
     }
 
-    let private tryParseInt (s: string) : int option =
-        if String.IsNullOrWhiteSpace s then None
-        else
-            // strip non-digit characters (keeps negative sign if present)
-            let trimmed = Regex.Replace(s, "[^0-9-]", "")
-            match Int32.TryParse(trimmed) with
-            | true, v -> Some v
-            | _ -> None
+    let mutable AllPlayers: Player list = []
 
-    // strip HTML tags and decode entities
-    let private stripHtml (s: string) : string =
-        let withoutTags = Regex.Replace(s, "<.*?>", "", RegexOptions.Singleline)
-        WebUtility.HtmlDecode(withoutTags).Trim()
+    let private stripHtml (s: string) =
+        Regex.Replace(s, "<.*?>", "", RegexOptions.Singleline)
+        |> WebUtility.HtmlDecode
+        |> fun s -> s.Trim()
 
-    /// Load players from an HTML file containing the table like `data/all.html`.
-    let loadPlayers (path: string) : Player list =
+    let private parseIntSafe (s: string) =
+        let input = if isNull s then "" else s
+        let cleaned = Regex.Replace(input, "[^0-9-]", "")
+        match Int32.TryParse(cleaned) with
+        | true, v -> v
+        | _ -> 0
+
+    let loadPlayers (path: string) =
         let content = File.ReadAllText(path)
-        // find the first <table> ... </table> (singleline + ignore case)
-        let tableMatch = Regex.Match(content, "(?is)<table.*?>(.*?)</table>")
-        if not tableMatch.Success then []
-        else
-            let tableInner = tableMatch.Groups.[1].Value
-            // find all rows
+        let tableM = Regex.Match(content, "(?is)<table.*?>(.*?)</table>")
+        match tableM.Success with
+        | false ->
+            AllPlayers <- []
+        | true ->
+            let tableInner = tableM.Groups.[1].Value
             let trMatches = Regex.Matches(tableInner, "(?is)<tr.*?>(.*?)</tr>")
-            // convert MatchCollection to a list of inner HTML strings for each tr
-            let trList =
-                [ for i = 0 to trMatches.Count - 1 do
-                    yield trMatches.[i].Groups.[1].Value ]
-            // first tr is header — skip it
-            let extraNames = [ "Value"; "TransferStatus"; "LoanStatus"; "Position"; "Based"; "Club" ]
-            let numericNames = [
-                "Acc"; "Agi"; "Bal"; "Jum"; "Nat"; "Pac"; "Sta"; "Str"; "Agg"; "Ant"; "Bra"; "Cmp";
-                "Cnt"; "Dec"; "Det"; "Fla"; "Ldr"; "OtB"; "Pos"; "Tea"; "Vis"; "Wor"; "Cor"; "Cro";
-                "Dri"; "Fin"; "Fir"; "Fre"; "Hea"; "Lon"; "LTh"; "Mar"; "Pas"; "Pen"; "Tck"; "Tec";
-                "Aer"; "Cmd"; "Com"; "OneVOne"; "Han"; "Kic"; "Ecc"; "Pun"; "Ref"; "TRO"; "Thr"
-            ]
+            if trMatches.Count <= 1 then
+                AllPlayers <- []
+            else
+                let rows =
+                    [ for i = 0 to trMatches.Count - 1 do
+                        yield trMatches.[i].Groups.[1].Value ]
+                    |> List.skip 1 // skip header
 
-            trList
-            |> List.skip 1
-            |> List.choose (fun trHtml ->
-                // extract td cell contents
-                let tdMatches = Regex.Matches(trHtml, "(?is)<td.*?>(.*?)</td>")
-                let tds =
-                    [ for i = 0 to tdMatches.Count - 1 do
-                        yield stripHtml(tdMatches.[i].Groups.[1].Value) ]
+                let extraNames = [ "Value"; "TransferStatus"; "LoanStatus"; "Position"; "Based"; "Club" ]
+                let numericNames = [
+                    "Acc"; "Agi"; "Bal"; "Jum"; "Nat"; "Pac"; "Sta"; "Str"; "Agg"; "Ant"; "Bra"; "Cmp";
+                    "Cnt"; "Dec"; "Det"; "Fla"; "Ldr"; "OtB"; "Pos"; "Tea"; "Vis"; "Wor"; "Cor"; "Cro";
+                    "Dri"; "Fin"; "Fir"; "Fre"; "Hea"; "Lon"; "LTh"; "Mar"; "Pas"; "Pen"; "Tck"; "Tec";
+                    "Aer"; "Cmd"; "Com"; "OneVOne"; "Han"; "Kic"; "Ecc"; "Pun"; "Ref"; "TRO"; "Thr"
+                ]
 
-                // expect at least 58 columns (0..57) as before
-                if tds.Length >= 58 then
-                    // helpers
-                    let td i = tds.[i]
-                    let maybe s = if String.IsNullOrWhiteSpace s then None else Some s
+                let players =
+                    rows
+                    |> List.choose (fun trHtml ->
+                        let tdMatches = Regex.Matches(trHtml, "(?is)<td.*?>(.*?)</td>")
+                        let cells =
+                            [ for i = 0 to tdMatches.Count - 1 do
+                                yield stripHtml tdMatches.[i].Groups.[1].Value ]
+                        if cells.Length < 58 then
+                            None
+                        else
+                            let cell i = cells.[i]
+                            let extras =
+                                extraNames
+                                |> List.mapi (fun i name -> name, (cell (5 + i)))
+                                |> Map.ofList
+                            let attrs =
+                                numericNames
+                                |> List.mapi (fun i name -> name, parseIntSafe (cell (11 + i)))
+                                |> Map.ofList
+                            Some {
+                                Rec = cell 0
+                                Inf = cell 1
+                                Name = cell 2
+                                DoB = cell 3
+                                Height = cell 4
+                                Extras = extras
+                                Attributes = attrs
+                            }
+                    )
 
-                    // build extras map from indices 5..10
-                    let extras =
-                        extraNames
-                        |> List.mapi (fun idx name -> name, maybe (td (5 + idx)))
-                        |> Map.ofList
-
-                    // build attributes map from indices 11..
-                    let attributes =
-                        numericNames
-                        |> List.mapi (fun idx name -> name, tryParseInt (td (11 + idx)))
-                        |> Map.ofList
-
-                    Some {
-                        Rec = td 0
-                        Inf = td 1
-                        Name = td 2
-                        DoB = td 3
-                        Height = td 4
-                        Extras = extras
-                        Attributes = attributes
-                    }
-                else None)
+                AllPlayers <- players
 
