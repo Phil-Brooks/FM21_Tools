@@ -4,6 +4,7 @@
     <File Path="data/all.html" />
   </Folder>
   <Folder Name="/scripts/">
+    <File Path="scripts/choose_team.fsx" />
     <File Path="scripts/loadall.fsx" />
   </Folder>
   <Project Path="FM21_ToolsLib/FM21_ToolsLib.fsproj" />
