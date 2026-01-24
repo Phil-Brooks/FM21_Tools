@@ -19,3 +19,5 @@ let output() =
     printfn "\nSelected XI for %s:" bestName
     TEAM.teamAsStrings bestTeam |> List.iter (printfn "%s")
 let oup = output()
+
+let avrol = DIVISION.averageRatingsByRole div

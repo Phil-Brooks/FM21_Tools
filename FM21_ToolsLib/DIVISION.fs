@@ -53,3 +53,52 @@ module DIVISION =
     let bestClub div =
         (clubTeams div)
         |> List.maxBy (fun (_, team, scoreOpt) -> Option.defaultValue -1.0 scoreOpt)
+
+
+    // --- NEW: average rating per role across the clubs' teams in a division ---
+
+    // extract (RoleName, Rating option) for every position in a team
+    let private teamRoleRatings (t: TEAM.Team) : (string * float option) list =
+        [ (t.SweeperKeeper.RoleName, t.SweeperKeeper.Rating)
+          (t.InvertedWingBackRight.RoleName, t.InvertedWingBackRight.Rating)
+          (t.InvertedWingBackLeft.RoleName, t.InvertedWingBackLeft.Rating) ]
+        @ (t.BallPlayingDefs |> List.map (fun p -> (p.RoleName, p.Rating)))
+        @ [ (t.WingerAttackRight.RoleName, t.WingerAttackRight.Rating)
+            (t.InvertedWingerLeft.RoleName, t.InvertedWingerLeft.Rating)
+            (t.BallWinningMidfielderSupport.RoleName, t.BallWinningMidfielderSupport.Rating)
+            (t.AdvancedPlaymakerSupport.RoleName, t.AdvancedPlaymakerSupport.Rating)
+            (t.AdvancedForwardAttack.RoleName, t.AdvancedForwardAttack.Rating)
+            (t.TargetManAttack.RoleName, t.TargetManAttack.Rating) ]
+
+    /// For the given division, compute the average rating for every role across
+    /// the teams built for each club in that division.
+    /// - Ignores unassigned positions (None ratings) when computing averages.
+    /// - Returns a list of (RoleName, averageRating option). If no club provides
+    ///   a rating for a role the result for that role is None.
+    let averageRatingsByRole (division: string) : (string * float option) list =
+        let teams = clubTeams division |> List.map (fun (_, team, _) -> team)
+        if List.isEmpty teams then
+            []
+        else
+            // preserve canonical role ordering from the TEAM definition by using first team
+            let roleOrder = teamRoleRatings (List.head teams) |> List.map fst
+
+            // aggregate ratings into role -> float list (skip None)
+            let agg =
+                teams
+                |> List.collect teamRoleRatings
+                |> List.fold (fun (m: Map<string, float list>) (role, rOpt) ->
+                    let existing = defaultArg (Map.tryFind role m) []
+                    match rOpt with
+                    | Some v -> Map.add role (v :: existing) m
+                    | None -> m) Map.empty
+
+            // compute averages in canonical order
+            roleOrder
+            |> List.map (fun role ->
+                match Map.tryFind role agg with
+                | None -> (role, None)
+                | Some [] -> (role, None)
+                | Some vals ->
+                    let avg = List.sum vals / float (List.length vals)
+                    (role, Some avg))
