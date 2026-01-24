@@ -78,3 +78,11 @@ module MY_CLUB =
         teamPositions team
         |> List.choose weakestRelevantAttributeForPosition
         |> List.map (fun (role, playerName, attr, value) -> sprintf "%s: %s -> weakest: %s (%d)" role playerName attr value)
+
+    /// Public: get weakest relevant attribute for each assigned player in the second team.
+    /// Mirrors `getFirstTeamWeakestAttributes` but operates on the second team built from remaining players.
+    let getSecondTeamWeakestAttributes () : string list =
+        let team = getSecondTeam ()
+        teamPositions team
+        |> List.choose weakestRelevantAttributeForPosition
+        |> List.map (fun (role, playerName, attr, value) -> sprintf "%s: %s -> weakest: %s (%d)" role playerName attr value)
