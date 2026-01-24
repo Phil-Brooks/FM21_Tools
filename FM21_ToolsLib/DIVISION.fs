@@ -4,17 +4,12 @@ open System
 
 module DIVISION =
 
-    // helper to extract the "Club" extra (Extras: Map<string,string option>)
-    let private getClub (p: HTML.Player) : string option =
-        match Map.tryFind "Club" p.Extras with
-        | Some v -> v
-        | None -> None
+    // helper to extract an extra (Extras: Map<string,string option>)
+    let private getExtra (key: string) (p: HTML.Player) : string option =
+        Map.tryFind key p.Extras |> Option.defaultValue None
 
-    // helper to extract the "Based" extra (Extras: Map<string,string option>)
-    let private getBased (p: HTML.Player) : string option =
-        match Map.tryFind "Based" p.Extras with
-        | Some v -> v
-        | None -> None
+    let private getClub = getExtra "Club"
+    let private getBased = getExtra "Based"
 
     /// Return a sorted, distinct list of all divisions (based) present in the player list.
     /// Players without a based value (None or empty) are ignored.
@@ -39,19 +34,11 @@ module DIVISION =
         |> List.sort
 
     // players for a specific club in the chosen division
-    let playersInClub div players (clubName: string) =
-        let getExtra key (p: HTML.Player) =
-            match Map.tryFind key p.Extras with
-            | Some v -> v
-            | None -> None
+    let playersInClub div players (clubName: string) : HTML.Player list =
         players
         |> List.filter (fun p ->
-            match getBased p with
-            | Some d when d = div ->
-                match getClub p with
-                | Some c when c = clubName -> true
-                | _ -> false
-            | _ -> false)
+            getBased p
+            |> Option.exists (fun d -> d = div && (getClub p |> Option.exists ((=) clubName))))
 
     // build team + score for each club
     let clubTeams div players =
