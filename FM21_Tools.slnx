@@ -2,10 +2,13 @@
   <Folder Name="/data/">
     <File Path="data/all.fmf" />
     <File Path="data/all.html" />
+    <File Path="data/my.fmf" />
+    <File Path="data/my.html" />
   </Folder>
   <Folder Name="/scripts/">
     <File Path="scripts/choose_team.fsx" />
-    <File Path="scripts/loadall.fsx" />
+    <File Path="scripts/load_all.fsx" />
+    <File Path="scripts/my_club.fsx" />
   </Folder>
   <Project Path="FM21_ToolsLib/FM21_ToolsLib.fsproj" />
 </Solution>
