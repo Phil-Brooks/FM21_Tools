@@ -11,6 +11,7 @@
     <Compile Include="TEAM.fs" />
     <Compile Include="CLUB.fs" />
     <Compile Include="DIVISION.fs" />
+    <Compile Include="MY_CLUB.fs" />
   </ItemGroup>
 
 </Project>
