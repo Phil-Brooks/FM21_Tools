@@ -19,3 +19,30 @@ module MY_CLUB =
     /// Return the first team as printable strings: "Role: PlayerName" list.
     let getFirstTeamAsStrings () : string list =
         getFirstTeam () |> TEAM.teamAsStrings
+
+    /// Remove players assigned in `team` from `pool` (matching by player name).
+    let private removeAssignedPlayers (team: TEAM.Team) (pool: HTML.Player list) =
+        let assignedNames =
+            team
+            |> TEAM.teamAsPositionNameOptions
+            |> List.choose snd
+        pool |> List.filter (fun p -> not (List.exists ((=) p.Name) assignedNames))
+
+    /// Build the second team from the currently loaded `HTML.MyPlayers`.
+    /// The second team is constructed from the remaining players after the first team selections are removed.
+    let getSecondTeam () : TEAM.Team =
+        let first = getFirstTeam ()
+        let remainingPool = removeAssignedPlayers first HTML.MyPlayers
+        TEAM.buildTeam remainingPool
+
+    /// Aggregate score for second team.
+    let getSecondTeamScore () : float =
+        getSecondTeam () |> TEAM.teamScore
+
+    /// Optional aggregate score for second team (None if incomplete).
+    let getSecondTeamScoreOption () : float option =
+        getSecondTeam () |> TEAM.teamScoreOption
+
+    /// Second team as printable strings.
+    let getSecondTeamAsStrings () : string list =
+        getSecondTeam () |> TEAM.teamAsStrings
