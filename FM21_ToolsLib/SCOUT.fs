@@ -68,9 +68,10 @@ module SCOUT =
             | _ -> None)
         |> List.sortByDescending (fun rr -> rr.Rating)
 
-    /// Convert a single `RoleRatedPlayer` to a `(Name, Rating)` tuple.
-    let roleRatedPlayerToNameRating (rr: RoleRatedPlayer) : (string * float) =
-        (rr.Name, rr.Rating)
+    /// Convert a single `RoleRatedPlayer` to a `(Name, Club, Rating)` tuple.
+    let rRPlayerReport (rr: RoleRatedPlayer) : (string * string * float) =
+        let club = Map.tryFind "Club" rr.Player.Extras |> Option.defaultValue ""
+        (rr.Name, club, rr.Rating)
 
     /// Filter helper: true when market value <= provided amount (in thousands).
     let roleRatedPlayerValueBelowK (maxValueK: int) (rr: RoleRatedPlayer) : bool =
