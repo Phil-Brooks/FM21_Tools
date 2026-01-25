@@ -7,8 +7,5 @@ HTML.loadSctPlayers sctpath
 printfn "Loaded %d players from %s" (List.length HTML.SctPlayers) sctpath
 
 let tmas = SCOUT.getSctPlayersForRoleAbove "TMA" 75.0
-let tmanms = SCOUT.getSctPlayerNamesForRoleAbove "TMA" 75.0
-let tmanmschp = SCOUT.getSctPlayerNamesForRoleAboveBelowValue "TMA" 75.0 9600
-
-let tmaschp2 = tmas|>List.filter (SCOUT.roleRatedPlayerValueBelowK 9600)
-let tmanmschp2 = tmaschp2|>List.map SCOUT.roleRatedPlayerToNameRating 
+let tmaschp = tmas|>List.filter (SCOUT.roleRatedPlayerValueBelowK 9600)
+let tmanmschp = tmaschp|>List.map SCOUT.roleRatedPlayerToNameRating 

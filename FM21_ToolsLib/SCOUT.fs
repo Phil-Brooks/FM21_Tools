@@ -59,12 +59,6 @@ module SCOUT =
         | Some v -> tryParseMoney v
         | None -> 0L
 
-    /// Filter helper: returns true when the RoleRatedPlayer's market value is <= the provided amount (in thousands).
-    /// Example: (roleRatedPlayerValueBelowK 185) returns true for players valued at £185K or less.
-    let roleRatedPlayerValueBelowK (maxValueK: int) (rr: RoleRatedPlayer) : bool =
-        let maxValueGbp = int64 maxValueK * 1000L
-        (playerMarketValue rr.Player) <= maxValueGbp
-
     /// Return a list of RoleRatedPlayer for all players in HTML.SctPlayers whose computed role rating is > threshold.
     let getSctPlayersForRoleAbove (roleName: string) (threshold: float) : RoleRatedPlayer list =
         let ratingFn = roleRatingFnForRoleName roleName
@@ -75,27 +69,12 @@ module SCOUT =
             | _ -> None)
         |> List.sortByDescending (fun rr -> rr.Rating)
 
-    /// Return a list of RoleRatedPlayer for all players in HTML.SctPlayers whose computed role rating is > threshold
-    /// and whose market value is <= maxValueK (expressed in thousands; e.g. 185 means £185K).
-    let getSctPlayersForRoleAboveBelowValue (roleName: string) (threshold: float) (maxValueK: int) : RoleRatedPlayer list =
-        let ratingFn = roleRatingFnForRoleName roleName
-        let maxValueInGbp = int64 maxValueK * 1000L
-        HTML.SctPlayers
-        |> List.choose (fun p ->
-            match ratingFn p with
-            | Some r when r > threshold && (playerMarketValue p) <= maxValueInGbp -> Some { Name = p.Name; RoleName = roleName; Rating = r; Player = p }
-            | _ -> None)
-        |> List.sortByDescending (fun rr -> rr.Rating)
-
-    /// Convenience: return only (Name, Rating) pairs from SctPlayers above threshold for the given role.
-    let getSctPlayerNamesForRoleAbove (roleName: string) (threshold: float) : (string * float) list =
-        getSctPlayersForRoleAbove roleName threshold |> List.map (fun rr -> (rr.Name, rr.Rating))
-
-    /// Convenience: return only (Name, Rating) pairs from SctPlayers above threshold for the given role and below max market value.
-    /// `maxValueK` is an `int` representing thousands (e.g. `500` => £500K).
-    let getSctPlayerNamesForRoleAboveBelowValue (roleName: string) (threshold: float) (maxValueK: int) : (string * float) list =
-        getSctPlayersForRoleAboveBelowValue roleName threshold maxValueK |> List.map (fun rr -> (rr.Name, rr.Rating))
-
     /// Convert a single `RoleRatedPlayer` to a `(Name, Rating)` tuple.
     let roleRatedPlayerToNameRating (rr: RoleRatedPlayer) : (string * float) =
         (rr.Name, rr.Rating)
+
+    /// Filter helper: returns true when the RoleRatedPlayer's market value is <= the provided amount (in thousands).
+    /// Example: (roleRatedPlayerValueBelowK 185) returns true for players valued at £185K or less.
+    let roleRatedPlayerValueBelowK (maxValueK: int) (rr: RoleRatedPlayer) : bool =
+        let maxValueGbp = int64 maxValueK * 1000L
+        (playerMarketValue rr.Player) <= maxValueGbp
