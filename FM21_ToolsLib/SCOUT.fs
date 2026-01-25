@@ -5,6 +5,9 @@ open System.Text.RegularExpressions
 
 module SCOUT =
 
+    /// Structured result for a player rated for a role.
+    type RoleRatedPlayer = { Name: string; RoleName: string; Rating: float; Player: HTML.Player }
+
     let private normalize (s: string) =
         if isNull s then "" else s.Trim().ToUpperInvariant()
 
@@ -56,33 +59,43 @@ module SCOUT =
         | Some v -> tryParseMoney v
         | None -> 0L
 
-    /// Return (Name, Rating, Player) for all players in HTML.SctPlayers whose computed role rating is > threshold.
-    let getSctPlayersForRoleAbove (roleName: string) (threshold: float) : (string * float * HTML.Player) list =
+    /// Filter helper: returns true when the RoleRatedPlayer's market value is <= the provided amount (in thousands).
+    /// Example: (roleRatedPlayerValueBelowK 185) returns true for players valued at £185K or less.
+    let roleRatedPlayerValueBelowK (maxValueK: int) (rr: RoleRatedPlayer) : bool =
+        let maxValueGbp = int64 maxValueK * 1000L
+        (playerMarketValue rr.Player) <= maxValueGbp
+
+    /// Return a list of RoleRatedPlayer for all players in HTML.SctPlayers whose computed role rating is > threshold.
+    let getSctPlayersForRoleAbove (roleName: string) (threshold: float) : RoleRatedPlayer list =
         let ratingFn = roleRatingFnForRoleName roleName
         HTML.SctPlayers
         |> List.choose (fun p ->
             match ratingFn p with
-            | Some r when r > threshold -> Some (p.Name, r, p)
+            | Some r when r > threshold -> Some { Name = p.Name; RoleName = roleName; Rating = r; Player = p }
             | _ -> None)
-        |> List.sortByDescending (fun (_, r, _) -> r)
+        |> List.sortByDescending (fun rr -> rr.Rating)
 
-    /// Return (Name, Rating, Player) for all players in HTML.SctPlayers whose computed role rating is > threshold
+    /// Return a list of RoleRatedPlayer for all players in HTML.SctPlayers whose computed role rating is > threshold
     /// and whose market value is <= maxValueK (expressed in thousands; e.g. 185 means £185K).
-    let getSctPlayersForRoleAboveBelowValue (roleName: string) (threshold: float) (maxValueK: int) : (string * float * HTML.Player) list =
+    let getSctPlayersForRoleAboveBelowValue (roleName: string) (threshold: float) (maxValueK: int) : RoleRatedPlayer list =
         let ratingFn = roleRatingFnForRoleName roleName
         let maxValueInGbp = int64 maxValueK * 1000L
         HTML.SctPlayers
         |> List.choose (fun p ->
             match ratingFn p with
-            | Some r when r > threshold && (playerMarketValue p) <= maxValueInGbp -> Some (p.Name, r, p)
+            | Some r when r > threshold && (playerMarketValue p) <= maxValueInGbp -> Some { Name = p.Name; RoleName = roleName; Rating = r; Player = p }
             | _ -> None)
-        |> List.sortByDescending (fun (_, r, _) -> r)
+        |> List.sortByDescending (fun rr -> rr.Rating)
 
     /// Convenience: return only (Name, Rating) pairs from SctPlayers above threshold for the given role.
     let getSctPlayerNamesForRoleAbove (roleName: string) (threshold: float) : (string * float) list =
-        getSctPlayersForRoleAbove roleName threshold |> List.map (fun (n, r, _) -> (n, r))
+        getSctPlayersForRoleAbove roleName threshold |> List.map (fun rr -> (rr.Name, rr.Rating))
 
     /// Convenience: return only (Name, Rating) pairs from SctPlayers above threshold for the given role and below max market value.
     /// `maxValueK` is an `int` representing thousands (e.g. `500` => £500K).
     let getSctPlayerNamesForRoleAboveBelowValue (roleName: string) (threshold: float) (maxValueK: int) : (string * float) list =
-        getSctPlayersForRoleAboveBelowValue roleName threshold maxValueK |> List.map (fun (n, r, _) -> (n, r))
+        getSctPlayersForRoleAboveBelowValue roleName threshold maxValueK |> List.map (fun rr -> (rr.Name, rr.Rating))
+
+    /// Convert a single `RoleRatedPlayer` to a `(Name, Rating)` tuple.
+    let roleRatedPlayerToNameRating (rr: RoleRatedPlayer) : (string * float) =
+        (rr.Name, rr.Rating)
