@@ -81,3 +81,10 @@ module SCOUT =
         let n = norm ls
         // Treat any non-empty value containing LOAN or LIST as loan-listed/on-loan
         n <> "" && (n.Contains("LOAN") || n.Contains("LIST"))
+
+    /// Filter helper: true when player's transfer status indicates they are transfer listed (or available for transfer).
+    let roleRatedPlayerTransferListed (rr: RoleRatedPlayer) : bool =
+        let ts = Map.tryFind "TransferStatus" rr.Player.Extras |> Option.defaultValue ""
+        let n = norm ts
+        // Treat any non-empty value containing TRANSFER or LIST as transfer-listed/available
+        n <> "" && (n.Contains("TRANSFER") || n.Contains("LIST"))
