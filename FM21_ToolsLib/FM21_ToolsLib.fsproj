@@ -12,6 +12,7 @@
     <Compile Include="CLUB.fs" />
     <Compile Include="DIVISION.fs" />
     <Compile Include="MY_CLUB.fs" />
+    <Compile Include="SCOUT.fs" />
   </ItemGroup>
 
 </Project>

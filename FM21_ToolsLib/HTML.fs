@@ -18,6 +18,7 @@ module HTML =
 
     let mutable AllPlayers: Player list = []
     let mutable MyPlayers: Player list = []
+    let mutable SctPlayers: Player list = []
 
     let private stripHtml (s: string) =
         Regex.Replace(s, "<.*?>", "", RegexOptions.Singleline)
@@ -91,4 +92,8 @@ module HTML =
     let loadMyPlayers (path: string) =
         let content = File.ReadAllText(path)
         MyPlayers <- parsePlayersFromHtmlContent content
+
+    let loadSctPlayers (path: string) =
+        let content = File.ReadAllText(path)
+        SctPlayers <- parsePlayersFromHtmlContent content
 

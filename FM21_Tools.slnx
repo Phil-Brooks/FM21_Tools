@@ -4,11 +4,13 @@
     <File Path="data/all.html" />
     <File Path="data/my.fmf" />
     <File Path="data/my.html" />
+    <File Path="data/sct.html" />
   </Folder>
   <Folder Name="/scripts/">
     <File Path="scripts/choose_team.fsx" />
     <File Path="scripts/load_all.fsx" />
     <File Path="scripts/my_club.fsx" />
+    <File Path="scripts/scout.fsx" />
   </Folder>
   <Project Path="FM21_ToolsLib/FM21_ToolsLib.fsproj" />
 </Solution>
