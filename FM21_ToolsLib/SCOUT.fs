@@ -74,3 +74,10 @@ module SCOUT =
     let roleRatedPlayerValueBelowK (maxValueK: int) (rr: RoleRatedPlayer) : bool =
         let maxValueGbp = int64 maxValueK * 1000L
         (playerMarketValue rr.Player) <= maxValueGbp
+
+    /// Filter helper: true when player's loan status indicates they are loan listed (or on loan).
+    let roleRatedPlayerLoanListed (rr: RoleRatedPlayer) : bool =
+        let ls = Map.tryFind "LoanStatus" rr.Player.Extras |> Option.defaultValue ""
+        let n = norm ls
+        // Treat any non-empty value containing LOAN or LIST as loan-listed/on-loan
+        n <> "" && (n.Contains("LOAN") || n.Contains("LIST"))
