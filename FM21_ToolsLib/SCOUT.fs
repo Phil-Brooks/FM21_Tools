@@ -41,10 +41,12 @@ module SCOUT =
         if t = "" || t.Contains("FREE") || t.Contains("NOT SET") then 0L
         else
             let cleaned = Regex.Replace(t, "[\u00a3\u20ac$\s]", "")
+            let lastChar = if cleaned = "" then ' ' else cleaned.[cleaned.Length - 1]
             let multiplier =
-                if cleaned.EndsWith("M") then 1_000_000L
-                elif cleaned.EndsWith("K") then 1_000L
-                else 1L
+                match lastChar with
+                | 'M' -> 1_000_000L
+                | 'K' -> 1_000L
+                | _ -> 1L
             let m = Regex.Match(cleaned, @"([\d.,]+)")
             if not m.Success then 0L
             else
@@ -75,19 +77,18 @@ module SCOUT =
         let maxValueGbp = int64 maxValueK * 1000L
         (playerMarketValue rr.Player) <= maxValueGbp
 
+    /// Generic helper: check an Extras key for presence of any tokens (normalized).
+    let private extraContains (key: string) (tokens: string[]) (rr: RoleRatedPlayer) : bool =
+        let value = Map.tryFind key rr.Player.Extras |> Option.defaultValue "" |> norm
+        value <> "" && tokens |> Array.exists value.Contains
+
     /// Filter helper: true when player's loan status indicates they are loan listed (or on loan).
     let roleRatedPlayerLoanListed (rr: RoleRatedPlayer) : bool =
-        let ls = Map.tryFind "LoanStatus" rr.Player.Extras |> Option.defaultValue ""
-        let n = norm ls
-        // Treat any non-empty value containing LOAN or LIST as loan-listed/on-loan
-        n <> "" && (n.Contains("LOAN") || n.Contains("LIST"))
+        extraContains "LoanStatus" [| "LOAN"; "LIST" |] rr
 
     /// Filter helper: true when player's transfer status indicates they are transfer listed (or available for transfer).
     let roleRatedPlayerTransferListed (rr: RoleRatedPlayer) : bool =
-        let ts = Map.tryFind "TransferStatus" rr.Player.Extras |> Option.defaultValue ""
-        let n = norm ts
-        // Treat any non-empty value containing TRANSFER or LIST as transfer-listed/available
-        n <> "" && (n.Contains("TRANSFER") || n.Contains("LIST"))
+        extraContains "TransferStatus" [| "TRANSFER"; "LIST" |] rr
 
     /// Try to parse a player's DoB into a DateTime. Tries common formats, falls back to extracting a 4-digit year.
     let private tryParseDoB (s: string) : DateTime option =
