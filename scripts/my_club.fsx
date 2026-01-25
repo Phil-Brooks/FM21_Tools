@@ -22,4 +22,5 @@ let wkp = (MY_CLUB.getFirstTeamWeakestRelativeToDivision div).Value
 let wkp2 = (MY_CLUB.getSecondTeamWeakestRelativeToDivision div).Value
 
 let cmp = MY_CLUB.getFirstTeamComparisonToDivision div
+let cmp2 = MY_CLUB.getSecondTeamComparisonToDivision div
 
