@@ -1,6 +1,7 @@
 namespace FM21_ToolsLib
 
 open System
+open System.Text.RegularExpressions
 
 module TEAM =
 
@@ -84,10 +85,29 @@ module TEAM =
             TargetManAttack = tmaPos
         }
 
+    // map a RoleName to the requested abbreviation for printed output
+    let private roleAbbrev (role: string) : string =
+        if role.StartsWith("Ball Playing Defender", StringComparison.InvariantCultureIgnoreCase) then
+            // try to extract the index suffix if present (#n)
+            let m = Regex.Match(role, "#(\\d+)")
+            if m.Success then sprintf "BPD%s" m.Groups.[1].Value else "BPD"
+        else
+            match role with
+            | "Sweeper Keeper" -> "SKD"
+            | "Inverted Wing Back (R)" -> "IWBR"
+            | "Inverted Wing Back (L)" -> "IWBL"
+            | "Winger (Attack) R" -> "WAR"
+            | "Inverted Winger (L)" -> "IWL"
+            | "Ball Winning Midfielder (Support)" -> "BWM"
+            | "Advanced Playmaker (Support)" -> "AP"
+            | "Advanced Forward (Attack)" -> "AFA"
+            | "Target Man (Attack)" -> "TMA"
+            | _ -> role // fallback to original if unknown
+
     let teamAsPositionNameOptions (t: Team) =
-        let toTuple p = (p.RoleName, p.PlayerName)
+        let toTuple p = (roleAbbrev p.RoleName, p.PlayerName)
         [ toTuple t.SweeperKeeper; toTuple t.InvertedWingBackRight; toTuple t.InvertedWingBackLeft ]
-        @ (t.BallPlayingDefs |> List.map (fun p -> (p.RoleName, p.PlayerName)))
+        @ (t.BallPlayingDefs |> List.map (fun p -> (roleAbbrev p.RoleName, p.PlayerName)))
         @ [ toTuple t.WingerAttackRight; toTuple t.InvertedWingerLeft; toTuple t.BallWinningMidfielderSupport;
             toTuple t.AdvancedPlaymakerSupport; toTuple t.AdvancedForwardAttack; toTuple t.TargetManAttack ]
 

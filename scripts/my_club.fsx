@@ -19,5 +19,7 @@ let wka =  MY_CLUB.getFirstTeamWeakestAttributes()
 let wka2 =  MY_CLUB.getSecondTeamWeakestAttributes()
 
 let wkp = (MY_CLUB.getFirstTeamWeakestRelativeToDivision div).Value
+let wkp2 = (MY_CLUB.getSecondTeamWeakestRelativeToDivision div).Value
 
+let cmp = MY_CLUB.getFirstTeamComparisonToDivision div
 
