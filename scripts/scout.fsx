@@ -26,8 +26,20 @@ let tlbpds =
 let chpbpds = 
     //get all players better
     let bpds = SCOUT.getSctPlayersForRoleAbove "BPD" 65.0
-    bpds |> List.filter (SCOUT.roleRatedPlayerValueBelowK 2000)
-    //
+    bpds 
+    |> List.filter (SCOUT.roleRatedPlayerValueBelowK 2000)
+    |> List.filter (SCOUT.roleRatedPlayerAgeBelow 30)
+    |> List.map SCOUT.roleRatedPlayerToNameRating
+    //found 14
+//val chpbpds: (string * float) list =
+//  [("Pablo Insua", 66.68604651); ("Mido", 66.56976744);
+//   ("Christian Rivera", 65.75581395); ("Maxym Malyshev", 65.63953488);
+//   ("Kevin Medina", 65.40697674); ("Bart Schenkeveld", 65.40697674);
+//   ("Anel Ahmedhodžić", 65.34883721); ("Jonas Meffert", 65.29069767);
+//   ("Yves Dabila", 65.23255814); ("Tom Dele-Bashiru", 65.1744186);
+//   ("Ľubomír Šatka", 65.1744186); ("Yassine Meriah", 65.11627907);
+//   ("Fredrik Oldrup Jensen", 65.11627907); ("Ross McCrorie", 65.05813953)]
+
 
 
 

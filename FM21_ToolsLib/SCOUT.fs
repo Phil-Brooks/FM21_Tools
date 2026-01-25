@@ -88,3 +88,42 @@ module SCOUT =
         let n = norm ts
         // Treat any non-empty value containing TRANSFER or LIST as transfer-listed/available
         n <> "" && (n.Contains("TRANSFER") || n.Contains("LIST"))
+
+    /// Try to parse a player's DoB into a DateTime. Tries common formats, falls back to extracting a 4-digit year.
+    let private tryParseDoB (s: string) : DateTime option =
+        if isNull s then None else
+        let t = s.Trim()
+        if t = "" then None else
+        let mutable dt = DateTime.MinValue
+        // Try general parse with invariant culture
+        if DateTime.TryParse(t, CultureInfo.InvariantCulture, DateTimeStyles.None, &dt) then Some dt
+        else
+            // Try common explicit formats
+            let formats = [| "dd/MM/yyyy"; "d/M/yyyy"; "dd-MM-yyyy"; "yyyy-MM-dd"; "d MMM yyyy"; "dd MMM yyyy" |]
+            if DateTime.TryParseExact(t, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, &dt) then Some dt
+            else
+                // Fallback: extract a 4-digit year (1990, 2001, etc.) and produce an approximate date (Jan 1 of that year)
+                let m = Regex.Match(t, @"\b(19|20)\d{2}\b")
+                if m.Success then
+                    match Int32.TryParse(m.Value) with
+                    | true, y -> Some (DateTime(y, 1, 1))
+                    | _ -> None
+                else None
+
+    /// Compute player's age in years (approximate when only year is available).
+    let private playerAge (p: HTML.Player) : int option =
+        match tryParseDoB p.DoB with
+        | Some dob ->
+            // Use fixed reference date 31 August 2020 instead of DateTime.Today
+            let today = DateTime(2020, 8, 31)
+            let years = today.Year - dob.Year
+            let hadBirthdayThisYear = (dob.Month < today.Month) || (dob.Month = today.Month && dob.Day <= today.Day)
+            let age = if hadBirthdayThisYear then years else years - 1
+            Some age
+        | None -> None
+
+    /// Filter helper: true when player's age is strictly below the provided `maxAge`.
+    let roleRatedPlayerAgeBelow (maxAge: int) (rr: RoleRatedPlayer) : bool =
+        match playerAge rr.Player with
+        | Some age -> age < maxAge
+        | None -> false
