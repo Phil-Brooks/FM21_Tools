@@ -13,6 +13,24 @@ module MY_CLUB =
         |> List.filter (fun p -> not (TEAM.teamAsPositionNameOptions first |> List.choose snd |> Set.ofList |> Set.contains p.Name))
         |> buildFromPool
 
+    // Third team: build from players not used in first or second teams.
+    let getThirdTeam () =
+        let first = getFirstTeam ()
+        // build second locally so we can exclude its picks as well
+        let second =
+            HTML.MyPlayers
+            |> List.filter (fun p -> not (TEAM.teamAsPositionNameOptions first |> List.choose snd |> Set.ofList |> Set.contains p.Name))
+            |> buildFromPool
+
+        let usedNames =
+            (TEAM.teamAsPositionNameOptions first |> List.choose snd)
+            @ (TEAM.teamAsPositionNameOptions second |> List.choose snd)
+            |> Set.ofList
+
+        HTML.MyPlayers
+        |> List.filter (fun p -> not (Set.contains p.Name usedNames))
+        |> buildFromPool
+
     /// Scores / printable views for first team.
     let getFirstTeamScore () = getFirstTeam () |> TEAM.teamScore
     let getFirstTeamScoreOption () = getFirstTeam () |> TEAM.teamScoreOption
@@ -22,6 +40,11 @@ module MY_CLUB =
     let getSecondTeamScore () = getSecondTeam () |> TEAM.teamScore
     let getSecondTeamScoreOption () = getSecondTeam () |> TEAM.teamScoreOption
     let getSecondTeamAsStrings () = getSecondTeam () |> TEAM.teamAsStrings
+
+    /// Scores / printable views for third team.
+    let getThirdTeamScore () = getThirdTeam () |> TEAM.teamScore
+    let getThirdTeamScoreOption () = getThirdTeam () |> TEAM.teamScoreOption
+    let getThirdTeamAsStrings () = getThirdTeam () |> TEAM.teamAsStrings
 
     // -- Shared helpers for position lists / weakest attribute / comparisons --
 
@@ -55,9 +78,10 @@ module MY_CLUB =
         |> List.choose weakestRelevantAttributeForPosition
         |> List.map formatWeakest
 
-    /// Public: weakest relevant attribute list for first/second team.
+    /// Public: weakest relevant attribute list for first/second/third team.
     let getFirstTeamWeakestAttributes () = getFirstTeam () |> getWeakestAttributesForTeam
     let getSecondTeamWeakestAttributes () = getSecondTeam () |> getWeakestAttributesForTeam
+    let getThirdTeamWeakestAttributes () = getThirdTeam () |> getWeakestAttributesForTeam
 
     /// Generic: find the single assigned player whose role rating is most below the average for that role.
     let private getTeamWeakestRelativeToDivision (team: TEAM.Team) (division: string) : string option =
@@ -81,6 +105,7 @@ module MY_CLUB =
 
     let getFirstTeamWeakestRelativeToDivision division = getFirstTeam () |> fun t -> getTeamWeakestRelativeToDivision t division
     let getSecondTeamWeakestRelativeToDivision division = getSecondTeam () |> fun t -> getTeamWeakestRelativeToDivision t division
+    let getThirdTeamWeakestRelativeToDivision division = getThirdTeam () |> fun t -> getTeamWeakestRelativeToDivision t division
 
     /// Generic: compare a team's per-role ratings against division averages and produce a summary.
     let private getTeamComparisonToDivision (team: TEAM.Team) (division: string) : string list =
@@ -124,3 +149,4 @@ module MY_CLUB =
 
     let getFirstTeamComparisonToDivision division = getFirstTeam () |> fun t -> getTeamComparisonToDivision t division
     let getSecondTeamComparisonToDivision division = getSecondTeam () |> fun t -> getTeamComparisonToDivision t division
+    let getThirdTeamComparisonToDivision division = getThirdTeam () |> fun t -> getTeamComparisonToDivision t division
