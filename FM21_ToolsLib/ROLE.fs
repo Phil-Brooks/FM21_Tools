@@ -66,309 +66,145 @@ module ROLE =
             | "Sweeper Keeper" -> attrsSweeperKeeperDefend
             // default: no relevant attributes known
             | _ -> []
-            
+
+    // General role rating builder to remove repetitive code
+    let private mkRoleRating (positionPredicate: string -> bool) (weightedAttrKeys: (float * string) list) : (HTML.Player -> float option) =
+        fun (p: HTML.Player) ->
+            if not (posMatches p positionPredicate) then None
+            else
+                weightedAttrKeys
+                |> List.map (fun (w, key) -> (w, toFloatOpt (getAttr p key)))
+                |> weightedScore
+
+    // role-specific ratings (use mkRoleRating to keep definitions concise)
+
     // Target Man (Attack)
-    let roleRatingTargetManAttack (p: HTML.Player) : float option =
-        let isForwardPosition =
-            posMatches p (fun up -> up.Contains("ST") || up.Contains("F C"))
-
-        if not isForwardPosition then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (0.40, toFloatOpt (getAttr p "Dri"))
-                (0.60, toFloatOpt (getAttr p "Fin"))
-                (0.60, toFloatOpt (getAttr p "Fir"))
-                (0.60, toFloatOpt (getAttr p "Hea"))
-                (0.20, toFloatOpt (getAttr p "Pas"))
-                (0.40, toFloatOpt (getAttr p "Tec"))
-                (0.40, toFloatOpt (getAttr p "Ant"))
-                (0.60, toFloatOpt (getAttr p "Cmp"))
-                (1.00, toFloatOpt (getAttr p "Acc"))
-                (0.40, toFloatOpt (getAttr p "Agi"))
-                (0.60, toFloatOpt (getAttr p "Jum"))
-                (1.00, toFloatOpt (getAttr p "Pac"))
-                (0.60, toFloatOpt (getAttr p "Str"))
+    let roleRatingTargetManAttack =
+        mkRoleRating
+            (fun up -> up.Contains("ST") || up.Contains("F C"))
+            [
+                (0.40, "Dri"); (0.60, "Fin"); (0.60, "Fir"); (0.60, "Hea"); (0.20, "Pas");
+                (0.40, "Tec"); (0.40, "Ant"); (0.60, "Cmp"); (1.00, "Acc"); (0.40, "Agi");
+                (0.60, "Jum"); (1.00, "Pac"); (0.60, "Str")
             ]
-            weightedScore weightedAttrs
 
-    let bestTargetMenAttack (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingTargetManAttack players topN
-
-    let bestTargetMenAttackNames (players: HTML.Player list) (topN: int) : string list =
-        bestTargetMenAttack players topN |> List.map fst
+    let bestTargetMenAttack = bestBy roleRatingTargetManAttack
+    let bestTargetMenAttackNames players topN = bestTargetMenAttack players topN |> List.map fst
 
     // Advanced Forward (Attack)
-    let roleRatingAdvancedForwardAttack (p: HTML.Player) : float option =
-        let isForwardPosition =
-            posMatches p (fun up -> up.Contains("ST") || up.Contains("F C"))
-
-        if not isForwardPosition then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (1.00, toFloatOpt (getAttr p "Pac"))
-                (1.00, toFloatOpt (getAttr p "Acc"))
-                (1.00, toFloatOpt (getAttr p "Fin"))
-                (0.80, toFloatOpt (getAttr p "Dri"))
-                (0.60, toFloatOpt (getAttr p "Fir"))
-                (0.60, toFloatOpt (getAttr p "OtB"))
-                (0.60, toFloatOpt (getAttr p "Tec"))
-                (0.60, toFloatOpt (getAttr p "Ant"))
-                (0.60, toFloatOpt (getAttr p "Cmp"))
-                (0.40, toFloatOpt (getAttr p "Agi"))
-                (0.40, toFloatOpt (getAttr p "Bal"))
-                (0.20, toFloatOpt (getAttr p "Sta"))
-                (0.20, toFloatOpt (getAttr p "Pas"))
+    let roleRatingAdvancedForwardAttack =
+        mkRoleRating
+            (fun up -> up.Contains("ST") || up.Contains("F C"))
+            [
+                (1.00, "Pac"); (1.00, "Acc"); (1.00, "Fin"); (0.80, "Dri"); (0.60, "Fir");
+                (0.60, "OtB"); (0.60, "Tec"); (0.60, "Ant"); (0.60, "Cmp"); (0.40, "Agi");
+                (0.40, "Bal"); (0.20, "Sta"); (0.20, "Pas")
             ]
-            weightedScore weightedAttrs
 
-    let bestAdvancedForwardsAttack (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingAdvancedForwardAttack players topN
-
-    let bestAdvancedForwardsAttackNames (players: HTML.Player list) (topN: int) : string list =
-        bestAdvancedForwardsAttack players topN |> List.map fst
+    let bestAdvancedForwardsAttack = bestBy roleRatingAdvancedForwardAttack
+    let bestAdvancedForwardsAttackNames players topN = bestAdvancedForwardsAttack players topN |> List.map fst
 
     // Winger (Attack) Right
-    let roleRatingWingerAttackRight (p: HTML.Player) : float option =
-        let isRightWingPosition =
-            posMatches p (fun up -> up.Contains("M") && up.Contains("R"))
-
-        if not isRightWingPosition then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt (getAttr p "Cro"))
-                (1.00, toFloatOpt (getAttr p "Pac"))
-                (1.00, toFloatOpt (getAttr p "Acc"))
-                (0.80, toFloatOpt (getAttr p "Dri"))
-                (0.60, toFloatOpt (getAttr p "Tec"))
-                (0.60, toFloatOpt (getAttr p "Pas"))
-                (0.60, toFloatOpt (getAttr p "OtB"))
-                (0.40, toFloatOpt (getAttr p "Agi"))
-                (0.40, toFloatOpt (getAttr p "Fla"))
-                (0.20, toFloatOpt (getAttr p "Sta"))
-                (0.20, toFloatOpt (getAttr p "Fin"))
+    let roleRatingWingerAttackRight =
+        mkRoleRating
+            (fun up -> up.Contains("M") && up.Contains("R"))
+            [
+                (1.20, "Cro"); (1.00, "Pac"); (1.00, "Acc"); (0.80, "Dri"); (0.60, "Tec");
+                (0.60, "Pas"); (0.60, "OtB"); (0.40, "Agi"); (0.40, "Fla"); (0.20, "Sta"); (0.20, "Fin")
             ]
-            weightedScore weightedAttrs
 
-    let bestWingersAttackRight (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingWingerAttackRight players topN
-
-    let bestWingersAttackRightNames (players: HTML.Player list) (topN: int) : string list =
-        bestWingersAttackRight players topN |> List.map fst
+    let bestWingersAttackRight = bestBy roleRatingWingerAttackRight
+    let bestWingersAttackRightNames players topN = bestWingersAttackRight players topN |> List.map fst
 
     // Inverted Winger (Support) Left
-    let roleRatingInvertedWingerSupportLeft (p: HTML.Player) : float option =
-        let isLeftWingPosition =
-            posMatches p (fun up -> up.Contains("M") && up.Contains("L"))
-
-        if not isLeftWingPosition then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (0.40, toFloatOpt (getAttr p "Cro"))
-                (0.90, toFloatOpt (getAttr p "Pas"))
-                (0.80, toFloatOpt (getAttr p "Tec"))
-                (0.80, toFloatOpt (getAttr p "OtB"))
-                (0.80, toFloatOpt (getAttr p "Dri"))
-                (0.60, toFloatOpt (getAttr p "Fla"))
-                (0.60, toFloatOpt (getAttr p "Cmp"))
-                (0.50, toFloatOpt (getAttr p "Ant"))
-                (0.60, toFloatOpt (getAttr p "Acc"))
-                (0.60, toFloatOpt (getAttr p "Pac"))
-                (0.40, toFloatOpt (getAttr p "Agi"))
-                (0.20, toFloatOpt (getAttr p "Sta"))
-                (0.20, toFloatOpt (getAttr p "Fin"))
+    let roleRatingInvertedWingerSupportLeft =
+        mkRoleRating
+            (fun up -> up.Contains("M") && up.Contains("L"))
+            [
+                (0.40, "Cro"); (0.90, "Pas"); (0.80, "Tec"); (0.80, "OtB"); (0.80, "Dri");
+                (0.60, "Fla"); (0.60, "Cmp"); (0.50, "Ant"); (0.60, "Acc"); (0.60, "Pac");
+                (0.40, "Agi"); (0.20, "Sta"); (0.20, "Fin")
             ]
-            weightedScore weightedAttrs
 
-    let bestInvertedWingersSupportLeft (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingInvertedWingerSupportLeft players topN
-
-    let bestInvertedWingersSupportLeftNames (players: HTML.Player list) (topN: int) : string list =
-        bestInvertedWingersSupportLeft players topN |> List.map fst
+    let bestInvertedWingersSupportLeft = bestBy roleRatingInvertedWingerSupportLeft
+    let bestInvertedWingersSupportLeftNames players topN = bestInvertedWingersSupportLeft players topN |> List.map fst
 
     // Advanced Playmaker (Support) MC
-    let roleRatingAdvancedPlaymakerSupport (p: HTML.Player) : float option =
-        let isCentralMidPosition =
-            posMatches p (fun up -> up.Contains("M") && up.Contains("C"))
-
-        if not isCentralMidPosition then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt (getAttr p "Pas"))
-                (0.90, toFloatOpt (getAttr p "Tec"))
-                (0.90, toFloatOpt (getAttr p "OtB"))
-                (0.80, toFloatOpt (getAttr p "Ant"))
-                (0.80, toFloatOpt (getAttr p "Cmp"))
-                (0.60, toFloatOpt (getAttr p "Fir"))
-                (0.60, toFloatOpt (getAttr p "Dri"))
-                (0.50, toFloatOpt (getAttr p "Fla"))
-                (0.40, toFloatOpt (getAttr p "Acc"))
-                (0.40, toFloatOpt (getAttr p "Pac"))
-                (0.30, toFloatOpt (getAttr p "Sta"))
+    let roleRatingAdvancedPlaymakerSupport =
+        mkRoleRating
+            (fun up -> up.Contains("M") && up.Contains("C"))
+            [
+                (1.20, "Pas"); (0.90, "Tec"); (0.90, "OtB"); (0.80, "Ant"); (0.80, "Cmp");
+                (0.60, "Fir"); (0.60, "Dri"); (0.50, "Fla"); (0.40, "Acc"); (0.40, "Pac"); (0.30, "Sta")
             ]
-            weightedScore weightedAttrs
 
-    let bestAdvancedPlaymakersSupport (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingAdvancedPlaymakerSupport players topN
-
-    let bestAdvancedPlaymakersSupportNames (players: HTML.Player list) (topN: int) : string list =
-        bestAdvancedPlaymakersSupport players topN |> List.map fst
+    let bestAdvancedPlaymakersSupport = bestBy roleRatingAdvancedPlaymakerSupport
+    let bestAdvancedPlaymakersSupportNames players topN = bestAdvancedPlaymakersSupport players topN |> List.map fst
 
     // Ball Winning Midfielder (Support) MC
-    let roleRatingBallWinningMidfielderSupport (p: HTML.Player) : float option =
-        let isCentralMidPosition =
-            posMatches p (fun up -> up.Contains("M") && up.Contains("C"))
-
-        if not isCentralMidPosition then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt (getAttr p "Tck"))
-                (1.00, toFloatOpt (getAttr p "Mar"))
-                (0.80, toFloatOpt (getAttr p "Agg"))
-                (0.80, toFloatOpt (getAttr p "Sta"))
-                (0.70, toFloatOpt (getAttr p "Wor"))
-                (0.70, toFloatOpt (getAttr p "Str"))
-                (0.60, toFloatOpt (getAttr p "Ant"))
-                (0.60, toFloatOpt (getAttr p "Dec"))
-                (0.50, toFloatOpt (getAttr p "Cmp"))
-                (0.40, toFloatOpt (getAttr p "Pas"))
-                (0.30, toFloatOpt (getAttr p "Pac"))
-                (0.30, toFloatOpt (getAttr p "Acc"))
-                (0.20, toFloatOpt (getAttr p "Tec"))
+    let roleRatingBallWinningMidfielderSupport =
+        mkRoleRating
+            (fun up -> up.Contains("M") && up.Contains("C"))
+            [
+                (1.20, "Tck"); (1.00, "Mar"); (0.80, "Agg"); (0.80, "Sta"); (0.70, "Wor");
+                (0.70, "Str"); (0.60, "Ant"); (0.60, "Dec"); (0.50, "Cmp"); (0.40, "Pas");
+                (0.30, "Pac"); (0.30, "Acc"); (0.20, "Tec")
             ]
-            weightedScore weightedAttrs
 
-    let bestBallWinningMidfieldersSupport (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingBallWinningMidfielderSupport players topN
-
-    let bestBallWinningMidfieldersSupportNames (players: HTML.Player list) (topN: int) : string list =
-        bestBallWinningMidfieldersSupport players topN |> List.map fst
+    let bestBallWinningMidfieldersSupport = bestBy roleRatingBallWinningMidfielderSupport
+    let bestBallWinningMidfieldersSupportNames players topN = bestBallWinningMidfieldersSupport players topN |> List.map fst
 
     // Ball Playing Defender (DC)
-    let roleRatingBallPlayingDefender (p: HTML.Player) : float option =
-        let isCentralDefender =
-            posMatches p (fun up -> ((up.Contains("D") && up.Contains("C")) || up.Contains("CB")))
-
-        if not isCentralDefender then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt (getAttr p "Pas"))
-                (0.90, toFloatOpt (getAttr p "Tec"))
-                (0.90, toFloatOpt (getAttr p "Cmp"))
-                (0.80, toFloatOpt (getAttr p "Dec"))
-                (0.70, toFloatOpt (getAttr p "Ant"))
-                (0.70, toFloatOpt (getAttr p "Tck"))
-                (0.60, toFloatOpt (getAttr p "Mar"))
-                (0.60, toFloatOpt (getAttr p "Str"))
-                (0.50, toFloatOpt (getAttr p "Hea"))
-                (0.40, toFloatOpt (getAttr p "Jum"))
-                (0.40, toFloatOpt (getAttr p "Pac"))
-                (0.30, toFloatOpt (getAttr p "Acc"))
-                (0.30, toFloatOpt (getAttr p "Sta"))
-                (0.30, toFloatOpt (getAttr p "Agg"))
+    let roleRatingBallPlayingDefender =
+        mkRoleRating
+            (fun up -> ((up.Contains("D") && up.Contains("C")) || up.Contains("CB")))
+            [
+                (1.20, "Pas"); (0.90, "Tec"); (0.90, "Cmp"); (0.80, "Dec"); (0.70, "Ant");
+                (0.70, "Tck"); (0.60, "Mar"); (0.60, "Str"); (0.50, "Hea"); (0.40, "Jum");
+                (0.40, "Pac"); (0.30, "Acc"); (0.30, "Sta"); (0.30, "Agg")
             ]
-            weightedScore weightedAttrs
 
-    let bestBallPlayingDefenders (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingBallPlayingDefender players topN
-
-    let bestBallPlayingDefendersNames (players: HTML.Player list) (topN: int) : string list =
-        bestBallPlayingDefenders players topN |> List.map fst
+    let bestBallPlayingDefenders = bestBy roleRatingBallPlayingDefender
+    let bestBallPlayingDefendersNames players topN = bestBallPlayingDefenders players topN |> List.map fst
 
     // Inverted Wing Back (Support) Right
-    let roleRatingInvertedWingBackSupportRight (p: HTML.Player) : float option =
-        let isRightDefender =
-            posMatches p (fun up -> ((up.Contains("D") && up.Contains("R")) || up.Contains("RB") || up.Contains("RWB")))
-
-        if not isRightDefender then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (1.00, toFloatOpt (getAttr p "Pas"))
-                (0.90, toFloatOpt (getAttr p "Tec"))
-                (0.80, toFloatOpt (getAttr p "OtB"))
-                (0.80, toFloatOpt (getAttr p "Cro"))
-                (0.80, toFloatOpt (getAttr p "Dri"))
-                (0.70, toFloatOpt (getAttr p "Pac"))
-                (0.60, toFloatOpt (getAttr p "Acc"))
-                (0.60, toFloatOpt (getAttr p "Sta"))
-                (0.60, toFloatOpt (getAttr p "Wor"))
-                (0.60, toFloatOpt (getAttr p "Cmp"))
-                (0.50, toFloatOpt (getAttr p "Dec"))
-                (0.50, toFloatOpt (getAttr p "Tck"))
-                (0.50, toFloatOpt (getAttr p "Mar"))
-                (0.40, toFloatOpt (getAttr p "Ant"))
-                (0.40, toFloatOpt (getAttr p "Agi"))
-                (0.30, toFloatOpt (getAttr p "Str"))
+    let roleRatingInvertedWingBackSupportRight =
+        mkRoleRating
+            (fun up -> ((up.Contains("D") && up.Contains("R")) || up.Contains("RB") || up.Contains("RWB")))
+            [
+                (1.00, "Pas"); (0.90, "Tec"); (0.80, "OtB"); (0.80, "Cro"); (0.80, "Dri");
+                (0.70, "Pac"); (0.60, "Acc"); (0.60, "Sta"); (0.60, "Wor"); (0.60, "Cmp");
+                (0.50, "Dec"); (0.50, "Tck"); (0.50, "Mar"); (0.40, "Ant"); (0.40, "Agi"); (0.30, "Str")
             ]
-            weightedScore weightedAttrs
 
-    let bestInvertedWingBacksSupportRight (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingInvertedWingBackSupportRight players topN
-
-    let bestInvertedWingBacksSupportRightNames (players: HTML.Player list) (topN: int) : string list =
-        bestInvertedWingBacksSupportRight players topN |> List.map fst
+    let bestInvertedWingBacksSupportRight = bestBy roleRatingInvertedWingBackSupportRight
+    let bestInvertedWingBacksSupportRightNames players topN = bestInvertedWingBacksSupportRight players topN |> List.map fst
 
     // Inverted Wing Back (Support) Left
-    let roleRatingInvertedWingBackSupportLeft (p: HTML.Player) : float option =
-        let isLeftDefender =
-            posMatches p (fun up -> ((up.Contains("D") && up.Contains("L")) || up.Contains("LB") || up.Contains("LWB")))
-
-        if not isLeftDefender then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (1.00, toFloatOpt (getAttr p "Pas"))
-                (0.90, toFloatOpt (getAttr p "Tec"))
-                (0.80, toFloatOpt (getAttr p "OtB"))
-                (0.80, toFloatOpt (getAttr p "Cro"))
-                (0.80, toFloatOpt (getAttr p "Dri"))
-                (0.70, toFloatOpt (getAttr p "Pac"))
-                (0.60, toFloatOpt (getAttr p "Acc"))
-                (0.60, toFloatOpt (getAttr p "Sta"))
-                (0.60, toFloatOpt (getAttr p "Wor"))
-                (0.60, toFloatOpt (getAttr p "Cmp"))
-                (0.50, toFloatOpt (getAttr p "Dec"))
-                (0.50, toFloatOpt (getAttr p "Tck"))
-                (0.50, toFloatOpt (getAttr p "Mar"))
-                (0.40, toFloatOpt (getAttr p "Ant"))
-                (0.40, toFloatOpt (getAttr p "Agi"))
-                (0.30, toFloatOpt (getAttr p "Str"))
+    let roleRatingInvertedWingBackSupportLeft =
+        mkRoleRating
+            (fun up -> ((up.Contains("D") && up.Contains("L")) || up.Contains("LB") || up.Contains("LWB")))
+            [
+                (1.00, "Pas"); (0.90, "Tec"); (0.80, "OtB"); (0.80, "Cro"); (0.80, "Dri");
+                (0.70, "Pac"); (0.60, "Acc"); (0.60, "Sta"); (0.60, "Wor"); (0.60, "Cmp");
+                (0.50, "Dec"); (0.50, "Tck"); (0.50, "Mar"); (0.40, "Ant"); (0.40, "Agi"); (0.30, "Str")
             ]
-            weightedScore weightedAttrs
 
-    let bestInvertedWingBacksSupportLeft (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingInvertedWingBackSupportLeft players topN
-
-    let bestInvertedWingBacksSupportLeftNames (players: HTML.Player list) (topN: int) : string list =
-        bestInvertedWingBacksSupportLeft players topN |> List.map fst
+    let bestInvertedWingBacksSupportLeft = bestBy roleRatingInvertedWingBackSupportLeft
+    let bestInvertedWingBacksSupportLeftNames players topN = bestInvertedWingBacksSupportLeft players topN |> List.map fst
 
     // Sweeper Keeper (Defend)
-    let roleRatingSweeperKeeperDefend (p: HTML.Player) : float option =
-        let isGoalkeeper =
-            posMatches p (fun up -> up.Contains("GK") || up.Contains("G K") || up.Contains("GOAL"))
-
-        if not isGoalkeeper then None
-        else
-            let weightedAttrs : (float * float option) list = [
-                (1.20, toFloatOpt (getAttr p "Ref"))
-                (1.00, toFloatOpt (getAttr p "Han"))
-                (0.90, toFloatOpt (getAttr p "Pos"))
-                (0.80, toFloatOpt (getAttr p "Kic"))
-                (0.70, toFloatOpt (getAttr p "Cmd"))
-                (0.60, toFloatOpt (getAttr p "Thr"))
-                (0.60, toFloatOpt (getAttr p "OneVOne"))
-                (0.50, toFloatOpt (getAttr p "Pun"))
-                (0.40, toFloatOpt (getAttr p "Com"))
-                (0.30, toFloatOpt (getAttr p "Ecc"))
-                (0.30, toFloatOpt (getAttr p "Aer"))
-                (0.20, toFloatOpt (getAttr p "Acc"))
-                (0.20, toFloatOpt (getAttr p "Pac"))
+    let roleRatingSweeperKeeperDefend =
+        mkRoleRating
+            (fun up -> up.Contains("GK") || up.Contains("G K") || up.Contains("GOAL"))
+            [
+                (1.20, "Ref"); (1.00, "Han"); (0.90, "Pos"); (0.80, "Kic"); (0.70, "Cmd");
+                (0.60, "Thr"); (0.60, "OneVOne"); (0.50, "Pun"); (0.40, "Com"); (0.30, "Ecc");
+                (0.30, "Aer"); (0.20, "Acc"); (0.20, "Pac")
             ]
-            weightedScore weightedAttrs
 
-    let bestSweeperKeepersDefend (players: HTML.Player list) (topN: int) : (string * float) list =
-        bestBy roleRatingSweeperKeeperDefend players topN
-
-    let bestSweeperKeepersDefendNames (players: HTML.Player list) (topN: int) : string list =
-        bestSweeperKeepersDefend players topN |> List.map fst
+    let bestSweeperKeepersDefend = bestBy roleRatingSweeperKeeperDefend
+    let bestSweeperKeepersDefendNames players topN = bestSweeperKeepersDefend players topN |> List.map fst
 
     // --- New: compute all role ratings for a player and pick the best ---
 
@@ -392,9 +228,7 @@ module ROLE =
     let roleRatingsForPlayer (p: HTML.Player) : (string * float) list =
         allRoleRatings
         |> List.choose (fun (roleName, rf) ->
-            match rf p with
-            | Some r -> Some (roleName, r)
-            | None -> None)
+            rf p |> Option.map (fun r -> (roleName, r)))
         |> List.sortByDescending snd
 
     /// Return the single best role for a player as (roleName, rating) option.
