@@ -48,7 +48,7 @@ module MY_CLUB =
 
     // -- Shared helpers for position lists / weakest attribute / comparisons --
 
-    let private posListForTeam (team: TEAM.Team) =
+    let private posListForTeam (team: TEAM.Team) : (string * TYPES.RoleRatedPlayer option) list =
         [ ("SKD", team.SweeperKeeper)
           ("IWBR", team.InvertedWingBackRight)
           ("IWBL", team.InvertedWingBackLeft) ]
@@ -57,17 +57,18 @@ module MY_CLUB =
             ("BWM", team.BallWinningMidfielderSupport); ("AP", team.AdvancedPlaymakerSupport);
             ("AFA", team.AdvancedForwardAttack); ("TMA", team.TargetManAttack) ]
 
-    /// For a TEAM.Position with an assigned Player, return the weakest relevant attribute (roleAbbrev, player, attr, value).
-    let private weakestRelevantAttributeForPosition (roleAbbrev: string, pos: TEAM.Position) : (string * string * string * int) option =
-        pos.Player
-        |> Option.bind (fun player ->
-            match ROLE.getRelevantAttributesForRole pos.RoleName with
+    /// For an optional RoleRatedPlayer with an assigned Player, return the weakest relevant attribute (roleAbbrev, player, attr, value).
+    let private weakestRelevantAttributeForPosition (roleAbbrev: string, posOpt: TYPES.RoleRatedPlayer option) : (string * string * string * int) option =
+        posOpt
+        |> Option.bind (fun r ->
+            // r.Player is a concrete HTML.Player (TYPES.RoleRatedPlayer.Player is non-optional)
+            match ROLE.getRelevantAttributesForRole r.RoleName with
             | [] -> None
             | relevant ->
                 relevant
-                |> List.map (fun key -> key, (Map.tryFind key player.Attributes |> Option.defaultValue 0))
+                |> List.map (fun key -> key, (Map.tryFind key r.Player.Attributes |> Option.defaultValue 0))
                 |> List.minBy snd
-                |> fun (attr, value) -> Some (roleAbbrev, player.Name, attr, value)
+                |> fun (attr, value) -> Some (roleAbbrev, r.Player.Name, attr, value)
         )
 
     let private formatWeakest (roleAbbrev, playerName, attr, value) =
@@ -88,15 +89,17 @@ module MY_CLUB =
         let roleAverages = DIVISION.averageRatingsByRole division |> Map.ofList
 
         posListForTeam team
-        |> List.choose (fun (roleAbbrev, pos) ->
-            match pos.Player, pos.Rating with
-            | Some player, Some rating ->
-                match Map.tryFind pos.RoleName roleAverages with
+        |> List.choose (fun (roleAbbrev, posOpt) ->
+            match posOpt with
+            | Some r ->
+                let rating = r.Rating
+                let player = r.Player
+                match Map.tryFind r.RoleName roleAverages with
                 | Some (Some avg) ->
                     let delta = rating - avg
-                    Some (roleAbbrev, pos.RoleName, player.Name, rating, avg, delta)
+                    Some (roleAbbrev, r.RoleName, player.Name, rating, avg, delta)
                 | _ -> None
-            | _ -> None)
+            | None -> None)
         |> function
            | [] -> None
            | rels ->
@@ -114,10 +117,12 @@ module MY_CLUB =
         // Build per-position comparison tuples: (formattedLine, playerRating, divisionAvg)
         let comparisons =
             posListForTeam team
-            |> List.choose (fun (roleAbbrev, pos) ->
-                match pos.Player, pos.Rating with
-                | Some player, Some rating ->
-                    match Map.tryFind pos.RoleName roleAverages with
+            |> List.choose (fun (roleAbbrev, posOpt) ->
+                match posOpt with
+                | Some r ->
+                    let rating = r.Rating
+                    let player = r.Player
+                    match Map.tryFind r.RoleName roleAverages with
                     | Some (Some avg) ->
                         let delta = rating - avg
                         let line = sprintf "%s: %s -> player %.2f vs avg %.2f -> delta %.2f" roleAbbrev player.Name rating avg delta
@@ -125,10 +130,7 @@ module MY_CLUB =
                     | _ ->
                         let line = sprintf "%s: %s -> player %.2f (no division avg)" roleAbbrev player.Name rating
                         Some (line, rating, Double.NaN)
-                | Some player, None ->
-                    let line = sprintf "%s: %s -> unassigned rating" roleAbbrev player.Name
-                    Some (line, Double.NaN, Double.NaN)
-                | _ -> None)
+                | None -> None)
 
         // Aggregate numeric comparisons where both player and division avg exist
         let deltas = comparisons |> List.choose (fun (_, r, a) -> if not (Double.IsNaN r) && not (Double.IsNaN a) then Some (r - a) else None)

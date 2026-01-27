@@ -5,29 +5,28 @@ open System.Text.RegularExpressions
 
 module TEAM =
 
-    type Position = {
-        RoleName: string
-        PlayerName: string option
-        Rating: float option
-        Player: HTML.Player option
-    }
-
+    // Use the shared RoleRatedPlayer type instead of the local Position type.
+    // Unassigned positions are represented as a `TYPES.RoleRatedPlayer option`.
+    // BallPlayingDefs remains a list (may contain fewer than 2 entries if picks < 2).
     type Team = {
-        SweeperKeeper: Position
-        InvertedWingBackRight: Position
-        InvertedWingBackLeft: Position
-        BallPlayingDefs: Position list
-        WingerAttackRight: Position
-        InvertedWingerLeft: Position
-        BallWinningMidfielderSupport: Position
-        AdvancedPlaymakerSupport: Position
-        AdvancedForwardAttack: Position
-        TargetManAttack: Position
+        SweeperKeeper: TYPES.RoleRatedPlayer option
+        InvertedWingBackRight: TYPES.RoleRatedPlayer option
+        InvertedWingBackLeft: TYPES.RoleRatedPlayer option
+        BallPlayingDefs: TYPES.RoleRatedPlayer option list
+        WingerAttackRight: TYPES.RoleRatedPlayer option
+        InvertedWingerLeft: TYPES.RoleRatedPlayer option
+        BallWinningMidfielderSupport: TYPES.RoleRatedPlayer option
+        AdvancedPlaymakerSupport: TYPES.RoleRatedPlayer option
+        AdvancedForwardAttack: TYPES.RoleRatedPlayer option
+        TargetManAttack: TYPES.RoleRatedPlayer option
     }
 
-    let private mkUnassigned role = { RoleName = role; PlayerName = None; Rating = None; Player = None }
-    let private mkAssigned role (name:string) (rating:float) (playerOpt: HTML.Player option) =
-        { RoleName = role; PlayerName = Some name; Rating = Some rating; Player = playerOpt }
+    // mkUnassigned returns None; mkAssigned returns Some RoleRatedPlayer only when an HTML.Player is available.
+    let private mkUnassigned (_role : string) : TYPES.RoleRatedPlayer option = None
+    let private mkAssigned role (name:string) (rating:float) (playerOpt: HTML.Player option) : TYPES.RoleRatedPlayer option =
+        match playerOpt with
+        | Some p -> Some { Name = name; RoleName = role; Rating = rating; Player = p }
+        | None -> None
 
     // pick helper: call ROLE.* fn to get top N (name * rating), attach matching Player from pool, remove selected from pool
     let private pickN (bestFn: HTML.Player list -> int -> (string * float) list) count (pool: HTML.Player list) =
@@ -105,27 +104,52 @@ module TEAM =
             | _ -> role // fallback to original if unknown
 
     let teamAsPositionNameOptions (t: Team) =
-        let toTuple p = (roleAbbrev p.RoleName, p.PlayerName)
-        [ toTuple t.SweeperKeeper; toTuple t.InvertedWingBackRight; toTuple t.InvertedWingBackLeft ]
-        @ (t.BallPlayingDefs |> List.map (fun p -> (roleAbbrev p.RoleName, p.PlayerName)))
-        @ [ toTuple t.WingerAttackRight; toTuple t.InvertedWingerLeft; toTuple t.BallWinningMidfielderSupport;
-            toTuple t.AdvancedPlaymakerSupport; toTuple t.AdvancedForwardAttack; toTuple t.TargetManAttack ]
+        let toTupleFromField canonicalRoleName (pOpt: TYPES.RoleRatedPlayer option) =
+            let roleName = match pOpt with | Some r -> r.RoleName | None -> canonicalRoleName
+            let playerName = pOpt |> Option.map (fun r -> r.Name)
+            (roleAbbrev roleName, playerName)
+
+        [ toTupleFromField "Sweeper Keeper" t.SweeperKeeper
+          toTupleFromField "Inverted Wing Back (R)" t.InvertedWingBackRight
+          toTupleFromField "Inverted Wing Back (L)" t.InvertedWingBackLeft ]
+        @ (t.BallPlayingDefs |> List.map (fun pOpt ->
+            let roleName = match pOpt with | Some r -> r.RoleName | None -> "Ball Playing Defender"
+            let playerName = pOpt |> Option.map (fun r -> r.Name)
+            (roleAbbrev roleName, playerName)))
+        @ [ toTupleFromField "Winger (Attack) R" t.WingerAttackRight
+            toTupleFromField "Inverted Winger (L)" t.InvertedWingerLeft
+            toTupleFromField "Ball Winning Midfielder (Support)" t.BallWinningMidfielderSupport
+            toTupleFromField "Advanced Playmaker (Support)" t.AdvancedPlaymakerSupport
+            toTupleFromField "Advanced Forward (Attack)" t.AdvancedForwardAttack
+            toTupleFromField "Target Man (Attack)" t.TargetManAttack ]
 
     let teamAsStrings t =
         teamAsPositionNameOptions t |> List.map (fun (r,n) -> sprintf "%s: %s" r (defaultArg n "Unassigned"))
 
     let teamScore t =
         let ratings =
-            [ t.SweeperKeeper.Rating; t.InvertedWingBackRight.Rating; t.InvertedWingBackLeft.Rating ]
-            @ (t.BallPlayingDefs |> List.map (fun p -> p.Rating))
-            @ [ t.WingerAttackRight.Rating; t.InvertedWingerLeft.Rating; t.BallWinningMidfielderSupport.Rating;
-                t.AdvancedPlaymakerSupport.Rating; t.AdvancedForwardAttack.Rating; t.TargetManAttack.Rating ]
+            [ t.SweeperKeeper |> Option.map (fun r -> r.Rating)
+              t.InvertedWingBackRight |> Option.map (fun r -> r.Rating)
+              t.InvertedWingBackLeft |> Option.map (fun r -> r.Rating) ]
+            @ (t.BallPlayingDefs |> List.map (fun pOpt -> pOpt |> Option.map (fun r -> r.Rating)))
+            @ [ t.WingerAttackRight |> Option.map (fun r -> r.Rating)
+                t.InvertedWingerLeft |> Option.map (fun r -> r.Rating)
+                t.BallWinningMidfielderSupport |> Option.map (fun r -> r.Rating)
+                t.AdvancedPlaymakerSupport |> Option.map (fun r -> r.Rating)
+                t.AdvancedForwardAttack |> Option.map (fun r -> r.Rating)
+                t.TargetManAttack |> Option.map (fun r -> r.Rating) ]
         ratings |> List.sumBy (fun o -> defaultArg o 0.0)
 
     let teamScoreOption t =
         let ratings =
-            [ t.SweeperKeeper.Rating; t.InvertedWingBackRight.Rating; t.InvertedWingBackLeft.Rating ]
-            @ (t.BallPlayingDefs |> List.map (fun p -> p.Rating))
-            @ [ t.WingerAttackRight.Rating; t.InvertedWingerLeft.Rating; t.BallWinningMidfielderSupport.Rating;
-                t.AdvancedPlaymakerSupport.Rating; t.AdvancedForwardAttack.Rating; t.TargetManAttack.Rating ]
+            [ t.SweeperKeeper |> Option.map (fun r -> r.Rating)
+              t.InvertedWingBackRight |> Option.map (fun r -> r.Rating)
+              t.InvertedWingBackLeft |> Option.map (fun r -> r.Rating) ]
+            @ (t.BallPlayingDefs |> List.map (fun pOpt -> pOpt |> Option.map (fun r -> r.Rating)))
+            @ [ t.WingerAttackRight |> Option.map (fun r -> r.Rating)
+                t.InvertedWingerLeft |> Option.map (fun r -> r.Rating)
+                t.BallWinningMidfielderSupport |> Option.map (fun r -> r.Rating)
+                t.AdvancedPlaymakerSupport |> Option.map (fun r -> r.Rating)
+                t.AdvancedForwardAttack |> Option.map (fun r -> r.Rating)
+                t.TargetManAttack |> Option.map (fun r -> r.Rating) ]
         if List.exists Option.isNone ratings then None else Some (ratings |> List.sumBy (fun o -> defaultArg o 0.0))
