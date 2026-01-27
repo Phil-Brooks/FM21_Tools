@@ -51,19 +51,19 @@ module ROLE =
     /// Return the list of relevant attribute keys for a TEAM position role name.
     /// Matches the RoleName strings used in TEAM.Position.RoleName (handles "Ball Playing Defender #n").
     let getRelevantAttributesForRole (roleName: string) : string list =
-        if roleName.StartsWith("Ball Playing Defender", StringComparison.InvariantCultureIgnoreCase) then
+        if roleName.StartsWith("BPD", StringComparison.InvariantCultureIgnoreCase) then
             attrsBallPlayingDefender
         else
             match roleName with
-            | "Target Man (Attack)" -> attrsTargetManAttack
-            | "Advanced Forward (Attack)" -> attrsAdvancedForwardAttack
-            | "Winger (Attack) R" -> attrsWingerAttackRight
-            | "Inverted Winger (L)" -> attrsInvertedWingerSupportLeft
-            | "Advanced Playmaker (Support)" -> attrsAdvancedPlaymakerSupport
-            | "Ball Winning Midfielder (Support)" -> attrsBallWinningMidfielderSupport
-            | "Inverted Wing Back (R)" -> attrsInvertedWingBackSupportRight
-            | "Inverted Wing Back (L)" -> attrsInvertedWingBackSupportLeft
-            | "Sweeper Keeper" -> attrsSweeperKeeperDefend
+            | "TMA" -> attrsTargetManAttack
+            | "AFA" -> attrsAdvancedForwardAttack
+            | "WAR" -> attrsWingerAttackRight
+            | "IWL" -> attrsInvertedWingerSupportLeft
+            | "AP" -> attrsAdvancedPlaymakerSupport
+            | "BWM" -> attrsBallWinningMidfielderSupport
+            | "IWBR" -> attrsInvertedWingBackSupportRight
+            | "IWBL" -> attrsInvertedWingBackSupportLeft
+            | "SKD" -> attrsSweeperKeeperDefend
             // default: no relevant attributes known
             | _ -> []
 
@@ -210,18 +210,18 @@ module ROLE =
 
     /// Mapping of role display names to rating functions
     let private allRoleRatings : (string * (HTML.Player -> float option)) list = [
-        ("Target Man (Attack)", roleRatingTargetManAttack)
-        ("Advanced Forward (Attack)", roleRatingAdvancedForwardAttack)
-        ("Winger (Attack) R", roleRatingWingerAttackRight)
-        ("Inverted Winger (L)", roleRatingInvertedWingerSupportLeft)
-        ("Advanced Playmaker (Support)", roleRatingAdvancedPlaymakerSupport)
-        ("Ball Winning Midfielder (Support)", roleRatingBallWinningMidfielderSupport)
+        ("TMA", roleRatingTargetManAttack)
+        ("AFA", roleRatingAdvancedForwardAttack)
+        ("WAR", roleRatingWingerAttackRight)
+        ("IWL", roleRatingInvertedWingerSupportLeft)
+        ("AP", roleRatingAdvancedPlaymakerSupport)
+        ("BWM", roleRatingBallWinningMidfielderSupport)
         // Ball Playing Defender may appear as "Ball Playing Defender" or "Ball Playing Defender #n" in teams;
         // keep base name here and callers can match with StartsWith if needed.
-        ("Ball Playing Defender", roleRatingBallPlayingDefender)
-        ("Inverted Wing Back (R)", roleRatingInvertedWingBackSupportRight)
-        ("Inverted Wing Back (L)", roleRatingInvertedWingBackSupportLeft)
-        ("Sweeper Keeper", roleRatingSweeperKeeperDefend)
+        ("BPD", roleRatingBallPlayingDefender)
+        ("IWBR", roleRatingInvertedWingBackSupportRight)
+        ("IWBL", roleRatingInvertedWingBackSupportLeft)
+        ("SKD", roleRatingSweeperKeeperDefend)
     ]
 
     /// Return a sorted list of (roleName, rating) for roles that apply to the player (descending by rating).
@@ -240,3 +240,17 @@ module ROLE =
         match bestRoleForPlayer p with
         | Some (role, rating) -> Some { Name = p.Name; RoleName = role; Rating = rating; Player = p }
         | None -> None
+
+    /// For an optional RoleRatedPlayer with an assigned Player, return the weakest relevant attribute (roleAbbrev, player, attr, value).
+    let weakestRelevantAttributeForPosition (roleAbbrev: string, posOpt: TYPES.RoleRatedPlayer option) : (string * string * string * int) option =
+        posOpt
+        |> Option.bind (fun r ->
+            // r.Player is a concrete HTML.Player (TYPES.RoleRatedPlayer.Player is non-optional)
+            match getRelevantAttributesForRole r.RoleName with
+            | [] -> None
+            | relevant ->
+                relevant
+                |> List.map (fun key -> key, (Map.tryFind key r.Player.Attributes |> Option.defaultValue 0))
+                |> List.minBy snd
+                |> fun (attr, value) -> Some (roleAbbrev, r.Player.Name, attr, value)
+        )

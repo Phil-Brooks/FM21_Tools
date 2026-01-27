@@ -51,32 +51,22 @@ module MY_CLUB =
     let posListForTeam (team: TEAM.Team) : (string * TYPES.RoleRatedPlayer option) list =
         [ ("SKD", team.SweeperKeeper)
           ("IWBR", team.InvertedWingBackRight)
-          ("IWBL", team.InvertedWingBackLeft) ]
-        @ [ ("BPD1", team.BallPlayingDef1); ("BPD2", team.BallPlayingDef2) ]
-        @ [ ("WAR", team.WingerAttackRight); ("IWL", team.InvertedWingerLeft);
-            ("BWM", team.BallWinningMidfielderSupport); ("AP", team.AdvancedPlaymakerSupport);
-            ("AFA", team.AdvancedForwardAttack); ("TMA", team.TargetManAttack) ]
-
-    /// For an optional RoleRatedPlayer with an assigned Player, return the weakest relevant attribute (roleAbbrev, player, attr, value).
-    let private weakestRelevantAttributeForPosition (roleAbbrev: string, posOpt: TYPES.RoleRatedPlayer option) : (string * string * string * int) option =
-        posOpt
-        |> Option.bind (fun r ->
-            // r.Player is a concrete HTML.Player (TYPES.RoleRatedPlayer.Player is non-optional)
-            match ROLE.getRelevantAttributesForRole r.RoleName with
-            | [] -> None
-            | relevant ->
-                relevant
-                |> List.map (fun key -> key, (Map.tryFind key r.Player.Attributes |> Option.defaultValue 0))
-                |> List.minBy snd
-                |> fun (attr, value) -> Some (roleAbbrev, r.Player.Name, attr, value)
-        )
+          ("IWBL", team.InvertedWingBackLeft)
+          ("BPD1", team.BallPlayingDef1)
+          ("BPD2", team.BallPlayingDef2)
+          ("WAR", team.WingerAttackRight)
+          ("IWL", team.InvertedWingerLeft)
+          ("BWM", team.BallWinningMidfielderSupport)
+          ("AP", team.AdvancedPlaymakerSupport)
+          ("AFA", team.AdvancedForwardAttack)
+          ("TMA", team.TargetManAttack) ]
 
     let private formatWeakest (roleAbbrev, playerName, attr, value) =
         sprintf "%s: %s -> weakest: %s (%d)" roleAbbrev playerName attr value
 
     let private getWeakestAttributesForTeam (team: TEAM.Team) =
         posListForTeam team
-        |> List.choose weakestRelevantAttributeForPosition
+        |> List.choose ROLE.weakestRelevantAttributeForPosition
         |> List.map formatWeakest
 
     /// Public: weakest relevant attribute list for first/second/third team.

@@ -1,8 +1,5 @@
 namespace FM21_ToolsLib
 
-open System
-open System.Text.RegularExpressions
-
 module TEAM =
 
     // Use the shared RoleRatedPlayer type instead of the local Position type.
@@ -92,23 +89,17 @@ module TEAM =
             let playerName = pOpt |> Option.map (fun r -> r.Name)
             (roleName, playerName)
 
-        // annotate pOpt type so field lookups resolve at compile time
-        let bpTuple (pOpt: TYPES.RoleRatedPlayer option) =
-            let roleName = match pOpt with | Some r -> r.RoleName | None -> "BPD"
-            let playerName = pOpt |> Option.map (fun r -> r.Name)
-            (roleName, playerName)
-
         [ toTupleFromField "SKD" t.SweeperKeeper
           toTupleFromField "IWBR" t.InvertedWingBackRight
-          toTupleFromField "IWBL" t.InvertedWingBackLeft ]
-        @ [ bpTuple t.BallPlayingDef1
-            bpTuple t.BallPlayingDef2 ]
-        @ [ toTupleFromField "WAR" t.WingerAttackRight
-            toTupleFromField "IWL" t.InvertedWingerLeft
-            toTupleFromField "BWM" t.BallWinningMidfielderSupport
-            toTupleFromField "AP" t.AdvancedPlaymakerSupport
-            toTupleFromField "AFA" t.AdvancedForwardAttack
-            toTupleFromField "TMA" t.TargetManAttack ]
+          toTupleFromField "IWBL" t.InvertedWingBackLeft 
+          toTupleFromField "BPD1" t.BallPlayingDef1
+          toTupleFromField "BPD2" t.BallPlayingDef2
+          toTupleFromField "WAR" t.WingerAttackRight
+          toTupleFromField "IWL" t.InvertedWingerLeft
+          toTupleFromField "BWM" t.BallWinningMidfielderSupport
+          toTupleFromField "AP" t.AdvancedPlaymakerSupport
+          toTupleFromField "AFA" t.AdvancedForwardAttack
+          toTupleFromField "TMA" t.TargetManAttack ]
 
     let teamAsStrings t =
         teamAsPositionNameOptions t |> List.map (fun (r,n) -> sprintf "%s: %s" r (defaultArg n "Unassigned"))
@@ -119,13 +110,13 @@ module TEAM =
               t.InvertedWingBackRight |> Option.map (fun r -> r.Rating)
               t.InvertedWingBackLeft |> Option.map (fun r -> r.Rating)
               t.BallPlayingDef1 |> Option.map (fun r -> r.Rating)
-              t.BallPlayingDef2 |> Option.map (fun r -> r.Rating) ]
-            @ [ t.WingerAttackRight |> Option.map (fun r -> r.Rating)
-                t.InvertedWingerLeft |> Option.map (fun r -> r.Rating)
-                t.BallWinningMidfielderSupport |> Option.map (fun r -> r.Rating)
-                t.AdvancedPlaymakerSupport |> Option.map (fun r -> r.Rating)
-                t.AdvancedForwardAttack |> Option.map (fun r -> r.Rating)
-                t.TargetManAttack |> Option.map (fun r -> r.Rating) ]
+              t.BallPlayingDef2 |> Option.map (fun r -> r.Rating) 
+              t.WingerAttackRight |> Option.map (fun r -> r.Rating)
+              t.InvertedWingerLeft |> Option.map (fun r -> r.Rating)
+              t.BallWinningMidfielderSupport |> Option.map (fun r -> r.Rating)
+              t.AdvancedPlaymakerSupport |> Option.map (fun r -> r.Rating)
+              t.AdvancedForwardAttack |> Option.map (fun r -> r.Rating)
+              t.TargetManAttack |> Option.map (fun r -> r.Rating) ]
         ratings |> List.sumBy (fun o -> defaultArg o 0.0)
 
     let teamScoreOption t =
@@ -134,11 +125,11 @@ module TEAM =
               t.InvertedWingBackRight |> Option.map (fun r -> r.Rating)
               t.InvertedWingBackLeft |> Option.map (fun r -> r.Rating)
               t.BallPlayingDef1 |> Option.map (fun r -> r.Rating)
-              t.BallPlayingDef2 |> Option.map (fun r -> r.Rating) ]
-            @ [ t.WingerAttackRight |> Option.map (fun r -> r.Rating)
-                t.InvertedWingerLeft |> Option.map (fun r -> r.Rating)
-                t.BallWinningMidfielderSupport |> Option.map (fun r -> r.Rating)
-                t.AdvancedPlaymakerSupport |> Option.map (fun r -> r.Rating)
-                t.AdvancedForwardAttack |> Option.map (fun r -> r.Rating)
-                t.TargetManAttack |> Option.map (fun r -> r.Rating) ]
+              t.BallPlayingDef2 |> Option.map (fun r -> r.Rating) 
+              t.WingerAttackRight |> Option.map (fun r -> r.Rating)
+              t.InvertedWingerLeft |> Option.map (fun r -> r.Rating)
+              t.BallWinningMidfielderSupport |> Option.map (fun r -> r.Rating)
+              t.AdvancedPlaymakerSupport |> Option.map (fun r -> r.Rating)
+              t.AdvancedForwardAttack |> Option.map (fun r -> r.Rating)
+              t.TargetManAttack |> Option.map (fun r -> r.Rating) ]
         if List.exists Option.isNone ratings then None else Some (ratings |> List.sumBy (fun o -> defaultArg o 0.0))
