@@ -65,3 +65,5 @@ let cmp3 = MY_CLUB.getThirdTeamComparisonToDivision div
 //   "TMA: Sebastian Soto -> player 58.11 vs avg 63.31 -> delta -5.20";
 //   "Team average: 60.63 vs Division average: 64.23 -> delta -3.60"]
 
+let rrps = 
+    HTML.MyPlayers|>List.map ROLE.bestRoleRatedPlayer

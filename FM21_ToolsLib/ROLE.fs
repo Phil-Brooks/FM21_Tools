@@ -369,3 +369,40 @@ module ROLE =
 
     let bestSweeperKeepersDefendNames (players: HTML.Player list) (topN: int) : string list =
         bestSweeperKeepersDefend players topN |> List.map fst
+
+    // --- New: compute all role ratings for a player and pick the best ---
+
+    /// Mapping of role display names to rating functions
+    let private allRoleRatings : (string * (HTML.Player -> float option)) list = [
+        ("Target Man (Attack)", roleRatingTargetManAttack)
+        ("Advanced Forward (Attack)", roleRatingAdvancedForwardAttack)
+        ("Winger (Attack) R", roleRatingWingerAttackRight)
+        ("Inverted Winger (L)", roleRatingInvertedWingerSupportLeft)
+        ("Advanced Playmaker (Support)", roleRatingAdvancedPlaymakerSupport)
+        ("Ball Winning Midfielder (Support)", roleRatingBallWinningMidfielderSupport)
+        // Ball Playing Defender may appear as "Ball Playing Defender" or "Ball Playing Defender #n" in teams;
+        // keep base name here and callers can match with StartsWith if needed.
+        ("Ball Playing Defender", roleRatingBallPlayingDefender)
+        ("Inverted Wing Back (R)", roleRatingInvertedWingBackSupportRight)
+        ("Inverted Wing Back (L)", roleRatingInvertedWingBackSupportLeft)
+        ("Sweeper Keeper", roleRatingSweeperKeeperDefend)
+    ]
+
+    /// Return a sorted list of (roleName, rating) for roles that apply to the player (descending by rating).
+    let roleRatingsForPlayer (p: HTML.Player) : (string * float) list =
+        allRoleRatings
+        |> List.choose (fun (roleName, rf) ->
+            match rf p with
+            | Some r -> Some (roleName, r)
+            | None -> None)
+        |> List.sortByDescending snd
+
+    /// Return the single best role for a player as (roleName, rating) option.
+    let bestRoleForPlayer (p: HTML.Player) : (string * float) option =
+        roleRatingsForPlayer p |> List.tryHead
+
+    /// Convenience: return TYPES.RoleRatedPlayer option for the best role.
+    let bestRoleRatedPlayer (p: HTML.Player) : TYPES.RoleRatedPlayer option =
+        match bestRoleForPlayer p with
+        | Some (role, rating) -> Some { Name = p.Name; RoleName = role; Rating = rating; Player = p }
+        | None -> None

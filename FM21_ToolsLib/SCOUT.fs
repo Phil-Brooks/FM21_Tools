@@ -6,11 +6,6 @@ open System.Globalization
 
 module SCOUT =
 
-    /// Structured result for a player rated for a role.
-    type RoleRatedPlayer = { Name: string; RoleName: string; Rating: float; Player: HTML.Player }
-
-    let private norm (s: string) = if isNull s then "" else s.Trim().ToUpperInvariant()
-
     /// Lightweight lookup for role name/abbreviation -> ROLE.roleRating function.
     let private roleMap =
         dict [
@@ -24,6 +19,8 @@ module SCOUT =
             "INVERTED WING BACK (L)", ROLE.roleRatingInvertedWingBackSupportLeft; "IWBL", ROLE.roleRatingInvertedWingBackSupportLeft
             "SWEEPER KEEPER", ROLE.roleRatingSweeperKeeperDefend; "SKD", ROLE.roleRatingSweeperKeeperDefend
         ]
+
+    let private norm (s: string) = if isNull s then "" else s.Trim().ToUpperInvariant()
 
     let private roleRatingFnForRoleName (roleName: string) =
         let rn = norm roleName
@@ -59,36 +56,36 @@ module SCOUT =
         Map.tryFind "Value" p.Extras |> Option.map parseMoney |> Option.defaultValue 0L
 
     /// Return RoleRatedPlayer list for players whose computed role rating is > threshold.
-    let getSctPlayersForRoleAbove (roleName: string) (threshold: float) : RoleRatedPlayer list =
+    let getSctPlayersForRoleAbove (roleName: string) (threshold: float) : TYPES.RoleRatedPlayer list =
         let ratingFn = roleRatingFnForRoleName roleName
         HTML.SctPlayers
         |> List.choose (fun p ->
             match ratingFn p with
-            | Some r when r > threshold -> Some { Name = p.Name; RoleName = roleName; Rating = r; Player = p }
+            | Some r when r > threshold -> Some ({ Name = p.Name; RoleName = roleName; Rating = r; Player = p } : TYPES.RoleRatedPlayer)
             | _ -> None)
         |> List.sortByDescending (fun rr -> rr.Rating)
 
     /// Convert a single `RoleRatedPlayer` to a `(Name, Club, Rating)` tuple.
-    let rRPlayerReport (rr: RoleRatedPlayer) : (string * string * float) =
+    let rRPlayerReport (rr: TYPES.RoleRatedPlayer) : (string * string * float) =
         let club = Map.tryFind "Club" rr.Player.Extras |> Option.defaultValue ""
         (rr.Name, club, rr.Rating)
 
     /// Filter helper: true when market value <= provided amount (in thousands).
-    let roleRatedPlayerValueBelowK (maxValueK: int) (rr: RoleRatedPlayer) : bool =
+    let roleRatedPlayerValueBelowK (maxValueK: int) (rr: TYPES.RoleRatedPlayer) : bool =
         let maxValueGbp = int64 maxValueK * 1000L
         (playerMarketValue rr.Player) <= maxValueGbp
 
     /// Generic helper: check an Extras key for presence of any tokens (normalized).
-    let private extraContains (key: string) (tokens: string[]) (rr: RoleRatedPlayer) : bool =
+    let private extraContains (key: string) (tokens: string[]) (rr: TYPES.RoleRatedPlayer) : bool =
         let value = Map.tryFind key rr.Player.Extras |> Option.defaultValue "" |> norm
         value <> "" && tokens |> Array.exists value.Contains
 
     /// Filter helper: true when player's loan status indicates they are loan listed (or on loan).
-    let roleRatedPlayerLoanListed (rr: RoleRatedPlayer) : bool =
+    let roleRatedPlayerLoanListed (rr: TYPES.RoleRatedPlayer) : bool =
         extraContains "LoanStatus" [| "LOAN"; "LIST" |] rr
 
     /// Filter helper: true when player's transfer status indicates they are transfer listed (or available for transfer).
-    let roleRatedPlayerTransferListed (rr: RoleRatedPlayer) : bool =
+    let roleRatedPlayerTransferListed (rr: TYPES.RoleRatedPlayer) : bool =
         extraContains "TransferStatus" [| "TRANSFER"; "LIST" |] rr
 
     /// Try to parse a player's DoB into a DateTime. Tries common formats, falls back to extracting a 4-digit year.
@@ -125,7 +122,7 @@ module SCOUT =
         | None -> None
 
     /// Filter helper: true when player's age is strictly below the provided `maxAge`.
-    let roleRatedPlayerAgeBelow (maxAge: int) (rr: RoleRatedPlayer) : bool =
+    let roleRatedPlayerAgeBelow (maxAge: int) (rr: TYPES.RoleRatedPlayer) : bool =
         match playerAge rr.Player with
         | Some age -> age < maxAge
         | None -> false
