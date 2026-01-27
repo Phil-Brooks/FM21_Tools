@@ -16,6 +16,7 @@
     <File Path="scripts/load_all.fsx" />
     <File Path="scripts/my_club.fsx" />
     <File Path="scripts/scout.fsx" />
+    <File Path="scripts/train.fsx" />
   </Folder>
   <Project Path="FM21_ToolsLib/FM21_ToolsLib.fsproj" />
 </Solution>

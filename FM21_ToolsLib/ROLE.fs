@@ -254,3 +254,25 @@ module ROLE =
                 |> List.minBy snd
                 |> fun (attr, value) -> Some (roleAbbrev, r.Player.Name, attr, value)
         )
+
+    let weakestRelevantAttributeForPlayer (p: TYPES.RoleRatedPlayer) : (string * string * string * int) option =
+        weakestRelevantAttributeForPosition (p.RoleName, Some(p))
+
+    /// For an optional RoleRatedPlayer with an assigned Player, return the second weakest relevant attribute (roleAbbrev, player, attr, value).
+    let secondWeakestRelevantAttributeForPosition (roleAbbrev: string, posOpt: TYPES.RoleRatedPlayer option) : (string * string * string * int) option =
+        posOpt
+        |> Option.bind (fun r ->
+            match getRelevantAttributesForRole r.RoleName with
+            | [] | [_] -> None
+            | relevant ->
+                relevant
+                |> List.map (fun key -> key, (Map.tryFind key r.Player.Attributes |> Option.defaultValue 0))
+                |> List.sortBy snd
+                |> fun sorted ->
+                    match sorted with
+                    | _ :: (second :: _) -> Some (roleAbbrev, r.Player.Name, fst second, snd second)
+                    | _ -> None
+        )
+
+    let secondWeakestRelevantAttributeForPlayer (p: TYPES.RoleRatedPlayer) : (string * string * string * int) option =
+        secondWeakestRelevantAttributeForPosition (p.RoleName, Some(p))
