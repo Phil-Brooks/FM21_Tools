@@ -7,12 +7,13 @@ module TEAM =
 
     // Use the shared RoleRatedPlayer type instead of the local Position type.
     // Unassigned positions are represented as a `TYPES.RoleRatedPlayer option`.
-    // BallPlayingDefs remains a list (may contain fewer than 2 entries if picks < 2).
+    // BallPlayingDef1 and BallPlayingDef2 replace the previous BallPlayingDefs list (two separate fields).
     type Team = {
         SweeperKeeper: TYPES.RoleRatedPlayer option
         InvertedWingBackRight: TYPES.RoleRatedPlayer option
         InvertedWingBackLeft: TYPES.RoleRatedPlayer option
-        BallPlayingDefs: TYPES.RoleRatedPlayer option list
+        BallPlayingDef1: TYPES.RoleRatedPlayer option
+        BallPlayingDef2: TYPES.RoleRatedPlayer option
         WingerAttackRight: TYPES.RoleRatedPlayer option
         InvertedWingerLeft: TYPES.RoleRatedPlayer option
         BallWinningMidfielderSupport: TYPES.RoleRatedPlayer option
@@ -50,8 +51,8 @@ module TEAM =
         let iwbLPos = match iwbL |> List.tryHead with | Some (n,r,p) -> mkAssigned "IWBL" n r p | None -> mkUnassigned "IWBL"
 
         let bpd, pool4 = pickN ROLE.bestBallPlayingDefenders 2 pool3
-        let bpdPos =
-            bpd |> List.mapi (fun i (n,r,p) -> mkAssigned (sprintf "BPD%d" (i+1)) n r p)
+        let bpd1Pos = match bpd |> List.tryItem 0 with | Some (n,r,p) -> mkAssigned "BPD1" n r p | None -> mkUnassigned "BPD1"
+        let bpd2Pos = match bpd |> List.tryItem 1 with | Some (n,r,p) -> mkAssigned "BPD2" n r p | None -> mkUnassigned "BPD2"
 
         let wgr, pool5 = pickN ROLE.bestWingersAttackRight 1 pool4
         let wgrPos = match wgr |> List.tryHead with | Some (n,r,p) -> mkAssigned "WAR" n r p | None -> mkUnassigned "WAR"
@@ -63,7 +64,7 @@ module TEAM =
         let bwmPos = match bwm |> List.tryHead with | Some (n,r,p) -> mkAssigned "BWM" n r p | None -> mkUnassigned "BWM"
 
         let ap, pool8 = pickN ROLE.bestAdvancedPlaymakersSupport 1 pool7
-        let apPos = match ap |> List.tryHead with | Some (n,r,p) -> mkAssigned "AP" n r p | None -> mkUnassigned "AP)"
+        let apPos = match ap |> List.tryHead with | Some (n,r,p) -> mkAssigned "AP" n r p | None -> mkUnassigned "AP"
 
         let afa, pool9 = pickN ROLE.bestAdvancedForwardsAttack 1 pool8
         let afaPos = match afa |> List.tryHead with | Some (n,r,p) -> mkAssigned "AFA" n r p | None -> mkUnassigned "AFA"
@@ -75,7 +76,8 @@ module TEAM =
             SweeperKeeper = skPos
             InvertedWingBackRight = iwbRPos
             InvertedWingBackLeft = iwbLPos
-            BallPlayingDefs = bpdPos
+            BallPlayingDef1 = bpd1Pos
+            BallPlayingDef2 = bpd2Pos
             WingerAttackRight = wgrPos
             InvertedWingerLeft = iwLPos
             BallWinningMidfielderSupport = bwmPos
@@ -90,13 +92,17 @@ module TEAM =
             let playerName = pOpt |> Option.map (fun r -> r.Name)
             (roleName, playerName)
 
+        // annotate pOpt type so field lookups resolve at compile time
+        let bpTuple (pOpt: TYPES.RoleRatedPlayer option) =
+            let roleName = match pOpt with | Some r -> r.RoleName | None -> "BPD"
+            let playerName = pOpt |> Option.map (fun r -> r.Name)
+            (roleName, playerName)
+
         [ toTupleFromField "SKD" t.SweeperKeeper
           toTupleFromField "IWBR" t.InvertedWingBackRight
           toTupleFromField "IWBL" t.InvertedWingBackLeft ]
-        @ (t.BallPlayingDefs |> List.map (fun pOpt ->
-            let roleName = match pOpt with | Some r -> r.RoleName | None -> "BPD"
-            let playerName = pOpt |> Option.map (fun r -> r.Name)
-            (roleName, playerName)))
+        @ [ bpTuple t.BallPlayingDef1
+            bpTuple t.BallPlayingDef2 ]
         @ [ toTupleFromField "WAR" t.WingerAttackRight
             toTupleFromField "IWL" t.InvertedWingerLeft
             toTupleFromField "BWM" t.BallWinningMidfielderSupport
@@ -111,8 +117,9 @@ module TEAM =
         let ratings =
             [ t.SweeperKeeper |> Option.map (fun r -> r.Rating)
               t.InvertedWingBackRight |> Option.map (fun r -> r.Rating)
-              t.InvertedWingBackLeft |> Option.map (fun r -> r.Rating) ]
-            @ (t.BallPlayingDefs |> List.map (fun pOpt -> pOpt |> Option.map (fun r -> r.Rating)))
+              t.InvertedWingBackLeft |> Option.map (fun r -> r.Rating)
+              t.BallPlayingDef1 |> Option.map (fun r -> r.Rating)
+              t.BallPlayingDef2 |> Option.map (fun r -> r.Rating) ]
             @ [ t.WingerAttackRight |> Option.map (fun r -> r.Rating)
                 t.InvertedWingerLeft |> Option.map (fun r -> r.Rating)
                 t.BallWinningMidfielderSupport |> Option.map (fun r -> r.Rating)
@@ -125,8 +132,9 @@ module TEAM =
         let ratings =
             [ t.SweeperKeeper |> Option.map (fun r -> r.Rating)
               t.InvertedWingBackRight |> Option.map (fun r -> r.Rating)
-              t.InvertedWingBackLeft |> Option.map (fun r -> r.Rating) ]
-            @ (t.BallPlayingDefs |> List.map (fun pOpt -> pOpt |> Option.map (fun r -> r.Rating)))
+              t.InvertedWingBackLeft |> Option.map (fun r -> r.Rating)
+              t.BallPlayingDef1 |> Option.map (fun r -> r.Rating)
+              t.BallPlayingDef2 |> Option.map (fun r -> r.Rating) ]
             @ [ t.WingerAttackRight |> Option.map (fun r -> r.Rating)
                 t.InvertedWingerLeft |> Option.map (fun r -> r.Rating)
                 t.BallWinningMidfielderSupport |> Option.map (fun r -> r.Rating)

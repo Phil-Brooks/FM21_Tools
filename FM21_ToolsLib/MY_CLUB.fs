@@ -52,7 +52,7 @@ module MY_CLUB =
         [ ("SKD", team.SweeperKeeper)
           ("IWBR", team.InvertedWingBackRight)
           ("IWBL", team.InvertedWingBackLeft) ]
-        @ (team.BallPlayingDefs |> List.mapi (fun i p -> (sprintf "BPD%d" (i+1), p)))
+        @ [ ("BPD1", team.BallPlayingDef1); ("BPD2", team.BallPlayingDef2) ]
         @ [ ("WAR", team.WingerAttackRight); ("IWL", team.InvertedWingerLeft);
             ("BWM", team.BallWinningMidfielderSupport); ("AP", team.AdvancedPlaymakerSupport);
             ("AFA", team.AdvancedForwardAttack); ("TMA", team.TargetManAttack) ]

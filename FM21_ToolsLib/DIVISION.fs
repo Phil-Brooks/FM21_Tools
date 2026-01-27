@@ -65,28 +65,19 @@ module DIVISION =
             | Some r -> (r.RoleName, Some r.Rating)
             | None -> (canonical, None)
 
-        let sweeper = fieldPair t.SweeperKeeper "Sweeper Keeper"
-        let iwbR = fieldPair t.InvertedWingBackRight "Inverted Wing Back (R)"
-        let iwbL = fieldPair t.InvertedWingBackLeft "Inverted Wing Back (L)"
+        let sweeper = fieldPair t.SweeperKeeper "SKD"
+        let iwbR = fieldPair t.InvertedWingBackRight "IWBR"
+        let iwbL = fieldPair t.InvertedWingBackLeft "IWBL"
+        let bpd1 = fieldPair t.BallPlayingDef1 "BPD1"
+        let bpd2 = fieldPair t.BallPlayingDef1 "BPD2"
+        let wgr = fieldPair t.WingerAttackRight "WAR"
+        let iwL = fieldPair t.InvertedWingerLeft "IWL"
+        let bwm = fieldPair t.BallWinningMidfielderSupport "BWM"
+        let ap = fieldPair t.AdvancedPlaymakerSupport "AP"
+        let afa = fieldPair t.AdvancedForwardAttack "AFA"
+        let tma = fieldPair t.TargetManAttack "TMA"
 
-        // BallPlayingDefs may be shorter/longer; create indexed canonical names for unassigned entries
-        let bpd =
-            t.BallPlayingDefs
-            |> List.mapi (fun i pOpt ->
-                match pOpt with
-                | Some r -> (r.RoleName, Some r.Rating)
-                | None -> (sprintf "Ball Playing Defender #%d" (i + 1), None))
-
-        let wgr = fieldPair t.WingerAttackRight "Winger (Attack) R"
-        let iwL = fieldPair t.InvertedWingerLeft "Inverted Winger (L)"
-        let bwm = fieldPair t.BallWinningMidfielderSupport "Ball Winning Midfielder (Support)"
-        let ap = fieldPair t.AdvancedPlaymakerSupport "Advanced Playmaker (Support)"
-        let afa = fieldPair t.AdvancedForwardAttack "Advanced Forward (Attack)"
-        let tma = fieldPair t.TargetManAttack "Target Man (Attack)"
-
-        [ sweeper; iwbR; iwbL ]
-        @ bpd
-        @ [ wgr; iwL; bwm; ap; afa; tma ]
+        [ sweeper; iwbR; iwbL; bpd1; bpd2; wgr; iwL; bwm; ap; afa; tma ]
 
     /// For the given division, compute the average rating for every role across
     /// the teams built for each club in that division.
