@@ -6,7 +6,6 @@ let path = "../data/all.html"
 HTML.loadPlayers path
 printfn "Loaded %d players from %s" (List.length HTML.AllPlayers) path
 
-let team = TEAM.buildTeam HTML.AllPlayers
-team |> TEAM.teamAsStrings |> List.iter (printfn "%s")
-printfn "Team score: %f" (TEAM.teamScore team)
+let tmstr = TEAM.buildTeam HTML.AllPlayers |> TEAM.teamAsStrings
+let scr = TEAM.teamScore (TEAM.buildTeam HTML.AllPlayers)
 

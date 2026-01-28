@@ -58,7 +58,7 @@ module DIVISION =
     // --- NEW: average rating per role across the clubs' teams in a division ---
 
     // extract (RoleName, Rating option) for every position in a team
-    let private teamRoleRatings (t: TEAM.Team) : (string * float option) list =
+    let private teamRoleRatings (t: Team) : (string * float option) list =
         // helper for single optional role fields
         let fieldPair (opt: RoleRatedPlayer option) canonical =
             match opt with

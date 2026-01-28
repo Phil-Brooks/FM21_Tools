@@ -2,23 +2,6 @@ namespace FM21_ToolsLib
 
 module TEAM =
 
-    // Use the shared RoleRatedPlayer type instead of the local Position type.
-    // Unassigned positions are represented as a `RoleRatedPlayer option`.
-    // BallPlayingDef1 and BallPlayingDef2 replace the previous BallPlayingDefs list (two separate fields).
-    type Team = {
-        SweeperKeeper: RoleRatedPlayer option
-        InvertedWingBackRight: RoleRatedPlayer option
-        InvertedWingBackLeft: RoleRatedPlayer option
-        BallPlayingDef1: RoleRatedPlayer option
-        BallPlayingDef2: RoleRatedPlayer option
-        WingerAttackRight: RoleRatedPlayer option
-        InvertedWingerLeft: RoleRatedPlayer option
-        BallWinningMidfielderSupport: RoleRatedPlayer option
-        AdvancedPlaymakerSupport: RoleRatedPlayer option
-        AdvancedForwardAttack: RoleRatedPlayer option
-        TargetManAttack: RoleRatedPlayer option
-    }
-
     // mkUnassigned returns None; mkAssigned returns Some RoleRatedPlayer only when an HTML.Player is available.
     let private mkUnassigned (_role : string) : RoleRatedPlayer option = None
     let private mkAssigned role (name:string) (rating:float) (playerOpt: Player option) : RoleRatedPlayer option =

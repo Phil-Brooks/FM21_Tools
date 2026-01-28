@@ -48,7 +48,7 @@ module MY_CLUB =
 
     // -- Shared helpers for position lists / weakest attribute / comparisons --
 
-    let posListForTeam (team: TEAM.Team) : (string * RoleRatedPlayer option) list =
+    let posListForTeam (team: Team) : (string * RoleRatedPlayer option) list =
         [ ("SKD", team.SweeperKeeper)
           ("IWBR", team.InvertedWingBackRight)
           ("IWBL", team.InvertedWingBackLeft)
@@ -64,7 +64,7 @@ module MY_CLUB =
     let private formatWeakest (roleAbbrev, playerName, attr, value) =
         sprintf "%s: %s -> weakest: %s (%d)" roleAbbrev playerName attr value
 
-    let private getWeakestAttributesForTeam (team: TEAM.Team) =
+    let private getWeakestAttributesForTeam (team: Team) =
         posListForTeam team
         |> List.choose ROLE.weakestRelevantAttributeForPosition
         |> List.map formatWeakest
@@ -75,7 +75,7 @@ module MY_CLUB =
     let getThirdTeamWeakestAttributes () = getThirdTeam () |> getWeakestAttributesForTeam
 
     /// Generic: find the single assigned player whose role rating is most below the average for that role.
-    let private getTeamWeakestRelativeToDivision (team: TEAM.Team) (division: string) : string option =
+    let private getTeamWeakestRelativeToDivision (team: Team) (division: string) : string option =
         let roleAverages = DIVISION.averageRatingsByRole division |> Map.ofList
 
         posListForTeam team
@@ -101,7 +101,7 @@ module MY_CLUB =
     let getThirdTeamWeakestRelativeToDivision division = getThirdTeam () |> fun t -> getTeamWeakestRelativeToDivision t division
 
     /// Generic: compare a team's per-role ratings against division averages and produce a summary.
-    let private getTeamComparisonToDivision (team: TEAM.Team) (division: string) : string list =
+    let private getTeamComparisonToDivision (team: Team) (division: string) : string list =
         let roleAverages = DIVISION.averageRatingsByRole division |> Map.ofList
 
         // Build per-position comparison tuples: (formattedLine, playerRating, divisionAvg)

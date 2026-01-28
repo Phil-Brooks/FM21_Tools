@@ -15,7 +15,6 @@ let brls =
     |>List.map (fun p -> p.Name , ROLE.bestRoleForPlayer p )
     |>List.sortBy fst
 
-
 let rrps = HTML.MyPlayers|>List.map ROLE.bestRoleRatedPlayer
 
 let wkas = 

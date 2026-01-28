@@ -10,8 +10,6 @@ let mypath = "../data/my2.html"
 HTML.loadMyPlayers mypath
 printfn "Loaded %d players from %s" (List.length HTML.MyPlayers) path
 
-let fst = MY_CLUB.getFirstTeam ()
-
 let myteam = MY_CLUB.getFirstTeamAsStrings ()
 let scr = MY_CLUB.getFirstTeamScore ()
 let myteam2 = MY_CLUB.getSecondTeamAsStrings ()
