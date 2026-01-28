@@ -15,6 +15,7 @@
     <File Path="scripts/choose_team.fsx" />
     <File Path="scripts/load_all.fsx" />
     <File Path="scripts/my_club.fsx" />
+    <File Path="scripts/my_club_prog.fsx" />
     <File Path="scripts/scout.fsx" />
     <File Path="scripts/train.fsx" />
   </Folder>
