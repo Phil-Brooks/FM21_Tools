@@ -8,11 +8,11 @@ module ROLE =
     let private toFloatOpt = Option.map float
 
     // Helpers adapted to current Player shape (Extras: Map<string,string>, Attributes: Map<string,int>)
-    let private getExtra (p: HTML.Player) (key: string) : string option =
+    let private getExtra (p: Player) (key: string) : string option =
         Map.tryFind key p.Extras
         |> Option.filter (fun s -> not (String.IsNullOrWhiteSpace s))
 
-    let private getAttr (p: HTML.Player) (key: string) : int option =
+    let private getAttr (p: Player) (key: string) : int option =
         Map.tryFind key p.Attributes
 
     let private weightedScore (weightedAttrs: (float * float option) list) : float option =
@@ -25,10 +25,10 @@ module ROLE =
 
         if totalWeight = 0.0 then None else Some (5.0 * weightedSum / totalWeight)
 
-    let private posMatches (p: HTML.Player) (predicate: string -> bool) =
+    let private posMatches (p: Player) (predicate: string -> bool) =
         getExtra p "Position" |> Option.exists (fun s -> predicate (s.ToUpperInvariant()))
 
-    let private bestBy (rating: HTML.Player -> float option) (players: HTML.Player list) (topN: int) : (string * float) list =
+    let private bestBy (rating: Player -> float option) (players: Player list) (topN: int) : (string * float) list =
         let sorted =
             players
             |> List.choose (fun p -> rating p |> Option.map (fun s -> (p.Name, s)))
@@ -68,8 +68,8 @@ module ROLE =
             | _ -> []
 
     // General role rating builder to remove repetitive code
-    let private mkRoleRating (positionPredicate: string -> bool) (weightedAttrKeys: (float * string) list) : (HTML.Player -> float option) =
-        fun (p: HTML.Player) ->
+    let private mkRoleRating (positionPredicate: string -> bool) (weightedAttrKeys: (float * string) list) : (Player -> float option) =
+        fun (p: Player) ->
             if not (posMatches p positionPredicate) then None
             else
                 weightedAttrKeys
@@ -209,7 +209,7 @@ module ROLE =
     // --- New: compute all role ratings for a player and pick the best ---
 
     /// Mapping of role display names to rating functions
-    let private allRoleRatings : (string * (HTML.Player -> float option)) list = [
+    let private allRoleRatings : (string * (Player -> float option)) list = [
         ("TMA", roleRatingTargetManAttack)
         ("AFA", roleRatingAdvancedForwardAttack)
         ("WAR", roleRatingWingerAttackRight)
@@ -225,27 +225,27 @@ module ROLE =
     ]
 
     /// Return a sorted list of (roleName, rating) for roles that apply to the player (descending by rating).
-    let roleRatingsForPlayer (p: HTML.Player) : (string * float) list =
+    let roleRatingsForPlayer (p: Player) : (string * float) list =
         allRoleRatings
         |> List.choose (fun (roleName, rf) ->
             rf p |> Option.map (fun r -> (roleName, r)))
         |> List.sortByDescending snd
 
     /// Return the single best role for a player as (roleName, rating) option.
-    let bestRoleForPlayer (p: HTML.Player) : (string * float) option =
+    let bestRoleForPlayer (p: Player) : (string * float) option =
         roleRatingsForPlayer p |> List.tryHead
 
-    /// Convenience: return TYPES.RoleRatedPlayer option for the best role.
-    let bestRoleRatedPlayer (p: HTML.Player) : TYPES.RoleRatedPlayer option =
+    /// Convenience: return RoleRatedPlayer option for the best role.
+    let bestRoleRatedPlayer (p: Player) : RoleRatedPlayer option =
         match bestRoleForPlayer p with
         | Some (role, rating) -> Some { Name = p.Name; RoleName = role; Rating = rating; Player = p }
         | None -> None
 
     /// For an optional RoleRatedPlayer with an assigned Player, return the weakest relevant attribute (roleAbbrev, player, attr, value).
-    let weakestRelevantAttributeForPosition (roleAbbrev: string, posOpt: TYPES.RoleRatedPlayer option) : (string * string * string * int) option =
+    let weakestRelevantAttributeForPosition (roleAbbrev: string, posOpt: RoleRatedPlayer option) : (string * string * string * int) option =
         posOpt
         |> Option.bind (fun r ->
-            // r.Player is a concrete HTML.Player (TYPES.RoleRatedPlayer.Player is non-optional)
+            // r.Player is a concrete Player (RoleRatedPlayer.Player is non-optional)
             match getRelevantAttributesForRole r.RoleName with
             | [] -> None
             | relevant ->
@@ -255,10 +255,10 @@ module ROLE =
                 |> fun (attr, value) -> Some (roleAbbrev, r.Player.Name, attr, value)
         )
 
-    let weakestRelevantAttributeForPlayer (p: TYPES.RoleRatedPlayer) = weakestRelevantAttributeForPosition (p.RoleName, Some p)
+    let weakestRelevantAttributeForPlayer (p: RoleRatedPlayer) = weakestRelevantAttributeForPosition (p.RoleName, Some p)
 
     /// For an optional RoleRatedPlayer with an assigned Player, return the second weakest relevant attribute (roleAbbrev, player, attr, value).
-    let secondWeakestRelevantAttributeForPosition (roleAbbrev: string, posOpt: TYPES.RoleRatedPlayer option) : (string * string * string * int) option =
+    let secondWeakestRelevantAttributeForPosition (roleAbbrev: string, posOpt: RoleRatedPlayer option) : (string * string * string * int) option =
         posOpt
         |> Option.bind (fun r ->
             match getRelevantAttributesForRole r.RoleName with
@@ -273,4 +273,4 @@ module ROLE =
                     | _ -> None
         )
 
-    let secondWeakestRelevantAttributeForPlayer (p: TYPES.RoleRatedPlayer) = secondWeakestRelevantAttributeForPosition (p.RoleName, Some p)
+    let secondWeakestRelevantAttributeForPlayer (p: RoleRatedPlayer) = secondWeakestRelevantAttributeForPosition (p.RoleName, Some p)

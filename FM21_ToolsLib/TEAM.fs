@@ -3,31 +3,31 @@ namespace FM21_ToolsLib
 module TEAM =
 
     // Use the shared RoleRatedPlayer type instead of the local Position type.
-    // Unassigned positions are represented as a `TYPES.RoleRatedPlayer option`.
+    // Unassigned positions are represented as a `RoleRatedPlayer option`.
     // BallPlayingDef1 and BallPlayingDef2 replace the previous BallPlayingDefs list (two separate fields).
     type Team = {
-        SweeperKeeper: TYPES.RoleRatedPlayer option
-        InvertedWingBackRight: TYPES.RoleRatedPlayer option
-        InvertedWingBackLeft: TYPES.RoleRatedPlayer option
-        BallPlayingDef1: TYPES.RoleRatedPlayer option
-        BallPlayingDef2: TYPES.RoleRatedPlayer option
-        WingerAttackRight: TYPES.RoleRatedPlayer option
-        InvertedWingerLeft: TYPES.RoleRatedPlayer option
-        BallWinningMidfielderSupport: TYPES.RoleRatedPlayer option
-        AdvancedPlaymakerSupport: TYPES.RoleRatedPlayer option
-        AdvancedForwardAttack: TYPES.RoleRatedPlayer option
-        TargetManAttack: TYPES.RoleRatedPlayer option
+        SweeperKeeper: RoleRatedPlayer option
+        InvertedWingBackRight: RoleRatedPlayer option
+        InvertedWingBackLeft: RoleRatedPlayer option
+        BallPlayingDef1: RoleRatedPlayer option
+        BallPlayingDef2: RoleRatedPlayer option
+        WingerAttackRight: RoleRatedPlayer option
+        InvertedWingerLeft: RoleRatedPlayer option
+        BallWinningMidfielderSupport: RoleRatedPlayer option
+        AdvancedPlaymakerSupport: RoleRatedPlayer option
+        AdvancedForwardAttack: RoleRatedPlayer option
+        TargetManAttack: RoleRatedPlayer option
     }
 
     // mkUnassigned returns None; mkAssigned returns Some RoleRatedPlayer only when an HTML.Player is available.
-    let private mkUnassigned (_role : string) : TYPES.RoleRatedPlayer option = None
-    let private mkAssigned role (name:string) (rating:float) (playerOpt: HTML.Player option) : TYPES.RoleRatedPlayer option =
+    let private mkUnassigned (_role : string) : RoleRatedPlayer option = None
+    let private mkAssigned role (name:string) (rating:float) (playerOpt: Player option) : RoleRatedPlayer option =
         match playerOpt with
         | Some p -> Some { Name = name; RoleName = role; Rating = rating; Player = p }
         | None -> None
 
     // pick helper: call ROLE.* fn to get top N (name * rating), attach matching Player from pool, remove selected from pool
-    let private pickN (bestFn: HTML.Player list -> int -> (string * float) list) count (pool: HTML.Player list) =
+    let private pickN (bestFn: Player list -> int -> (string * float) list) count (pool: Player list) =
         let picks = bestFn pool count
         let picksWithPlayer =
             picks |> List.map (fun (n,r) -> (n, r, pool |> List.tryFind (fun p -> p.Name = n)))
@@ -35,7 +35,7 @@ module TEAM =
         let remaining = pool |> List.filter (fun p -> not (List.exists ((=) p.Name) selectedNames))
         picksWithPlayer, remaining
 
-    let buildTeam (players: HTML.Player list) : Team =
+    let buildTeam (players: Player list) : Team =
         let pool0 = players
 
         let sk, pool1 = pickN ROLE.bestSweeperKeepersDefend 1 pool0
@@ -84,7 +84,7 @@ module TEAM =
         }
 
     let teamAsPositionNameOptions (t: Team) =
-        let toTupleFromField canonicalRoleName (pOpt: TYPES.RoleRatedPlayer option) =
+        let toTupleFromField canonicalRoleName (pOpt: RoleRatedPlayer option) =
             let roleName = match pOpt with | Some r -> r.RoleName | None -> canonicalRoleName
             let playerName = pOpt |> Option.map (fun r -> r.Name)
             (roleName, playerName)

@@ -5,7 +5,7 @@ open System
 module DIVISION =
 
     // helper to extract an extra (Extras: Map<string,string>)
-    let private getExtra (key: string) (p: HTML.Player) : string option =
+    let private getExtra (key: string) (p: Player) : string option =
         Map.tryFind key p.Extras
         |> Option.filter (fun s -> not (String.IsNullOrWhiteSpace s))
 
@@ -33,7 +33,7 @@ module DIVISION =
         |> List.sort
 
     // players for a specific club in the chosen division
-    let playersInClub div (clubName: string) : HTML.Player list =
+    let playersInClub div (clubName: string) :Player list =
         HTML.AllPlayers
         |> List.filter (fun p ->
             getBased p
@@ -60,7 +60,7 @@ module DIVISION =
     // extract (RoleName, Rating option) for every position in a team
     let private teamRoleRatings (t: TEAM.Team) : (string * float option) list =
         // helper for single optional role fields
-        let fieldPair (opt: TYPES.RoleRatedPlayer option) canonical =
+        let fieldPair (opt: RoleRatedPlayer option) canonical =
             match opt with
             | Some r -> (r.RoleName, Some r.Rating)
             | None -> (canonical, None)

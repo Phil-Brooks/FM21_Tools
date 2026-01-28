@@ -6,15 +6,6 @@ open System.Text.RegularExpressions
 open System.Net
 
 module HTML =
-    type Player = {
-        Rec: string
-        Inf: string
-        Name: string
-        DoB: string
-        Height: string
-        Extras: Map<string,string>
-        Attributes: Map<string,int>
-    }
 
     let mutable AllPlayers: Player list = []
     let mutable MyPlayers: Player list = []

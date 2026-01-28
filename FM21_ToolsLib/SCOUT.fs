@@ -29,7 +29,7 @@ module SCOUT =
         else
             match roleMap.TryGetValue(rn) with
             | true, fn -> fn
-            | _ -> fun (_: HTML.Player) -> None
+            | _ -> fun (_: Player) -> None
 
     /// Parse money strings like "£185K", "€1.2M", "Free Transfer" into integer GBP (whole units).
     let private parseMoney (s: string) : int64 =
@@ -52,40 +52,40 @@ module SCOUT =
                 | true, v -> int64 (v * float multiplier)
                 | _ -> 0L
 
-    let private playerMarketValue (p: HTML.Player) : int64 =
+    let private playerMarketValue (p: Player) : int64 =
         Map.tryFind "Value" p.Extras |> Option.map parseMoney |> Option.defaultValue 0L
 
     /// Return RoleRatedPlayer list for players whose computed role rating is > threshold.
-    let getSctPlayersForRoleAbove (roleName: string) (threshold: float) : TYPES.RoleRatedPlayer list =
+    let getSctPlayersForRoleAbove (roleName: string) (threshold: float) : RoleRatedPlayer list =
         let ratingFn = roleRatingFnForRoleName roleName
         HTML.SctPlayers
         |> List.choose (fun p ->
             match ratingFn p with
-            | Some r when r > threshold -> Some ({ Name = p.Name; RoleName = roleName; Rating = r; Player = p } : TYPES.RoleRatedPlayer)
+            | Some r when r > threshold -> Some ({ Name = p.Name; RoleName = roleName; Rating = r; Player = p } : RoleRatedPlayer)
             | _ -> None)
         |> List.sortByDescending (fun rr -> rr.Rating)
 
     /// Convert a single `RoleRatedPlayer` to a `(Name, Club, Rating)` tuple.
-    let rRPlayerReport (rr: TYPES.RoleRatedPlayer) : (string * string * float) =
+    let rRPlayerReport (rr: RoleRatedPlayer) : (string * string * float) =
         let club = Map.tryFind "Club" rr.Player.Extras |> Option.defaultValue ""
         (rr.Name, club, rr.Rating)
 
     /// Filter helper: true when market value <= provided amount (in thousands).
-    let roleRatedPlayerValueBelowK (maxValueK: int) (rr: TYPES.RoleRatedPlayer) : bool =
+    let roleRatedPlayerValueBelowK (maxValueK: int) (rr: RoleRatedPlayer) : bool =
         let maxValueGbp = int64 maxValueK * 1000L
         (playerMarketValue rr.Player) <= maxValueGbp
 
     /// Generic helper: check an Extras key for presence of any tokens (normalized).
-    let private extraContains (key: string) (tokens: string[]) (rr: TYPES.RoleRatedPlayer) : bool =
+    let private extraContains (key: string) (tokens: string[]) (rr: RoleRatedPlayer) : bool =
         let value = Map.tryFind key rr.Player.Extras |> Option.defaultValue "" |> norm
         value <> "" && tokens |> Array.exists value.Contains
 
     /// Filter helper: true when player's loan status indicates they are loan listed (or on loan).
-    let roleRatedPlayerLoanListed (rr: TYPES.RoleRatedPlayer) : bool =
+    let roleRatedPlayerLoanListed (rr: RoleRatedPlayer) : bool =
         extraContains "LoanStatus" [| "LOAN"; "LIST" |] rr
 
     /// Filter helper: true when player's transfer status indicates they are transfer listed (or available for transfer).
-    let roleRatedPlayerTransferListed (rr: TYPES.RoleRatedPlayer) : bool =
+    let roleRatedPlayerTransferListed (rr: RoleRatedPlayer) : bool =
         extraContains "TransferStatus" [| "TRANSFER"; "LIST" |] rr
 
     /// Try to parse a player's DoB into a DateTime. Tries common formats, falls back to extracting a 4-digit year.
@@ -110,7 +110,7 @@ module SCOUT =
                 else None
 
     /// Compute player's age in years (approximate when only year is available).
-    let private playerAge (p: HTML.Player) : int option =
+    let private playerAge (p: Player) : int option =
         match tryParseDoB p.DoB with
         | Some dob ->
             // Use fixed reference date 31 August 2020 instead of DateTime.Today
@@ -122,7 +122,7 @@ module SCOUT =
         | None -> None
 
     /// Filter helper: true when player's age is strictly below the provided `maxAge`.
-    let roleRatedPlayerAgeBelow (maxAge: int) (rr: TYPES.RoleRatedPlayer) : bool =
+    let roleRatedPlayerAgeBelow (maxAge: int) (rr: RoleRatedPlayer) : bool =
         match playerAge rr.Player with
         | Some age -> age < maxAge
         | None -> false

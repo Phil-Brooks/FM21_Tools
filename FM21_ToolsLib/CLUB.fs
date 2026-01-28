@@ -4,7 +4,7 @@ open System
 
 module CLUB =
 
-    let private getExtra (key: string) (p: HTML.Player) : string option =
+    let private getExtra (key: string) (p: Player) : string option =
         Map.tryFind key p.Extras
         |> Option.filter (fun s -> not (String.IsNullOrWhiteSpace s))
 

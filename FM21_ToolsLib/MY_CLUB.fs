@@ -48,7 +48,7 @@ module MY_CLUB =
 
     // -- Shared helpers for position lists / weakest attribute / comparisons --
 
-    let posListForTeam (team: TEAM.Team) : (string * TYPES.RoleRatedPlayer option) list =
+    let posListForTeam (team: TEAM.Team) : (string * RoleRatedPlayer option) list =
         [ ("SKD", team.SweeperKeeper)
           ("IWBR", team.InvertedWingBackRight)
           ("IWBL", team.InvertedWingBackLeft)
