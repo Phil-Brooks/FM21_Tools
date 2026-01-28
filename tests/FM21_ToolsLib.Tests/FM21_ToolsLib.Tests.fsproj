@@ -8,6 +8,7 @@
     <Compile Include="ClubTests.fs" />
     <Compile Include="DivisionTests.fs" />
     <Compile Include="HTMLTests.fs" />
+    <Compile Include="MyClubTests.fs" />
     <Compile Include="RoleTests.fs" />
     <Compile Include="TeamTests.fs" />
   </ItemGroup>
