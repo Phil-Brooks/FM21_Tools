@@ -29,3 +29,6 @@ module TYPES =
         AdvancedForwardAttack: RoleRatedPlayer option
         TargetManAttack: RoleRatedPlayer option
     }
+
+    /// Structured result for a role rated player with progress.
+    type RRPlayerProgress = { Progress: float option; RRPlayer: RoleRatedPlayer }

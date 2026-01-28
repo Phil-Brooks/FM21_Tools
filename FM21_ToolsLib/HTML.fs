@@ -32,7 +32,7 @@ module HTML =
         "Aer"; "Cmd"; "Com"; "OneVOne"; "Han"; "Kic"; "Ecc"; "Pun"; "Ref"; "TRO"; "Thr"
     ]
 
-    let private parsePlayersFromHtmlContent (content: string) =
+    let parsePlayersFromHtmlContent (content: string) =
         let tableM = Regex.Match(content, "(?is)<table.*?>(.*?)</table>")
         if not tableM.Success then
             []

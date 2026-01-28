@@ -9,6 +9,7 @@
     <Compile Include="TYPES.fs" />
     <Compile Include="HTML.fs" />
     <Compile Include="ROLE.fs" />
+    <Compile Include="PROGRESS.fs" />
     <Compile Include="TEAM.fs" />
     <Compile Include="CLUB.fs" />
     <Compile Include="DIVISION.fs" />
