@@ -5,6 +5,7 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ClubTests.fs" />
     <Compile Include="HTMLTests.fs" />
     <Compile Include="RoleTests.fs" />
     <Compile Include="TeamTests.fs" />
