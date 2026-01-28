@@ -9,6 +9,7 @@
     <Compile Include="DivisionTests.fs" />
     <Compile Include="HTMLTests.fs" />
     <Compile Include="MyClubTests.fs" />
+    <Compile Include="ProgressTests.fs" />
     <Compile Include="RoleTests.fs" />
     <Compile Include="ScoutTests.fs" />
     <Compile Include="TeamTests.fs" />

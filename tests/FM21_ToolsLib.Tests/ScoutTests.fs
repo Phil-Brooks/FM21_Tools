@@ -99,7 +99,7 @@ type ScoutTests() =
         Assert.IsFalse(SCOUT.roleRatedPlayerAgeBelow 16 rr2004)
 
     [<Test>]
-    member _.``getSctPlayersForRoleAbove returns players from HTML.SctPlayers when role matches`` () =
+    member _.``getSctPlayersForRoleAbove returns players from HTMLSctPlayers when role matches`` () =
         // Create striker that should match TMA/AFA logic (Position contains ST)
         let strikerAttrs = [ ("Fin", 18); ("Pac", 17); ("Acc", 16); ("Cmp", 15); ("Dri", 14); ("Fir", 12); ("Hea", 10) ]
         let striker = mkPlayerWithDoB "Striker" "ST" strikerAttrs [] ""
