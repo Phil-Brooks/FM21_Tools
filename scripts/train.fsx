@@ -6,7 +6,7 @@ let div = "England (Sky Bet Championship)"
 let path = "../data/all.html"
 do HTML.loadPlayers path
 
-let mypath = "../data/my2.html"
+let mypath = "../data/my3.html"
 HTML.loadMyPlayers mypath
 printfn "Loaded %d players from %s" (List.length HTML.MyPlayers) path
 

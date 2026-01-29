@@ -126,3 +126,73 @@ module SCOUT =
         match playerAge rr.Player with
         | Some age -> age < maxAge
         | None -> false
+
+    //get best players for a role above a threshold below a value
+    /// - Uses a default `maxResults = 50`.
+    /// - Treats `maxValueK <= 0` as "no value limit".
+    /// - Sorts by rating (desc) then market value (asc) to prefer cheaper players at equal rating.
+    /// - Validates `roleName`.
+    let getBest (roleName: string) (threshold: float) (maxValueK: int) : (string * string * float) list =
+        // Basic validation
+        if isNull roleName || roleName.Trim() = "" then []
+        else
+            let maxResults = 50
+
+            // get all players better than threshold
+            let ps = getSctPlayersForRoleAbove roleName threshold
+
+            // optionally filter by value (<= maxValueK). maxValueK <= 0 means "no limit".
+            let ps =
+                if maxValueK <= 0 then ps
+                else ps |> List.filter (roleRatedPlayerValueBelowK maxValueK)
+
+            // sort by rating desc, then by market value asc
+            let compareRank a b =
+                let r = compare b.Rating a.Rating
+                if r <> 0 then r else compare (playerMarketValue a.Player) (playerMarketValue b.Player)
+
+            let sorted = ps |> List.sortWith compareRank
+
+            // limit to maxResults
+            let limited =
+                if List.length sorted > maxResults then sorted |> List.take maxResults else sorted
+
+            // return simplified report tuples
+            limited |> List.map rRPlayerReport
+
+    //get best players for a role above a threshold below a value transfer listed
+    /// - Filtered to transfer listed players only.
+    /// - Uses a default `maxResults = 50`.
+    /// - Treats `maxValueK <= 0` as "no value limit".
+    /// - Sorts by rating (desc) then market value (asc) to prefer cheaper players at equal rating.
+    /// - Validates `roleName`.
+    let getTrLst (roleName: string) (threshold: float) (maxValueK: int) : (string * string * float) list =
+        // Basic validation
+        if isNull roleName || roleName.Trim() = "" then []
+        else
+            let maxResults = 50
+
+            // get all players better than threshold
+            let ps = getSctPlayersForRoleAbove roleName threshold
+
+            // optionally filter by value (<= maxValueK). maxValueK <= 0 means "no limit".
+            let ps =
+                if maxValueK <= 0 then ps
+                else 
+                    ps 
+                    |> List.filter (roleRatedPlayerValueBelowK maxValueK)
+                    |> List.filter roleRatedPlayerTransferListed
+
+            // sort by rating desc, then by market value asc
+            let compareRank a b =
+                let r = compare b.Rating a.Rating
+                if r <> 0 then r else compare (playerMarketValue a.Player) (playerMarketValue b.Player)
+
+            let sorted = ps |> List.sortWith compareRank
+
+            // limit to maxResults
+            let limited =
+                if List.length sorted > maxResults then sorted |> List.take maxResults else sorted
+
+            // return simplified report tuples
+            limited |> List.map rRPlayerReport

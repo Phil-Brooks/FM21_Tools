@@ -2,10 +2,80 @@
 
 open FM21_ToolsLib
 
-let sctpath = "../data/sct3.html"
+let sctpath = "../data/sct4.html"
 HTML.loadSctPlayers sctpath
 
-// try to replace BPD as first team has this  weak one:
+let path = "../data/all.html"
+do PROGRESS.loadOldPlayers path
+
+let bestbwms = SCOUT.getBest "BWM" 70.0 3000
+let tlbwms = SCOUT.getTrLst "BWM" 65.0 3000
+
+
+
+
+
+//"SKD: Aston Oxborough -> player 51.56 vs avg 63.45 -> delta -11.89";
+//try to get a listed player
+let tlskds = 
+    //get all players better
+    let bpds = SCOUT.getSctPlayersForRoleAbove "SKD" 64.0
+    bpds |> List.filter SCOUT.roleRatedPlayerTransferListed
+    //only two and fail WP
+
+//try to get a cheap player 
+let chpskds = 
+    //get all players better
+    let skds = SCOUT.getSctPlayersForRoleAbove "SKD" 64.0
+    skds 
+    |> List.filter (SCOUT.roleRatedPlayerValueBelowK 1000)
+    |> List.filter (SCOUT.roleRatedPlayerAgeBelow 30)
+    |> List.map SCOUT.rRPlayerReport
+//Yoan Cardinale
+let yc = 
+    //get all players better
+    let skds = SCOUT.getSctPlayersForRoleAbove "SKD" 64.0
+    let pskds =
+        skds 
+        |> List.filter (SCOUT.roleRatedPlayerValueBelowK 1000)
+        |> List.filter (SCOUT.roleRatedPlayerAgeBelow 30)
+    pskds[2]  // Yoan Cardinale
+let ycr = SCOUT.rRPlayerReport yc
+let ycp = PROGRESS.progressForRoleRatedPlayer yc
+
+//try to get a young player 
+let yngskds = 
+    //get all players better
+    let skds = SCOUT.getSctPlayersForRoleAbove "SKD" 61.0
+    skds 
+    |> List.filter (SCOUT.roleRatedPlayerValueBelowK 1000)
+    |> List.filter (SCOUT.roleRatedPlayerAgeBelow 22)
+    |> List.map SCOUT.rRPlayerReport
+//Filip Jörgensen
+let fj = 
+    //get all players better
+    let skds = SCOUT.getSctPlayersForRoleAbove "SKD" 61.0
+    let pskds =
+        skds 
+        |> List.filter (SCOUT.roleRatedPlayerValueBelowK 1000)
+        |> List.filter (SCOUT.roleRatedPlayerAgeBelow 22)
+    pskds[3]  // Yoan Cardinale
+let fjr = SCOUT.rRPlayerReport fj
+let fjp = PROGRESS.progressForRoleRatedPlayer fj
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //"BPD1: Jacob Sørensen -> player 65.41 vs avg 64.41 -> delta 0.99";
 
 //try to get a loanee with BPD > 65.41

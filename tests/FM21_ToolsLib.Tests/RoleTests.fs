@@ -71,3 +71,37 @@ type RoleTests() =
                 Assert.AreEqual("WeakPac", playerName)
                 Assert.AreEqual("Pac", attr)
                 Assert.AreEqual(1, value)
+
+    [<Test>]
+    member _.``getBest orders by rating desc and by market value asc and respects value filter`` () =
+        // Build two players with identical high attributes (equal rating) but different market values,
+        // plus one clearly lower-rated player.
+        let highAttrs = [ ("Fin", 20); ("Pac", 18); ("Acc", 18); ("Cmp", 16); ("Dri", 14); ("Fir", 12); ("Hea", 12) ]
+        let medAttrs  = [ ("Fin", 15); ("Pac", 14); ("Acc", 14); ("Cmp", 13); ("Dri", 12); ("Fir", 11); ("Hea", 10) ]
+
+        let high = mkPlayer "High" "ST" highAttrs
+        let cheapHigh = mkPlayer "CheapHigh" "ST" highAttrs
+        let med = mkPlayer "Med" "ST" medAttrs
+
+        // attach Value and Club extras
+        let high = { high with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£2.0M"); ("Club", "Big FC") ] }
+        let cheapHigh = { cheapHigh with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£500K"); ("Club", "Small FC") ] }
+        let med = { med with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£300K"); ("Club", "Mid FC") ] }
+
+        // Ensure the HTML.SctPlayers source used by SCOUT is our controlled list
+        HTML.SctPlayers <- [ high; cheapHigh; med ]
+
+        // Use a low threshold so both high and cheapHigh are included.
+        let resultsAll = SCOUT.getBest "TMA" 0.0 10000
+        // Expect CheapHigh to come before High because ratings equal and market value lower
+        Assert.IsTrue(List.length resultsAll >= 2, "Expected at least two results")
+        let (firstName, firstClub, _) = List.head resultsAll
+        Assert.AreEqual("CheapHigh", firstName)
+        Assert.AreEqual("Small FC", firstClub)
+
+        // Now apply a value filter that excludes the expensive "High" player (maxValueK = 1000 => £1,000,000)
+        let resultsFiltered = SCOUT.getBest "TMA" 0.0 1000
+        // CheapHigh (500K) and Med (300K) should remain; High (2M) should be excluded.
+        let namesFiltered = resultsFiltered |> List.map (fun (n,_,_) -> n)
+        Assert.IsTrue(List.contains "CheapHigh" namesFiltered, "CheapHigh should be included under value filter")
+        Assert.IsFalse(List.contains "High" namesFiltered, "High should be excluded by value filter")
