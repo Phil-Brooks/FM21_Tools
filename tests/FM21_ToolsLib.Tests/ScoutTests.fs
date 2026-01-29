@@ -45,9 +45,10 @@ type ScoutTests() =
     member _.``rRPlayerReport returns name club and rating`` () =
         let p = mkPlayerWithDoB "Alice" "ST" [ ("Fin", 12) ] [ ("Club", "FC Test") ] ""
         let rr = mkRR "Alice" "TMA" 7.5 p
-        let (n, c, r) = SCOUT.rRPlayerReport rr
+        let (n, c, h, r) = SCOUT.rRPlayerReport rr
         Assert.AreEqual("Alice", n)
         Assert.AreEqual("FC Test", c)
+        Assert.AreEqual("", h)
         Assert.AreEqual(7.5, r)
 
     [<Test>]

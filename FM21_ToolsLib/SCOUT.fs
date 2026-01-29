@@ -65,10 +65,11 @@ module SCOUT =
             | _ -> None)
         |> List.sortByDescending (fun rr -> rr.Rating)
 
-    /// Convert a single `RoleRatedPlayer` to a `(Name, Club, Rating)` tuple.
-    let rRPlayerReport (rr: RoleRatedPlayer) : (string * string * float) =
+    /// Convert a single `RoleRatedPlayer` to a `(Name, Club, Height, Rating)` tuple.
+    let rRPlayerReport (rr: RoleRatedPlayer) : (string * string * string * float) =
         let club = Map.tryFind "Club" rr.Player.Extras |> Option.defaultValue ""
-        (rr.Name, club, rr.Rating)
+        let height = if isNull rr.Player.Height then "" else rr.Player.Height.Trim()
+        (rr.Name, club, height, rr.Rating)
 
     /// Filter helper: true when market value <= provided amount (in thousands).
     let roleRatedPlayerValueBelowK (maxValueK: int) (rr: RoleRatedPlayer) : bool =
@@ -132,7 +133,7 @@ module SCOUT =
     /// - Treats `maxValueK <= 0` as "no value limit".
     /// - Sorts by rating (desc) then market value (asc) to prefer cheaper players at equal rating.
     /// - Validates `roleName`.
-    let getBest (roleName: string) (threshold: float) (maxValueK: int) : (string * string * float) list =
+    let getBest (roleName: string) (threshold: float) (maxValueK: int) : (string * string * string * float) list =
         // Basic validation
         if isNull roleName || roleName.Trim() = "" then []
         else
@@ -157,7 +158,7 @@ module SCOUT =
             let limited =
                 if List.length sorted > maxResults then sorted |> List.take maxResults else sorted
 
-            // return simplified report tuples
+            // return simplified report tuples (Name, Club, Height, Rating)
             limited |> List.map rRPlayerReport
 
     //get best players for a role above a threshold below a value transfer listed
@@ -166,7 +167,7 @@ module SCOUT =
     /// - Treats `maxValueK <= 0` as "no value limit".
     /// - Sorts by rating (desc) then market value (asc) to prefer cheaper players at equal rating.
     /// - Validates `roleName`.
-    let getTrLst (roleName: string) (threshold: float) (maxValueK: int) : (string * string * float) list =
+    let getTrLst (roleName: string) (threshold: float) (maxValueK: int) : (string * string * string * float) list =
         // Basic validation
         if isNull roleName || roleName.Trim() = "" then []
         else
@@ -193,5 +194,5 @@ module SCOUT =
             let limited =
                 if List.length sorted > maxResults then sorted |> List.take maxResults else sorted
 
-            // return simplified report tuples
+            // return simplified report tuples (Name, Club, Height, Rating)
             limited |> List.map rRPlayerReport

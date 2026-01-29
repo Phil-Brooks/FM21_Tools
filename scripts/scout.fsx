@@ -111,15 +111,6 @@ let llbwms =
     let bwms = SCOUT.getSctPlayersForRoleAbove "BWM" 69.0
     bwms |> List.filter SCOUT.roleRatedPlayerLoanListed
     //NONE
-//try to get a listed player with BWM > 69.0
-let tlbwms = 
-    //get all players better
-    let bwms = SCOUT.getSctPlayersForRoleAbove "BWM" 69.0
-    bwms |> List.filter SCOUT.roleRatedPlayerTransferListed
-    |> List.map SCOUT.rRPlayerReport
-    //only two 
-    //[("James McCarthy", "Crystal Palace", 71.17283951) - too expensive;
-   //("Mohamed Elneny", "Arsenal", 70.92592593)] - too expensive
 //try to get a cheap player with BWM > 69.0
 let chpbwms = 
     //get all players better
