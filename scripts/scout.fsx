@@ -10,6 +10,7 @@ do PROGRESS.loadOldPlayers path
 
 let bestbwms = SCOUT.getBest "BWM" 70.0 3000
 let tlbwms = SCOUT.getTrLst "BWM" 65.0 3000
+let llbwms = SCOUT.getLnLst "BWM" 60.0 3000
 
 
 
@@ -76,14 +77,6 @@ let fjp = PROGRESS.progressForRoleRatedPlayer fj
 
 
 
-//"BPD1: Jacob Sørensen -> player 65.41 vs avg 64.41 -> delta 0.99";
-
-//try to get a loanee with BPD > 65.41
-let llbpds = 
-    //get all players better
-    let bpds = SCOUT.getSctPlayersForRoleAbove "BPD" 65.0
-    bpds |> List.filter SCOUT.roleRatedPlayerLoanListed
-    //NONE
 
 //try to get a listed player with BPD > 65.41
 let tlbpds = 
@@ -105,12 +98,6 @@ let chpbpds =
    // OFFER 1.9m "Juanpe", "Girona", 67.55813953
 
 //   "BWM: Alexander Tettey -> player 68.70 vs avg 66.11 -> delta 2.60"; FIX
-//try to get a loanee with BWM > 69.0
-let llbwms = 
-    //get all players better
-    let bwms = SCOUT.getSctPlayersForRoleAbove "BWM" 69.0
-    bwms |> List.filter SCOUT.roleRatedPlayerLoanListed
-    //NONE
 //try to get a cheap player with BWM > 69.0
 let chpbwms = 
     //get all players better

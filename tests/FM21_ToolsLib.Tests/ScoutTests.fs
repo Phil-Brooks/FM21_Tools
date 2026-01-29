@@ -116,3 +116,24 @@ type ScoutTests() =
         HTML.SctPlayers <- [ defender ]
         let bpdListed = SCOUT.getSctPlayersForRoleAbove "BPD1" 0.0
         Assert.IsTrue(bpdListed |> List.exists (fun r -> r.Name = "Def"))
+
+    [<Test>]
+    member _.``getLnLst returns only loan-listed players for a role and respects value limit`` () =
+        // create a striker that will be rated for TMA and is loan-listed
+        let strikerAttrs = [ ("Fin", 18); ("Pac", 17); ("Acc", 16); ("Cmp", 15); ("Dri", 14); ("Fir", 12); ("Hea", 10) ]
+        let loaned = mkPlayerWithDoB "LoanedStriker" "ST" strikerAttrs [ ("LoanStatus", "On Loan"); ("Value", "£50K") ] ""
+        HTML.SctPlayers <- [ loaned ]
+
+        // no value limit (maxValueK = 0) should include the loaned striker
+        let listed = SCOUT.getLnLst "TMA" 0.0 0
+        Assert.IsTrue(listed |> List.exists (fun (n,_,_,_) -> n = "LoanedStriker"))
+
+        // set a value cap lower than the player's value to exclude them
+        let listedUnder10K = SCOUT.getLnLst "TMA" 0.0 10
+        Assert.IsFalse(listedUnder10K |> List.exists (fun (n,_,_,_) -> n = "LoanedStriker"))
+
+        // now a non-loan-listed player should not appear
+        let notLoaned = mkPlayerWithDoB "NotLoanedStriker" "ST" strikerAttrs [ ("LoanStatus", "") ] ""
+        HTML.SctPlayers <- [ notLoaned ]
+        let listed2 = SCOUT.getLnLst "TMA" 0.0 0
+        Assert.IsFalse(listed2 |> List.exists (fun (n,_,_,_) -> n = "NotLoanedStriker"))

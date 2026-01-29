@@ -196,3 +196,39 @@ module SCOUT =
 
             // return simplified report tuples (Name, Club, Height, Rating)
             limited |> List.map rRPlayerReport
+
+    //get best players for a role above a threshold below a value loan listed
+    /// - Filtered to loan listed players only.
+    /// - Uses a default `maxResults = 50`.
+    /// - Treats `maxValueK <= 0` as "no value limit".
+    /// - Sorts by rating (desc) then market value (asc) to prefer cheaper players at equal rating.
+    /// - Validates `roleName`.
+    let getLnLst (roleName: string) (threshold: float) (maxValueK: int) : (string * string * string * float) list =
+        // Basic validation
+        if isNull roleName || roleName.Trim() = "" then []
+        else
+            let maxResults = 50
+
+            // get all players better than threshold and filter to loan-listed first
+            let ps =
+                getSctPlayersForRoleAbove roleName threshold
+                |> List.filter roleRatedPlayerLoanListed
+
+            // optionally filter by value (<= maxValueK). maxValueK <= 0 means "no limit".
+            let ps =
+                if maxValueK <= 0 then ps
+                else ps |> List.filter (roleRatedPlayerValueBelowK maxValueK)
+
+            // sort by rating desc, then by market value asc
+            let compareRank a b =
+                let r = compare b.Rating a.Rating
+                if r <> 0 then r else compare (playerMarketValue a.Player) (playerMarketValue b.Player)
+
+            let sorted = ps |> List.sortWith compareRank
+
+            // limit to maxResults
+            let limited =
+                if List.length sorted > maxResults then sorted |> List.take maxResults else sorted
+
+            // return simplified report tuples (Name, Club, Height, Rating)
+            limited |> List.map rRPlayerReport

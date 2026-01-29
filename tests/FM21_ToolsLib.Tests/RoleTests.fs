@@ -95,14 +95,14 @@ type RoleTests() =
         let resultsAll = SCOUT.getBest "TMA" 0.0 10000
         // Expect CheapHigh to come before High because ratings equal and market value lower
         Assert.IsTrue(List.length resultsAll >= 2, "Expected at least two results")
-        let (firstName, firstClub, _) = List.head resultsAll
+        let (firstName, firstClub, _, _) = List.head resultsAll
         Assert.AreEqual("CheapHigh", firstName)
         Assert.AreEqual("Small FC", firstClub)
 
         // Now apply a value filter that excludes the expensive "High" player (maxValueK = 1000 => £1,000,000)
         let resultsFiltered = SCOUT.getBest "TMA" 0.0 1000
         // CheapHigh (500K) and Med (300K) should remain; High (2M) should be excluded.
-        let namesFiltered = resultsFiltered |> List.map (fun (n,_,_) -> n)
+        let namesFiltered = resultsFiltered |> List.map (fun (n,_,_,_) -> n)
         Assert.IsTrue(List.contains "CheapHigh" namesFiltered, "CheapHigh should be included under value filter")
         Assert.IsFalse(List.contains "High" namesFiltered, "High should be excluded by value filter")
 
@@ -127,12 +127,13 @@ type RoleTests() =
         // No value limit: should return only the transfer-listed players (cheapHigh, med), ordered by rating then value.
         let resultsAll = SCOUT.getTrLst "TMA" 0.0 10000
         Assert.AreEqual(2, List.length resultsAll, "Expected two transfer-listed results")
-        let (firstName, firstClub, _) = List.head resultsAll
+        let (firstName, firstClub, _, _) = List.head resultsAll
         Assert.AreEqual("CheapHigh", firstName)
         Assert.AreEqual("Small FC", firstClub)
 
         // Apply value filter that excludes CheapHigh (500K) but keeps Med (300K)
         let resultsFiltered = SCOUT.getTrLst "TMA" 0.0 400
-        let namesFiltered = resultsFiltered |> List.map (fun (n,_,_) -> n)
+        let namesFiltered = resultsFiltered |> List.map (fun (n,_,_,_) -> n)
         Assert.IsTrue(List.contains "Med" namesFiltered, "Med (300K) should be included under value filter")
         Assert.IsFalse(List.contains "CheapHigh" namesFiltered, "CheapHigh (500K) should be excluded by value filter")
+
