@@ -11,6 +11,7 @@ do PROGRESS.loadOldPlayers path
 let bestbwms = SCOUT.getBest "BWM" 70.0 3000
 let tlbwms = SCOUT.getTrLst "BWM" 65.0 3000
 let llbwms = SCOUT.getLnLst "BWM" 60.0 3000
+let yngbwms = SCOUT.getYng "BWM" 63.0 3000 20
 
 
 

@@ -137,3 +137,26 @@ type ScoutTests() =
         HTML.SctPlayers <- [ notLoaned ]
         let listed2 = SCOUT.getLnLst "TMA" 0.0 0
         Assert.IsFalse(listed2 |> List.exists (fun (n,_,_,_) -> n = "NotLoanedStriker"))
+
+    [<Test>]
+    member _.``getYng returns players below maxAge and respects value and age limits`` () =
+        // create two strikers: one young (2004 -> age 16 at ref date) and one older (1995 -> age 25)
+        let strikerAttrs = [ ("Fin", 18); ("Pac", 17); ("Acc", 16); ("Cmp", 15); ("Dri", 14); ("Fir", 12); ("Hea", 10) ]
+        let young = mkPlayerWithDoB "YoungStriker" "ST" strikerAttrs [ ("Value", "£50K") ] "2004"
+        let old = mkPlayerWithDoB "OldStriker" "ST" strikerAttrs [ ("Value", "£30K") ] "01/01/1995"
+        HTML.SctPlayers <- [ young; old ]
+
+        // maxAge 18 should include only the younger player
+        let listedUnder18 = SCOUT.getYng "TMA" 0.0 0 18
+        Assert.IsTrue(listedUnder18 |> List.exists (fun (n,_,_,_) -> n = "YoungStriker"))
+        Assert.IsFalse(listedUnder18 |> List.exists (fun (n,_,_,_) -> n = "OldStriker"))
+
+        // maxAge <= 0 means no age limit -> both players appear
+        let listedNoAgeLimit = SCOUT.getYng "TMA" 0.0 0 0
+        Assert.IsTrue(listedNoAgeLimit |> List.exists (fun (n,_,_,_) -> n = "YoungStriker"))
+        Assert.IsTrue(listedNoAgeLimit |> List.exists (fun (n,_,_,_) -> n = "OldStriker"))
+
+        // value cap of 40K with maxAge 30 should include only the older (30K) and exclude the younger (50K)
+        let listedValueCap = SCOUT.getYng "TMA" 0.0 40 30
+        Assert.IsFalse(listedValueCap |> List.exists (fun (n,_,_,_) -> n = "YoungStriker"))
+        Assert.IsTrue(listedValueCap |> List.exists (fun (n,_,_,_) -> n = "OldStriker"))
