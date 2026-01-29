@@ -172,16 +172,15 @@ module SCOUT =
         else
             let maxResults = 50
 
-            // get all players better than threshold
-            let ps = getSctPlayersForRoleAbove roleName threshold
+            // get all players better than threshold and filter to transfer-listed first
+            let ps =
+                getSctPlayersForRoleAbove roleName threshold
+                |> List.filter roleRatedPlayerTransferListed
 
             // optionally filter by value (<= maxValueK). maxValueK <= 0 means "no limit".
             let ps =
                 if maxValueK <= 0 then ps
-                else 
-                    ps 
-                    |> List.filter (roleRatedPlayerValueBelowK maxValueK)
-                    |> List.filter roleRatedPlayerTransferListed
+                else ps |> List.filter (roleRatedPlayerValueBelowK maxValueK)
 
             // sort by rating desc, then by market value asc
             let compareRank a b =

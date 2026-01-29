@@ -105,3 +105,34 @@ type RoleTests() =
         let namesFiltered = resultsFiltered |> List.map (fun (n,_,_) -> n)
         Assert.IsTrue(List.contains "CheapHigh" namesFiltered, "CheapHigh should be included under value filter")
         Assert.IsFalse(List.contains "High" namesFiltered, "High should be excluded by value filter")
+
+    [<Test>]
+    member _.``getTrLst filters to transfer-listed players and respects value filter`` () =
+        // Build two high-rated STs and one medium-rated; mark two as transfer-listed.
+        let highAttrs = [ ("Fin", 20); ("Pac", 18); ("Acc", 18); ("Cmp", 16); ("Dri", 14); ("Fir", 12); ("Hea", 12) ]
+        let medAttrs  = [ ("Fin", 15); ("Pac", 14); ("Acc", 14); ("Cmp", 13); ("Dri", 12); ("Fir", 11); ("Hea", 10) ]
+
+        let high = mkPlayer "High" "ST" highAttrs
+        let cheapHigh = mkPlayer "CheapHigh" "ST" highAttrs
+        let med = mkPlayer "Med" "ST" medAttrs
+
+        // attach Value, Club and TransferStatus extras
+        let high = { high with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£2.0M");   ("Club", "Big FC");   ("TransferStatus", "") ] }
+        let cheapHigh = { cheapHigh with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£500K"); ("Club", "Small FC"); ("TransferStatus", "Transfer Listed") ] }
+        let med = { med with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£300K");   ("Club", "Mid FC");   ("TransferStatus", "Transfer Listed") ] }
+
+        // Use controlled source
+        HTML.SctPlayers <- [ high; cheapHigh; med ]
+
+        // No value limit: should return only the transfer-listed players (cheapHigh, med), ordered by rating then value.
+        let resultsAll = SCOUT.getTrLst "TMA" 0.0 10000
+        Assert.AreEqual(2, List.length resultsAll, "Expected two transfer-listed results")
+        let (firstName, firstClub, _) = List.head resultsAll
+        Assert.AreEqual("CheapHigh", firstName)
+        Assert.AreEqual("Small FC", firstClub)
+
+        // Apply value filter that excludes CheapHigh (500K) but keeps Med (300K)
+        let resultsFiltered = SCOUT.getTrLst "TMA" 0.0 400
+        let namesFiltered = resultsFiltered |> List.map (fun (n,_,_) -> n)
+        Assert.IsTrue(List.contains "Med" namesFiltered, "Med (300K) should be included under value filter")
+        Assert.IsFalse(List.contains "CheapHigh" namesFiltered, "CheapHigh (500K) should be excluded by value filter")
