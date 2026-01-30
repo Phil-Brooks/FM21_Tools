@@ -1,18 +1,7 @@
 <Solution>
   <Folder Name="/data/">
     <File Path="data/all.fmf" />
-    <File Path="data/all.html" />
     <File Path="data/my.fmf" />
-    <File Path="data/my.html" />
-    <File Path="data/my1.html" />
-    <File Path="data/my2.html" />
-    <File Path="data/my3.html" />
-    <File Path="data/my4.html" />
-    <File Path="data/sct.html" />
-    <File Path="data/sct1.html" />
-    <File Path="data/sct2.html" />
-    <File Path="data/sct3.html" />
-    <File Path="data/sct4.html" />
   </Folder>
   <Folder Name="/scripts/">
     <File Path="scripts/choose_team.fsx" />
