@@ -6,7 +6,7 @@ let div = "England (Sky Bet Championship)"
 let path = "../data/all.html"
 do HTML.loadPlayers path
 
-let mypath = "../data/my6.html"
+let mypath = "../data/my1.html"
 HTML.loadMyPlayers mypath
 printfn "Loaded %d players from %s" (List.length HTML.MyPlayers) path
 
@@ -26,35 +26,38 @@ let cmp2 = MY_CLUB.getSecondTeamComparisonToDivision div
 let cmp3 = MY_CLUB.getThirdTeamComparisonToDivision div
 
 //val cmp: string list =
-//  ["SKD: Tim Krul -> player 67.53 vs avg 63.45 -> delta 4.08";
+//  ["SKD: Tim Krul -> player 67.27 vs avg 63.45 -> delta 3.82";
 //   "IWBR: Max Aarons -> player 69.50 vs avg 61.59 -> delta 7.91";
 //   "IWBL: Xavi Quintillà -> player 66.55 vs avg 61.95 -> delta 4.60";
-//   "BPD1: Juanpe -> player 67.56 vs avg 64.41 -> delta 3.14";
-//   "BPD2: Nathan Collins -> player 65.81 (no division avg)";
+//   "BPD1: Mo Bešić -> player 66.34 vs avg 64.41 -> delta 1.92";
+//   "BPD2: Nathan Collins -> player 65.99 (no division avg)";
 //   "WAR: Emiliano Buendía -> player 75.43 vs avg 67.33 -> delta 8.10";
-//   "IWL: Thiago Almada -> player 71.28 vs avg 65.38 -> delta 5.91";
+//   "IWL: Thiago Almada -> player 70.74 vs avg 65.38 -> delta 5.37";
 //   "BWM: Jacob Sørensen -> player 67.28 vs avg 66.11 -> delta 1.18";
 //   "AP: Moritz Leitner -> player 71.01 vs avg 65.63 -> delta 5.38";
-//   "AFA: Teemu Pukki -> player 70.50 vs avg 64.81 -> delta 5.69";
+//   "AFA: Teemu Pukki -> player 70.75 vs avg 64.81 -> delta 5.94";
 //   "TMA: Adam Idah -> player 68.38 vs avg 63.31 -> delta 5.07";
-//   "Team average: 69.17 vs Division average: 64.40 -> delta 5.11"]
+//   "Team average: 69.02 vs Division average: 64.40 -> delta 4.93"]
 //val cmp2: string list =
 //  ["SKD: Yoan Cardinale -> player 65.00 vs avg 63.45 -> delta 1.55";
-//   "IWBR: Lukas Rupp -> player 63.95 vs avg 61.59 -> delta 2.36";
-//   "IWBL: Sam Byram -> player 62.30 vs avg 61.95 -> delta 0.35";
-//   "BPD1: Ben Gibson -> player 65.52 vs avg 64.41 -> delta 1.11";
+//   "IWBR: Colin Dagba -> player 64.70 vs avg 61.59 -> delta 3.11";
+//   "IWBL: Michał Karbownik -> player 64.55 vs avg 61.95 -> delta 2.60";
+//   "BPD1: Ben Gibson -> player 65.35 vs avg 64.41 -> delta 0.94";
 //   "BPD2: Christoph Zimmermann -> player 63.66 (no division avg)";
 //   "WAR: Onel Hernández -> player 68.86 vs avg 67.33 -> delta 1.53";
-//   "IWL: Marco Stiepermann -> player 67.57 vs avg 65.38 -> delta 2.19";
+//   "IWL: Kieran Dowell -> player 67.50 vs avg 65.38 -> delta 2.12";
 //   "BWM: Louis Thompson -> player 65.37 vs avg 66.11 -> delta -0.74";
-//   "AP: Kieran Dowell -> player 68.65 vs avg 65.63 -> delta 3.02";
-//   "AFA: Josip Drmić -> player 65.00 vs avg 64.81 -> delta 0.19";
-//   "TMA: Jordan Hugill -> player 65.00 vs avg 63.31 -> delta 1.69";
-//   "Team average: 65.53 vs Division average: 64.40 -> delta 1.32"]
+//   "AP: Marco Stiepermann -> player 68.04 vs avg 65.63 -> delta 2.41";
+//   "AFA: Janis Antiste -> player 66.88 vs avg 64.81 -> delta 2.07";
+//   "TMA: Leonardo Campana -> player 67.57 vs avg 63.31 -> delta 4.26";
+//   "Team average: 66.13 vs Division average: 64.40 -> delta 1.98"]
 //val cmp3: string list =
-//  ["IWBL: Sam McCallum -> player 55.65 vs avg 61.95 -> delta -6.30";
-//   "WAR: Willem Geubbels -> player 64.71 vs avg 67.33 -> delta -2.61";
+//  ["IWBR: Sam Byram -> player 62.30 vs avg 61.59 -> delta 0.71";
+//   "IWBL: Adrien Truffert -> player 61.30 vs avg 61.95 -> delta -0.65";
+//   "BPD1: Luca Connell -> player 59.65 vs avg 64.41 -> delta -4.76";
+//   "WAR: Willem Geubbels -> player 65.43 vs avg 67.33 -> delta -1.90";
 //   "IWL: Shane Hutchinson -> player 50.20 vs avg 65.38 -> delta -15.17";
-//   "BWM: Sol Hamilton -> player 55.19 vs avg 66.11 -> delta -10.92";
-//   "AFA: Oscar Thorn -> player 54.75 vs avg 64.81 -> delta -10.06";
-//   "Team average: 56.10 vs Division average: 65.11 -> delta -9.01"]
+//   "BWM: Sol Hamilton -> player 56.54 vs avg 66.11 -> delta -9.56";
+//   "AFA: Joshua Zirkzee -> player 65.63 vs avg 64.81 -> delta 0.82";
+//   "TMA: Oscar Thorn -> player 57.30 vs avg 63.31 -> delta -6.01";
+//   "Team average: 59.79 vs Division average: 64.36 -> delta -4.57"]

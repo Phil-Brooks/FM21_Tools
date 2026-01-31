@@ -2,13 +2,13 @@
 
 open FM21_ToolsLib
 
-let sctpath = "../data/sct6.html"
+let sctpath = "../data/sct1.html"
 HTML.loadSctPlayers sctpath
 
 //let path = "../data/all.html"
 //do PROGRESS.loadOldPlayers path
 
-let yngs = SCOUT.getYng "BPD" 64 4000 20
+let yngs = SCOUT.getYng "BWM" 65 4000 20
 
 //SKD
   //[("Filip Jörgensen", "Villarreal C", "190 cm", 62.20779221);
@@ -60,6 +60,41 @@ let yngs = SCOUT.getYng "BPD" 64 4000 20
   // ("Thomas Van Den Keybus", "Club Brugge", "159 cm", 66.28378378);
   // ("Manu Koné", "Toulouse FC", "185 cm", 66.28378378);
   // ("Robert Navarro", "Real San Sebastián", "178 cm", 66.21621622);
+//AP2
+  //[("Ömer Beyaz", "Fenerbahçe", "173 cm", 72.02702703);
+  // ("Mohamed Daramy", "FC København", "181 cm", 70.54054054);
+  // ("Youssoufa Moukoko", "Borussia Dortmund", "180 cm", 69.66216216);
+  // ("Jamal Musiala", "FC Bayern", "183 cm", 69.66216216);
+  // ("Pierre Dwomoh", "KRC Genk", "186 cm", 69.52702703);
+  // ("Hannibal", "Swansea", "183 cm", 68.91891892);
+  // ("Cristian Olivera", "Almería", "172 cm", 68.71621622);
+  // ("Yusuf Demir", "SK Rapid Vienna", "174 cm", 68.51351351);
+  // ("Thomas Van Den Keybus", "Club Brugge", "160 cm", 68.44594595);
+  // ("Bryan Gil", "Sevilla", "175 cm", 68.37837838);
+  // ("Alejandro Salas", "Valencia B", "182 cm", 67.97297297);
+  // ("Luca Connell", "Celtic", "169 cm", 67.90540541);
+  // ("Talles Magno", "VDG", "187 cm", 67.83783784);
+  // ("Adil Aouchiche", "AS Saint-Etienne", "182 cm", 67.77027027);
+  // ("Mouhamadou Diarra", "Strasbourg", "180 cm", 67.63513514);
+  // ("Martin Palumbo", "Udinese", "184 cm", 67.63513514);
+  // ("Manu Koné", "Borussia M'gladbach", "185 cm", 67.43243243);
+  // ("Moisés Caicedo", "Brighton", "179 cm", 67.2972973);
+  // ("Robert Navarro", "Villarreal", "178 cm", 67.22972973);
+  // ("Rayan Cherki", "OL", "177 cm", 67.09459459);
+  // ("Mohamed Taabouni", "AZ", "175 cm", 67.02702703);
+  // ("Amadou Onana", "Hamburger SV", "192 cm", 66.75675676);
+  // ("Kenzo Goudmijn", "AZ", "174 cm", 66.62162162);
+  // ("Edvard Tagseth", "Rosenborg", "170 cm", 66.62162162);
+  // ("Wassim Essanoussi", "VVV-Venlo", "169 cm", 66.62162162);
+  // ("James McAtee", "Man City", "183 cm", 66.55405405);
+  // ("Pape Matar Sarr", "FC Metz", "159 cm", 66.48648649);
+  // ("Stanislav Shopov", "sc Heerenveen", "179 cm", 66.48648649);
+  // ("Enrik Ostrc", "Olimpija", "187 cm", 66.41891892);
+  // ("Janis Antiste", "Toulouse FC", "186 cm", 66.35135135);
+  // ("Shola Shoretire", "Man Utd", "176 cm", 66.14864865);
+  // ("Robert Jezek", "Slavia Prague", "182 cm", 66.01351351);
+
+
 //AFA
   //[("Youssoufa Moukoko", "Borussia Dortmund", "179 cm", 71.25);
   // ("Joe Gelhardt", "Rotherham", "177 cm", 66.875);
@@ -78,6 +113,6 @@ let yngs = SCOUT.getYng "BPD" 64 4000 20
 
 
 
-let bestbwms = SCOUT.getBest "BWM" 74.0 3000
-let tlbwms = SCOUT.getTrLst "BWM" 67.0 3000
-let lls = SCOUT.getLnLst "AFA" 65.0 9000
+let bests = SCOUT.getBest "BWM" 67.7 17000
+let tls = SCOUT.getTrLst "AP" 67.0 13000
+let lls = SCOUT.getLnLst "AFA" 62.0 13000

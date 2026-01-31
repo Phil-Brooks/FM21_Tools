@@ -129,7 +129,7 @@ module SCOUT =
         | None -> false
 
     // Shared configuration and helpers
-    let private maxResults = 50
+    let private maxResults = 150
 
     let private compareRank (a: RoleRatedPlayer) (b: RoleRatedPlayer) =
         let r = compare b.Rating a.Rating
