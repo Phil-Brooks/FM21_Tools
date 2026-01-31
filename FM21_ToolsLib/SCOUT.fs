@@ -5,7 +5,10 @@ open System.Text.RegularExpressions
 open System.Globalization
 
 module SCOUT =
-
+    
+    // Use fixed reference date 31 August 2020 but can be reset
+    let mutable today = DateTime(2020, 8, 31)
+    
     /// Lightweight lookup for role name/abbreviation -> ROLE.roleRating function.
     let private roleMap =
         dict [
@@ -114,8 +117,6 @@ module SCOUT =
     let private playerAge (p: Player) : int option =
         match tryParseDoB p.DoB with
         | Some dob ->
-            // Use fixed reference date 31 August 2020 instead of DateTime.Today
-            let today = DateTime(2020, 8, 31)
             let years = today.Year - dob.Year
             let hadBirthdayThisYear = (dob.Month < today.Month) || (dob.Month = today.Month && dob.Day <= today.Day)
             let age = if hadBirthdayThisYear then years else years - 1
