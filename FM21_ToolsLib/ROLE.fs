@@ -83,7 +83,7 @@ module ROLE =
         mkRoleRating
             (fun up -> up.Contains("ST") || up.Contains("F C"))
             [
-                (0.40, "Dri"); (0.60, "Fin"); (0.60, "Fir"); (0.60, "Hea"); (0.20, "Pas");
+                (0.40, "Dri"); (0.40, "Fin"); (0.60, "Fir"); (0.60, "Hea"); (0.20, "Pas");
                 (0.40, "Tec"); (0.40, "Ant"); (0.60, "Cmp"); (1.00, "Acc"); (0.40, "Agi");
                 (0.60, "Jum"); (1.00, "Pac"); (0.60, "Str")
             ]
@@ -96,9 +96,9 @@ module ROLE =
         mkRoleRating
             (fun up -> up.Contains("ST") || up.Contains("F C"))
             [
-                (1.00, "Pac"); (1.00, "Acc"); (1.00, "Fin"); (0.80, "Dri"); (0.60, "Fir");
-                (0.60, "OtB"); (0.60, "Tec"); (0.60, "Ant"); (0.60, "Cmp"); (0.40, "Agi");
-                (0.40, "Bal"); (0.20, "Sta"); (0.20, "Pas")
+                (1.00, "Pac"); (1.00, "Acc"); (0.50, "Fin"); (0.80, "Dri"); (0.60, "Fir");
+                (0.20, "OtB"); (0.60, "Tec"); (0.60, "Ant"); (0.60, "Cmp"); (0.40, "Agi");
+                (0.20, "Bal"); (0.20, "Sta"); (0.40, "Pas")
             ]
 
     let bestAdvancedForwardsAttack = bestBy roleRatingAdvancedForwardAttack
@@ -110,7 +110,7 @@ module ROLE =
             (fun up -> up.Contains("M") && up.Contains("R"))
             [
                 (1.20, "Cro"); (1.00, "Pac"); (1.00, "Acc"); (0.80, "Dri"); (0.60, "Tec");
-                (0.60, "Pas"); (0.60, "OtB"); (0.40, "Agi"); (0.40, "Fla"); (0.20, "Sta"); (0.20, "Fin")
+                (0.60, "Pas"); (0.30, "OtB"); (0.40, "Agi"); (0.40, "Fla"); (0.20, "Sta"); (0.10, "Fin")
             ]
 
     let bestWingersAttackRight = bestBy roleRatingWingerAttackRight
@@ -121,9 +121,9 @@ module ROLE =
         mkRoleRating
             (fun up -> up.Contains("M") && up.Contains("L"))
             [
-                (0.40, "Cro"); (0.90, "Pas"); (0.80, "Tec"); (0.80, "OtB"); (0.80, "Dri");
-                (0.60, "Fla"); (0.60, "Cmp"); (0.50, "Ant"); (0.60, "Acc"); (0.60, "Pac");
-                (0.40, "Agi"); (0.20, "Sta"); (0.20, "Fin")
+                (0.40, "Cro"); (0.90, "Pas"); (0.80, "Tec"); (0.30, "OtB"); (0.80, "Dri");
+                (0.30, "Fla"); (0.60, "Cmp"); (0.50, "Ant"); (0.60, "Acc"); (0.60, "Pac");
+                (0.40, "Agi"); (0.20, "Sta"); (0.30, "Fin")
             ]
 
     let bestInvertedWingersSupportLeft = bestBy roleRatingInvertedWingerSupportLeft
@@ -134,8 +134,8 @@ module ROLE =
         mkRoleRating
             (fun up -> up.Contains("M") && up.Contains("C"))
             [
-                (1.20, "Pas"); (0.90, "Tec"); (0.90, "OtB"); (0.80, "Ant"); (0.80, "Cmp");
-                (0.60, "Fir"); (0.60, "Dri"); (0.50, "Fla"); (0.40, "Acc"); (0.40, "Pac"); (0.30, "Sta")
+                (1.20, "Pas"); (0.90, "Tec"); (0.40, "OtB"); (0.80, "Ant"); (0.80, "Cmp");
+                (0.60, "Fir"); (0.60, "Dri"); (0.30, "Fla"); (0.60, "Acc"); (0.60, "Pac"); (0.30, "Sta")
             ]
 
     let bestAdvancedPlaymakersSupport = bestBy roleRatingAdvancedPlaymakerSupport
@@ -146,8 +146,8 @@ module ROLE =
         mkRoleRating
             (fun up -> up.Contains("M") && up.Contains("C"))
             [
-                (1.20, "Tck"); (1.00, "Mar"); (0.80, "Agg"); (0.80, "Sta"); (0.70, "Wor");
-                (0.70, "Str"); (0.60, "Ant"); (0.60, "Dec"); (0.50, "Cmp"); (0.40, "Pas");
+                (1.20, "Tck"); (1.00, "Mar"); (0.30, "Agg"); (0.80, "Sta"); (0.70, "Wor");
+                (0.70, "Str"); (0.60, "Ant"); (0.60, "Dec"); (0.10, "Cmp"); (0.40, "Pas");
                 (0.30, "Pac"); (0.30, "Acc"); (0.20, "Tec")
             ]
 
@@ -159,9 +159,9 @@ module ROLE =
         mkRoleRating
             (fun up -> ((up.Contains("D") && up.Contains("C")) || up.Contains("CB")))
             [
-                (1.20, "Pas"); (0.90, "Tec"); (0.90, "Cmp"); (0.80, "Dec"); (0.70, "Ant");
-                (0.70, "Tck"); (0.60, "Mar"); (0.60, "Str"); (0.50, "Hea"); (0.40, "Jum");
-                (0.40, "Pac"); (0.30, "Acc"); (0.30, "Sta"); (0.30, "Agg")
+                (1.20, "Pas"); (0.50, "Tec"); (0.20, "Cmp"); (0.80, "Dec"); (0.70, "Ant");
+                (0.70, "Tck"); (0.60, "Mar"); (0.60, "Str"); (0.70, "Hea"); (0.80, "Jum");
+                (0.40, "Pac"); (0.30, "Acc"); (0.30, "Sta"); (0.10, "Agg")
             ]
 
     let bestBallPlayingDefenders = bestBy roleRatingBallPlayingDefender
@@ -172,8 +172,8 @@ module ROLE =
         mkRoleRating
             (fun up -> ((up.Contains("D") && up.Contains("R")) || up.Contains("RB") || up.Contains("RWB")))
             [
-                (1.00, "Pas"); (0.90, "Tec"); (0.80, "OtB"); (0.80, "Cro"); (0.80, "Dri");
-                (0.70, "Pac"); (0.60, "Acc"); (0.60, "Sta"); (0.60, "Wor"); (0.60, "Cmp");
+                (1.00, "Pas"); (0.90, "Tec"); (0.10, "OtB"); (0.80, "Cro"); (0.10, "Dri");
+                (0.70, "Pac"); (0.60, "Acc"); (0.60, "Sta"); (0.30, "Wor"); (0.10, "Cmp");
                 (0.50, "Dec"); (0.50, "Tck"); (0.50, "Mar"); (0.40, "Ant"); (0.40, "Agi"); (0.30, "Str")
             ]
 
@@ -185,8 +185,8 @@ module ROLE =
         mkRoleRating
             (fun up -> ((up.Contains("D") && up.Contains("L")) || up.Contains("LB") || up.Contains("LWB")))
             [
-                (1.00, "Pas"); (0.90, "Tec"); (0.80, "OtB"); (0.80, "Cro"); (0.80, "Dri");
-                (0.70, "Pac"); (0.60, "Acc"); (0.60, "Sta"); (0.60, "Wor"); (0.60, "Cmp");
+                (1.00, "Pas"); (0.90, "Tec"); (0.10, "OtB"); (0.80, "Cro"); (0.10, "Dri");
+                (0.70, "Pac"); (0.60, "Acc"); (0.60, "Sta"); (0.30, "Wor"); (0.10, "Cmp");
                 (0.50, "Dec"); (0.50, "Tck"); (0.50, "Mar"); (0.40, "Ant"); (0.40, "Agi"); (0.30, "Str")
             ]
 
@@ -199,7 +199,7 @@ module ROLE =
             (fun up -> up.Contains("GK") || up.Contains("G K") || up.Contains("GOAL"))
             [
                 (1.20, "Ref"); (1.00, "Han"); (0.90, "Pos"); (0.80, "Kic"); (0.70, "Cmd");
-                (0.60, "Thr"); (0.60, "OneVOne"); (0.50, "Pun"); (0.40, "Com"); (0.30, "Ecc");
+                (0.10, "Thr"); (0.60, "OneVOne"); (0.10, "Pun"); (0.40, "Com"); (0.30, "Ecc");
                 (0.30, "Aer"); (0.20, "Acc"); (0.20, "Pac")
             ]
 
