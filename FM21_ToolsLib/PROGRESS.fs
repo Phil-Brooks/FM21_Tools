@@ -27,3 +27,17 @@ module PROGRESS =
         let progress = oldOpt |> Option.map (fun o -> rr.Rating - o.Rating)
         { Progress = progress; RRPlayer = rr }
 
+    let progressClub() = 
+        HTML.MyPlayers 
+        |> List.map ROLE.bestRoleRatedPlayer
+        |> List.choose id
+        |> List.map progressForRoleRatedPlayer
+        // sort so players with a numeric Progress come first, sorted by Progress descending;
+        // entries with no previous rating (None) are placed last
+        |> List.sortWith (fun a b ->
+            match a.Progress, b.Progress with
+            | Some pa, Some pb -> compare pb pa  // descending order
+            | Some _, None -> -1                 // a (Some) before b (None)
+            | None, Some _ -> 1                  // a (None) after b (Some)
+            | None, None -> 0)
+        |> List.map RRPPtoString

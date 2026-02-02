@@ -4,7 +4,7 @@
 
 open FM21_ToolsLib
 
-let sctpath = "../data/sct2.html"
+let sctpath = "../data/sct3.html"
 HTML.loadSctPlayers sctpath
 
 //let path = "../data/all.html"
@@ -12,7 +12,7 @@ HTML.loadSctPlayers sctpath
 
 SCOUT.today = DateTime(2022, 3, 31)
 
-let yngs = SCOUT.getYng "IWBL" 63 4000 20
+let yngs = SCOUT.getYng "SKD" 63 4000 20
 
 //SKD
 //IWBR
@@ -29,5 +29,5 @@ let yngs = SCOUT.getYng "IWBL" 63 4000 20
 let bests = SCOUT.getBest "BWM" 67.7 17000
 let lls = SCOUT.getLnLst "AFA" 62.0 13000
 
-let tls = SCOUT.getTrLst "TMA" 67.0 9000
+let tls = SCOUT.getTrLst "IWBR" 65.0 19000
 
