@@ -4,6 +4,7 @@
     <File Path="data/my.fmf" />
   </Folder>
   <Folder Name="/scripts/">
+    <File Path="scripts/best_prog.fsx" />
     <File Path="scripts/choose_team.fsx" />
     <File Path="scripts/load_all.fsx" />
     <File Path="scripts/my_club.fsx" />

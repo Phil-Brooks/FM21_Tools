@@ -10,9 +10,9 @@ HTML.loadSctPlayers sctpath
 //let path = "../data/all.html"
 //do PROGRESS.loadOldPlayers path
 
-SCOUT.today = DateTime(2022, 3, 31)
+SCOUT.today = DateTime(2023, 3, 31)
 
-let yngs = SCOUT.getYng "SKD" 63 4000 20
+let yngs = SCOUT.getYng "AFA" 61 9000 21
 
 //SKD
 //IWBR
@@ -26,8 +26,11 @@ let yngs = SCOUT.getYng "SKD" 63 4000 20
 //TMA
 
 
-let bests = SCOUT.getBest "BWM" 67.7 17000
-let lls = SCOUT.getLnLst "AFA" 62.0 13000
+let bests = SCOUT.getBest "AFA" 62 1
 
-let tls = SCOUT.getTrLst "IWBR" 65.0 19000
+
+
+let lls = SCOUT.getLnLst "IWBL" 64.0 23000
+
+let tls = SCOUT.getTrLst "WAR" 69.0 19000
 
