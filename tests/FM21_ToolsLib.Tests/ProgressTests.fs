@@ -71,13 +71,16 @@ type ProgressTests() =
 
     [<Test>]
     member _.``topImprovementsFromCurPlayers returns top N improvements ordered descending and includes club, role, height, rating, improvement`` () =
+        // create a DoB that ensures players are under 21 at test runtime (20 years ago from today)
+        let dobUnder21 = DateTime.UtcNow.AddYears(-20).ToString("yyyy-MM-dd")
+
         // helper that includes Club and fixed Height so matching works
         let mkPlayerWithClub (name: string) (position: string) (attrs: (string * int) list) (club: string) =
             {
                 Rec = ""
                 Inf = ""
                 Name = name
-                DoB = ""
+                DoB = dobUnder21
                 Height = "180"
                 Extras = Map.ofList [ ("Position", position); ("Club", club) ]
                 Attributes = Map.ofList attrs

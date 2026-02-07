@@ -2,6 +2,7 @@ namespace FM21_ToolsLib
 
 open System
 open System.IO
+open System.Text.RegularExpressions
 
 module PROGRESS =
 
@@ -36,20 +37,42 @@ module PROGRESS =
         let progress = oldOpt |> Option.map (fun o -> rr.Rating - o.Rating)
         { Progress = progress; RRPlayer = rr }
 
+    // Try to parse DoB string into a DateTime. Fallback: extract 4-digit year if present and use Jan 1 of that year.
+    let private tryParseDoB (s: string) : DateTime option =
+        if String.IsNullOrWhiteSpace s then None
+        else
+            match DateTime.TryParse(s) with
+            | true, d -> Some d
+            | _ ->
+                let m = Regex.Match(s, @"(\d{4})")
+                if m.Success then
+                    match Int32.TryParse(m.Groups.[1].Value) with
+                    | true, y -> Some (DateTime(y, 1, 1))
+                    | _ -> None
+                else None
+
+    let private ageAt (dob: DateTime) (onDate: DateTime) : int =
+        let a = onDate.Year - dob.Year
+        if dob > onDate.AddYears(-a) then a - 1 else a
+
     /// Return top N improvements for entries in `CurPlayers` relative to `OldPlayers`.
-    /// Each item is a tuple: (Name, Club, Role, Height, Improvement).
+    /// Each item is a tuple: (Name, Club, Role, Height, Rating, Improvement).
+    /// Only players aged under 21 (based on `Player.DoB`) are considered.
     let topImprovementsFromCurPlayers (topN: int) : (string * string * string * string * float * float) list =
         let normalize (s: string) = if isNull s then "" else s.Trim().ToUpperInvariant()
         CurPlayers
         |> List.choose (fun rr ->
-            OldPlayers
-            |> List.tryFind (fun o ->
-                (normalize o.Name) = (normalize rr.Name)
-                && (normalize o.Player.Height) = (normalize rr.Player.Height))
-            |> Option.map (fun o ->
-                let improvement = rr.Rating - o.Rating
-                let club = Map.tryFind "Club" rr.Player.Extras |> Option.defaultValue ""
-                (rr.Name, club, rr.RoleName, rr.Player.Height, rr.Rating, improvement)))
+            match tryParseDoB rr.Player.DoB with
+            | Some dob when ageAt dob today < 21 ->
+                OldPlayers
+                |> List.tryFind (fun o ->
+                    (normalize o.Name) = (normalize rr.Name)
+                    && (normalize o.Player.Height) = (normalize rr.Player.Height))
+                |> Option.map (fun o ->
+                    let improvement = rr.Rating - o.Rating
+                    let club = Map.tryFind "Club" rr.Player.Extras |> Option.defaultValue ""
+                    (rr.Name, club, rr.RoleName, rr.Player.Height, rr.Rating, improvement))
+            | _ -> None)
         |> List.sortByDescending (fun (_, _, _, _, _, imp) -> imp)
         |> List.truncate topN
 

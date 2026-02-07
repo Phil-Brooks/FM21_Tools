@@ -87,6 +87,7 @@ type ScoutTests() =
 
     [<Test>]
     member _.``roleRatedPlayerAgeBelow uses DoB parsing and fixed reference date`` () =
+        today <- DateTime(2020, 8, 31)
         // Born 2002-01-01 -> age at 2020-08-31 is 18
         let p2002 = mkPlayerWithDoB "Young" "ST" [] [] "01/01/2002"
         let rr2002 = mkRR "Young" "TMA" 5.0 p2002
@@ -140,6 +141,7 @@ type ScoutTests() =
 
     [<Test>]
     member _.``getYng returns players below maxAge and respects value and age limits`` () =
+        today <- DateTime(2020, 8, 31)
         // create two strikers: one young (2004 -> age 16 at ref date) and one older (1995 -> age 25)
         let strikerAttrs = [ ("Fin", 18); ("Pac", 17); ("Acc", 16); ("Cmp", 15); ("Dri", 14); ("Fir", 12); ("Hea", 10) ]
         let young = mkPlayerWithDoB "YoungStriker" "ST" strikerAttrs [ ("Value", "£50K") ] "2004"

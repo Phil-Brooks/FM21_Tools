@@ -1,5 +1,7 @@
 namespace FM21_ToolsLib
 
+open System
+
 [<AutoOpen>]
 module TYPES =
     type Player = {
@@ -36,3 +38,7 @@ module TYPES =
     let RRPPtoString (rrpp: RRPlayerProgress) : string =
         let prog = if rrpp.Progress.IsSome then sprintf "%.2f" rrpp.Progress.Value else "N/A"
         "Name: " + rrpp.RRPlayer.Name + ", Role: " + rrpp.RRPlayer.RoleName + ", Rating: " + sprintf "%.2f" rrpp.RRPlayer.Rating + ", Progress: " + prog
+
+    // Use fixed reference date 31 August 2020 but can be reset
+    let mutable today = DateTime(2023, 3, 31)
+

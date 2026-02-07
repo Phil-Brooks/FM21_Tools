@@ -6,9 +6,6 @@ open System.Globalization
 
 module SCOUT =
     
-    // Use fixed reference date 31 August 2020 but can be reset
-    let mutable today = DateTime(2020, 8, 31)
-    
     /// Lightweight lookup for role name/abbreviation -> ROLE.roleRating function.
     let private roleMap =
         dict [

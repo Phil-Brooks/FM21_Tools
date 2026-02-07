@@ -10,7 +10,7 @@ HTML.loadSctPlayers sctpath
 //let path = "../data/all.html"
 //do PROGRESS.loadOldPlayers path
 
-SCOUT.today = DateTime(2023, 3, 31)
+today = DateTime(2023, 3, 31)
 
 let yngs = SCOUT.getYng "AFA" 61 9000 21
 
