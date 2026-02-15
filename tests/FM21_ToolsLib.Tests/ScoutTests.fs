@@ -104,7 +104,7 @@ type ScoutTests() =
     member _.``getSctPlayersForRoleAbove returns players from HTMLSctPlayers when role matches`` () =
         // Create striker that should match TMA/AFA logic (Position contains ST)
         let strikerAttrs = [ ("Fin", 18); ("Pac", 17); ("Acc", 16); ("Cmp", 15); ("Dri", 14); ("Fir", 12); ("Hea", 10) ]
-        let striker = mkPlayerWithDoB "Striker" "ST" strikerAttrs [] ""
+        let striker = mkPlayerWithDoB "Striker" "ST (C)" strikerAttrs [] ""
         HTML.SctPlayers <- [ striker ]
 
         // Use threshold 0.0 to include any rated player whose role applies
@@ -113,7 +113,7 @@ type ScoutTests() =
 
         // Ball Playing Defender mapping via "BPD" prefix
         let defenderAttrs = [ ("Pas", 18); ("Tec", 17); ("Cmp", 16); ("Tck", 15) ]
-        let defender = mkPlayerWithDoB "Def" "CB" defenderAttrs [] ""
+        let defender = mkPlayerWithDoB "Def" "D (C)" defenderAttrs [] ""
         HTML.SctPlayers <- [ defender ]
         let bpdListed = SCOUT.getSctPlayersForRoleAbove "BPD1" 0.0
         Assert.IsTrue(bpdListed |> List.exists (fun r -> r.Name = "Def"))
@@ -122,7 +122,7 @@ type ScoutTests() =
     member _.``getLnLst returns only loan-listed players for a role and respects value limit`` () =
         // create a striker that will be rated for TMA and is loan-listed
         let strikerAttrs = [ ("Fin", 18); ("Pac", 17); ("Acc", 16); ("Cmp", 15); ("Dri", 14); ("Fir", 12); ("Hea", 10) ]
-        let loaned = mkPlayerWithDoB "LoanedStriker" "ST" strikerAttrs [ ("LoanStatus", "On Loan"); ("Value", "£50K") ] ""
+        let loaned = mkPlayerWithDoB "LoanedStriker" "ST (C)" strikerAttrs [ ("LoanStatus", "On Loan"); ("Value", "£50K") ] ""
         HTML.SctPlayers <- [ loaned ]
 
         // no value limit (maxValueK = 0) should include the loaned striker
@@ -134,7 +134,7 @@ type ScoutTests() =
         Assert.IsFalse(listedUnder10K |> List.exists (fun (n,_,_,_) -> n = "LoanedStriker"))
 
         // now a non-loan-listed player should not appear
-        let notLoaned = mkPlayerWithDoB "NotLoanedStriker" "ST" strikerAttrs [ ("LoanStatus", "") ] ""
+        let notLoaned = mkPlayerWithDoB "NotLoanedStriker" "ST (C)" strikerAttrs [ ("LoanStatus", "") ] ""
         HTML.SctPlayers <- [ notLoaned ]
         let listed2 = SCOUT.getLnLst "TMA" 0.0 0
         Assert.IsFalse(listed2 |> List.exists (fun (n,_,_,_) -> n = "NotLoanedStriker"))
@@ -144,8 +144,8 @@ type ScoutTests() =
         today <- DateTime(2020, 8, 31)
         // create two strikers: one young (2004 -> age 16 at ref date) and one older (1995 -> age 25)
         let strikerAttrs = [ ("Fin", 18); ("Pac", 17); ("Acc", 16); ("Cmp", 15); ("Dri", 14); ("Fir", 12); ("Hea", 10) ]
-        let young = mkPlayerWithDoB "YoungStriker" "ST" strikerAttrs [ ("Value", "£50K") ] "2004"
-        let old = mkPlayerWithDoB "OldStriker" "ST" strikerAttrs [ ("Value", "£30K") ] "01/01/1995"
+        let young = mkPlayerWithDoB "YoungStriker" "ST (C)" strikerAttrs [ ("Value", "£50K") ] "2004"
+        let old = mkPlayerWithDoB "OldStriker" "ST (C)" strikerAttrs [ ("Value", "£30K") ] "01/01/1995"
         HTML.SctPlayers <- [ young; old ]
 
         // maxAge 18 should include only the younger player

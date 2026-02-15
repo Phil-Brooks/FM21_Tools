@@ -2,10 +2,10 @@
 
 open FM21_ToolsLib
 
-let path = "../data/my3.html"
+let path = "../data/my7.html"
 do PROGRESS.loadOldPlayers path
 
-let mypath = "../data/my5.html"
+let mypath = "../data/my8.html"
 HTML.loadMyPlayers mypath
 printfn "Loaded %d players from %s" (List.length HTML.MyPlayers) path
 

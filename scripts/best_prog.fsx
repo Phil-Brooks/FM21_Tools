@@ -1,14 +1,54 @@
 ﻿#r "../FM21_ToolsLib/bin/Debug/net10.0/FM21_ToolsLib.dll"
 
 open FM21_ToolsLib
+open System
 
 let path = "../data/sct2.html"
 do PROGRESS.loadOldPlayers path
-let curpath = "../data/sct3.html"
+let curpath = "../data/sct4.html"
 do PROGRESS.loadCurPlayers curpath
+today <- DateTime(2021, 3, 31)
 
 let best = PROGRESS.top30Improvements()
 
+//val best: (string * string * string * string * float * float) list =
+//  [("Mateo", "Intercity", "AP", "181 cm", 55.77464789, 23.30629346);
+//   ("Bernardo", "Cádiz", "WAR", "174 cm", 61.13636364, 21.0659411);
+//   ("Moha", "Huelva", "AFA", "186 cm", 54.50704225, 15.90410108);
+//   ("Rubén", "Villarreal", "AP", "178 cm", 64.92957746, 15.69346635);
+//   ("Zvonko Božac", "Rijeka", "WAR", "179 cm", 62.27272727, 12.90653009);
+//   ("Víctor", "F.C. Andorra", "BPD", "185 cm", 54.81012658, 11.96290436);
+//   ("Marcos", "Liverpool", "AP", "187 cm", 57.18309859, 11.006628);
+//   ("Jesús María García", "Alavés B", "BWM", "196 cm", 53.88888889,
+//    10.72433193);
+//   ("Jaume", "Espanyol B", "BWM", "197 cm", 50.13888889, 10.6517094);
+//   ("Rayco", "Tenisca", "IWL", "182 cm", 40.0, 10.57692308);
+//   ("Jean-Charles Pereira", "RC Lens", "WAR", "170 cm", 56.36363636,
+//    10.46811398);
+//   ("Wilco Bekkema", "SC Cambuur", "BWM", "181 cm", 43.19444444, 10.16414141);
+//   ("Jesús Martínez", "Alavés B", "IWBR", "173 cm", 55.25641026, 9.935897436);
+//   ("Abdul Konaté", "Brighton", "AFA", "185 cm", 59.50704225, 9.929577465);
+//   ("Ablaye Diakhaby", "Huesca", "BWM", "180 cm", 45.48611111, 9.780982906);
+//   ("Remco Soares", "Feyenoord", "BPD", "187 cm", 48.03797468, 9.70464135);
+//   ("Owen Jones", "Portsmouth", "BPD", "186 cm", 47.97468354, 9.449042519);
+//   ("Oliver Charlton", "Oxford", "BPD", "189 cm", 51.58227848, 9.430379747);
+//   ("Luca Ventre", "Zebre", "WAR", "195 cm", 54.09090909, 9.22979798);
+//   ("Mark Adams", "West Ham", "AP", "177 cm", 54.36619718, 9.154929577);
+//   ("José Manuel", "Stadium Casablanca", "WAR", "182 cm", 44.77272727,
+//    8.939393939);
+//   ("Matthieu Nicolle", "Châteauroux", "BPD", "191 cm", 50.44303797,
+//    8.670886076);
+//   ("Malcolm Shaw", "Derby", "WAR", "185 cm", 56.89393939, 8.654502774);
+//   ("Malcolm Boxall", "Chelsea", "AP", "179 cm", 56.61971831, 8.309859155);
+//   ("Eneko Valencia", "Atlético Pamplona", "WAR", "191 cm", 57.87878788,
+//    8.251922207);
+//   ("Isaias Tesfaye", "FC Twente", "AP", "162 cm", 57.3943662, 8.23943662);
+//   ("Mohamed Sakhi", "AS Muret", "BPD", "188 cm", 39.62025316, 8.209996754);
+//   ("Mateo Matošević", "Rijeka", "IWBR", "180 cm", 56.02564103, 8.141025641);
+//   ("Godfrey Mahlangu", "Sundowns", "BPD", "179 cm", 50.69620253, 8.067997403);
+//   ("Martijn Houtzager", "Ajax", "IWL", "175 cm", 60.14925373, 8.059701493)]
+
+//Including oldplayers, the top 30 improvements are:
 //val best: (string * string * string * string * float * float) list =
 //  [("Jordi", "R. Madrid B", "WAR", "175 cm", 67.12121212, 34.36480186);
 //   ("Joe Williams", "Bristol City", "BWM", "178 cm", 63.88888889, 32.24331927);

@@ -36,7 +36,7 @@ type RoleTests() =
         // Build a striker whose attributes make him relevant to ST-based roles
         let attrs =
             [ ("Fin", 18); ("Pac", 17); ("Acc", 16); ("Cmp", 15); ("Dri", 14); ("Fir", 12); ("Hea", 10) ]
-        let p = mkPlayer "Striker" "ST" attrs
+        let p = mkPlayer "Striker" "ST (C)" attrs
 
         let roles = ROLE.roleRatingsForPlayer p |> List.map fst |> Set.ofList
         Assert.IsTrue(roles.Contains "TMA", "Expected TMA to be present for an ST")
@@ -48,8 +48,8 @@ type RoleTests() =
         let highAttrs = [ ("Fin", 20); ("Pac", 18); ("Acc", 18); ("Cmp", 16); ("Dri", 10); ("Fir", 12); ("Hea", 12) ]
         let lowAttrs  = [ ("Fin", 6);  ("Pac", 6);  ("Acc", 6);  ("Cmp", 6);  ("Dri", 6);  ("Fir", 6);  ("Hea", 6) ]
 
-        let high = mkPlayer "High" "ST" highAttrs
-        let low  = mkPlayer "Low"  "ST" lowAttrs
+        let high = mkPlayer "High" "ST (C)" highAttrs
+        let low  = mkPlayer "Low"  "ST (C)" lowAttrs
 
         let names = ROLE.bestTargetMenAttackNames [ low; high ] 2
         Assert.AreEqual("High", List.head names, "Expected the higher-rated Target Man to appear first")
@@ -60,7 +60,7 @@ type RoleTests() =
         let attrs =
             [ ("Pac", 1); ("Fin", 15); ("Acc", 14); ("Cmp", 13); ("Dri", 12); ("Fir", 11); ("Hea", 10); ("OtB", 3);
               ("Pas", 3); ("Tec", 3); ("Ant", 3); ("Agi", 3); ("Jum", 3); ("Bal", 3); ("Str", 3); ("Sta", 3) ]
-        let p = mkPlayer "WeakPac" "ST" attrs
+        let p = mkPlayer "WeakPac" "ST (C)" attrs
 
         match ROLE.bestRoleRatedPlayer p with
         | None -> Assert.Fail("Expected a best role for the test player")
@@ -79,14 +79,14 @@ type RoleTests() =
         let highAttrs = [ ("Fin", 20); ("Pac", 18); ("Acc", 18); ("Cmp", 16); ("Dri", 14); ("Fir", 12); ("Hea", 12) ]
         let medAttrs  = [ ("Fin", 15); ("Pac", 14); ("Acc", 14); ("Cmp", 13); ("Dri", 12); ("Fir", 11); ("Hea", 10) ]
 
-        let high = mkPlayer "High" "ST" highAttrs
-        let cheapHigh = mkPlayer "CheapHigh" "ST" highAttrs
-        let med = mkPlayer "Med" "ST" medAttrs
+        let high = mkPlayer "High" "ST (C)" highAttrs
+        let cheapHigh = mkPlayer "CheapHigh" "ST (C)" highAttrs
+        let med = mkPlayer "Med" "ST (C)" medAttrs
 
         // attach Value and Club extras
-        let high = { high with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£2.0M"); ("Club", "Big FC") ] }
-        let cheapHigh = { cheapHigh with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£500K"); ("Club", "Small FC") ] }
-        let med = { med with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£300K"); ("Club", "Mid FC") ] }
+        let high = { high with Extras = Map.ofList [ ("Position", "ST (C)"); ("Value", "£2.0M"); ("Club", "Big FC") ] }
+        let cheapHigh = { cheapHigh with Extras = Map.ofList [ ("Position", "ST (C)"); ("Value", "£500K"); ("Club", "Small FC") ] }
+        let med = { med with Extras = Map.ofList [ ("Position", "ST (C)"); ("Value", "£300K"); ("Club", "Mid FC") ] }
 
         // Ensure the HTML.SctPlayers source used by SCOUT is our controlled list
         HTML.SctPlayers <- [ high; cheapHigh; med ]
@@ -112,14 +112,14 @@ type RoleTests() =
         let highAttrs = [ ("Fin", 20); ("Pac", 18); ("Acc", 18); ("Cmp", 16); ("Dri", 14); ("Fir", 12); ("Hea", 12) ]
         let medAttrs  = [ ("Fin", 15); ("Pac", 14); ("Acc", 14); ("Cmp", 13); ("Dri", 12); ("Fir", 11); ("Hea", 10) ]
 
-        let high = mkPlayer "High" "ST" highAttrs
-        let cheapHigh = mkPlayer "CheapHigh" "ST" highAttrs
-        let med = mkPlayer "Med" "ST" medAttrs
+        let high = mkPlayer "High" "ST (C)" highAttrs
+        let cheapHigh = mkPlayer "CheapHigh" "ST (C)" highAttrs
+        let med = mkPlayer "Med" "ST (C)" medAttrs
 
         // attach Value, Club and TransferStatus extras
-        let high = { high with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£2.0M");   ("Club", "Big FC");   ("TransferStatus", "") ] }
-        let cheapHigh = { cheapHigh with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£500K"); ("Club", "Small FC"); ("TransferStatus", "Transfer Listed") ] }
-        let med = { med with Extras = Map.ofList [ ("Position", "ST"); ("Value", "£300K");   ("Club", "Mid FC");   ("TransferStatus", "Transfer Listed") ] }
+        let high = { high with Extras = Map.ofList [ ("Position", "ST (C)"); ("Value", "£2.0M");   ("Club", "Big FC");   ("TransferStatus", "") ] }
+        let cheapHigh = { cheapHigh with Extras = Map.ofList [ ("Position", "ST (C)"); ("Value", "£500K"); ("Club", "Small FC"); ("TransferStatus", "Transfer Listed") ] }
+        let med = { med with Extras = Map.ofList [ ("Position", "ST (C)"); ("Value", "£300K");   ("Club", "Mid FC");   ("TransferStatus", "Transfer Listed") ] }
 
         // Use controlled source
         HTML.SctPlayers <- [ high; cheapHigh; med ]

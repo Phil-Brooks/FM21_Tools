@@ -77,11 +77,22 @@ module ROLE =
                 |> weightedScore
 
     // role-specific ratings (use mkRoleRating to keep definitions concise)
+      //["ST (C)"; "M/AM (R)"; "AM (RL)"; "D/WB/M/AM (L)"; "M (RL)"; "AM (RLC)";
+      // "D/WB (R)"; "M/AM (RL)"; "D (C)"; "D/WB/M (R)"; "M (L)"; "WB/M/AM (R)";
+      // "AM (R)"; "M (R)"; "M (LC)"; "AM (C)"; "D/WB/AM (R)"; "D/WB (L)"; "AM (L)";
+      // "WB/M/AM (L)"; "D (RLC)"; "WB (R)"; "DM"; "M (C)"; "D/WB/M (L)";
+      // "D/WB/M/AM (R)"; "D (LC)"; "M/AM (L)"; "D/WB (RL)"; "WB (L)"; "M/AM (C)";
+      // "D (RC)"; "WB/M (L)"; "D/WB/M (RL)"; "AM (LC)"; "M/AM (LC)"; "D (R)";
+      // "WB (RL)"; "M/AM (RLC)"; "D (L)"; "AM (RC)"; "D (RL)"; "M (RLC)";
+      // "WB/M (R)"; "M/AM (RC)"; "D/WB/AM (L)"; "WB/AM (L)"; "M (RC)";
+      // "WB/M/AM (RL)"; "D/M (R)"; "GK"; "D/AM (L)"; "D/M/AM (L)"; "D/M/AM (R)";
+      // "D/AM (R)"; "D/M (L)"; "WB/M (RL)"; "WB/AM (R)"; "D/M (C)"; "D/M/AM (C)";
+      // "D/WB/M/AM (RL)"; "D/AM (C)"; "D/M (RC)"]
 
     // Target Man (Attack)
     let roleRatingTargetManAttack =
         mkRoleRating
-            (fun up -> up.Contains("ST") || up.Contains("F C"))
+            (fun up -> up.Contains("ST (C)"))
             [
                 (0.40, "Dri"); (0.40, "Fin"); (0.60, "Fir"); (0.60, "Hea"); (0.20, "Pas");
                 (0.40, "Tec"); (0.40, "Ant"); (0.60, "Cmp"); (1.00, "Acc"); (0.40, "Agi");
@@ -94,7 +105,7 @@ module ROLE =
     // Advanced Forward (Attack)
     let roleRatingAdvancedForwardAttack =
         mkRoleRating
-            (fun up -> up.Contains("ST") || up.Contains("F C"))
+            (fun up -> up.Contains("ST (C)"))
             [
                 (1.00, "Pac"); (1.00, "Acc"); (0.50, "Fin"); (0.80, "Dri"); (0.60, "Fir");
                 (0.20, "OtB"); (0.60, "Tec"); (0.60, "Ant"); (0.60, "Cmp"); (0.40, "Agi");
@@ -105,9 +116,15 @@ module ROLE =
     let bestAdvancedForwardsAttackNames players topN = bestAdvancedForwardsAttack players topN |> List.map fst
 
     // Winger (Attack) Right
+    let wars =  ["M/AM (R)"; "M (RL)"; "M/AM (RL)"; "D/WB/M (R)";
+       "WB/M/AM (R)"; "M (R)"; "D/WB/M/AM (R)";
+       "D/WB/M (RL)"; "M/AM (RLC)"; "M (RLC)"; "WB/M (R)"; "M/AM (RC)";
+       "M (RC)"; "WB/M/AM (RL)"; "D/M (R)"; "D/M/AM (R)"; "WB/M (RL)";
+       "D/WB/M/AM (RL)"; "D/M (RC)"]
+
     let roleRatingWingerAttackRight =
         mkRoleRating
-            (fun up -> up.Contains("M") && up.Contains("R"))
+            (fun up -> wars |> List.exists (fun w -> up.Contains(w.ToUpperInvariant())))
             [
                 (1.20, "Cro"); (1.00, "Pac"); (1.00, "Acc"); (0.80, "Dri"); (0.60, "Tec");
                 (0.60, "Pas"); (0.30, "OtB"); (0.40, "Agi"); (0.40, "Fla"); (0.20, "Sta"); (0.10, "Fin")
@@ -117,9 +134,16 @@ module ROLE =
     let bestWingersAttackRightNames players topN = bestWingersAttackRight players topN |> List.map fst
 
     // Inverted Winger (Support) Left
+    let iwl =  ["D/WB/M/AM (L)"; "M (RL)"; "M/AM (RL)"; "M (L)";
+           "M (LC)"; "WB/M/AM (L)"; "D/WB/M (L)"; "M/AM (L)"; "WB/M (L)";
+           "D/WB/M (RL)"; "M/AM (LC)"; "M/AM (RLC)"; "M (RLC)";
+           "WB/M/AM (RL)"; "D/M/AM (L)";
+           "D/M (L)"; "WB/M (RL)"; "D/WB/M/AM (RL)"]
+
+    
     let roleRatingInvertedWingerSupportLeft =
         mkRoleRating
-            (fun up -> up.Contains("M") && up.Contains("L"))
+            (fun up -> iwl |> List.exists (fun w -> up.Contains(w.ToUpperInvariant())))
             [
                 (0.40, "Cro"); (0.90, "Pas"); (0.80, "Tec"); (0.30, "OtB"); (0.80, "Dri");
                 (0.30, "Fla"); (0.60, "Cmp"); (0.50, "Ant"); (0.60, "Acc"); (0.60, "Pac");
@@ -130,9 +154,13 @@ module ROLE =
     let bestInvertedWingersSupportLeftNames players topN = bestInvertedWingersSupportLeft players topN |> List.map fst
 
     // Advanced Playmaker (Support) MC
+    let ap =   ["M (LC)"; "M (C)"; "M/AM (C)"; "M/AM (LC)";
+       "M/AM (RLC)"; "M (RLC)"; "M/AM (RC)"; "M (RC)"; "D/M (C)";
+       "D/M/AM (C)"; "D/M (RC)"]
+    
     let roleRatingAdvancedPlaymakerSupport =
         mkRoleRating
-            (fun up -> up.Contains("M") && up.Contains("C"))
+            (fun up -> ap |> List.exists (fun w -> up.Contains(w.ToUpperInvariant())))
             [
                 (1.20, "Pas"); (0.90, "Tec"); (0.40, "OtB"); (0.80, "Ant"); (0.80, "Cmp");
                 (0.60, "Fir"); (0.60, "Dri"); (0.30, "Fla"); (0.60, "Acc"); (0.60, "Pac"); (0.30, "Sta")
@@ -142,9 +170,13 @@ module ROLE =
     let bestAdvancedPlaymakersSupportNames players topN = bestAdvancedPlaymakersSupport players topN |> List.map fst
 
     // Ball Winning Midfielder (Support) MC
+    let bwm =   ["M (LC)"; "M (C)"; "M/AM (C)"; "M/AM (LC)";
+       "M/AM (RLC)"; "M (RLC)"; "M/AM (RC)"; "M (RC)"; "D/M (C)";
+       "D/M/AM (C)"; "D/M (RC)"]
+    
     let roleRatingBallWinningMidfielderSupport =
         mkRoleRating
-            (fun up -> up.Contains("M") && up.Contains("C"))
+            (fun up -> bwm |> List.exists (fun w -> up.Contains(w.ToUpperInvariant())))
             [
                 (1.20, "Tck"); (1.00, "Mar"); (0.30, "Agg"); (0.80, "Sta"); (0.70, "Wor");
                 (0.70, "Str"); (0.60, "Ant"); (0.60, "Dec"); (0.10, "Cmp"); (0.40, "Pas");
@@ -155,9 +187,12 @@ module ROLE =
     let bestBallWinningMidfieldersSupportNames players topN = bestBallWinningMidfieldersSupport players topN |> List.map fst
 
     // Ball Playing Defender (DC)
+    let bpd =
+          ["D (C)"; "D (RLC)"; "D (LC)"; "D (RC)"; "D/M (C)"; "D/M/AM (C)"; "D/AM (C)";"D/M (RC)"]
+
     let roleRatingBallPlayingDefender =
         mkRoleRating
-            (fun up -> ((up.Contains("D") && up.Contains("C")) || up.Contains("CB")))
+            (fun up -> bpd |> List.exists (fun w -> up.Contains(w.ToUpperInvariant())))
             [
                 (1.20, "Pas"); (0.50, "Tec"); (0.20, "Cmp"); (0.80, "Dec"); (0.70, "Ant");
                 (0.70, "Tck"); (0.60, "Mar"); (0.60, "Str"); (0.70, "Hea"); (0.80, "Jum");
@@ -168,9 +203,13 @@ module ROLE =
     let bestBallPlayingDefendersNames players topN = bestBallPlayingDefenders players topN |> List.map fst
 
     // Inverted Wing Back (Support) Right
+    let iwbr =   ["D/WB (R)"; "D/WB/M (R)"; "D/WB/AM (R)"; "D (RLC)"; "D/WB/M/AM (R)";
+       "D/WB (RL)"; "D (RC)"; "D/WB/M (RL)"; "D (R)"; "D (RL)"; "D/M (R)";
+       "D/M/AM (R)"; "D/AM (R)"; "D/WB/M/AM (RL)"; "D/M (RC)"]
+
     let roleRatingInvertedWingBackSupportRight =
         mkRoleRating
-            (fun up -> ((up.Contains("D") && up.Contains("R")) || up.Contains("RB") || up.Contains("RWB")))
+            (fun up -> iwbr |> List.exists (fun w -> up.Contains(w.ToUpperInvariant())))
             [
                 (1.00, "Pas"); (0.90, "Tec"); (0.10, "OtB"); (0.80, "Cro"); (0.10, "Dri");
                 (0.70, "Pac"); (0.60, "Acc"); (0.60, "Sta"); (0.30, "Wor"); (0.10, "Cmp");
@@ -181,9 +220,13 @@ module ROLE =
     let bestInvertedWingBacksSupportRightNames players topN = bestInvertedWingBacksSupportRight players topN |> List.map fst
 
     // Inverted Wing Back (Support) Left
+    let iwbl =   ["D/WB/M/AM (L)"; "D/WB (L)"; "D (RLC)"; "D/WB/M (L)"; "D (LC)"; "D/WB (RL)";
+       "D/WB/M (RL)"; "D (L)"; "D (RL)"; "D/WB/AM (L)"; "D/AM (L)"; "D/M/AM (L)";
+       "D/M (L)"; "D/WB/M/AM (RL)"]
+
     let roleRatingInvertedWingBackSupportLeft =
         mkRoleRating
-            (fun up -> ((up.Contains("D") && up.Contains("L")) || up.Contains("LB") || up.Contains("LWB")))
+            (fun up -> iwbl |> List.exists (fun w -> up.Contains(w.ToUpperInvariant())))
             [
                 (1.00, "Pas"); (0.90, "Tec"); (0.10, "OtB"); (0.80, "Cro"); (0.10, "Dri");
                 (0.70, "Pac"); (0.60, "Acc"); (0.60, "Sta"); (0.30, "Wor"); (0.10, "Cmp");
@@ -196,7 +239,7 @@ module ROLE =
     // Sweeper Keeper (Defend)
     let roleRatingSweeperKeeperDefend =
         mkRoleRating
-            (fun up -> up.Contains("GK") || up.Contains("G K") || up.Contains("GOAL"))
+            (fun up -> up.Contains("GK"))
             [
                 (1.20, "Ref"); (1.00, "Han"); (0.90, "Pos"); (0.80, "Kic"); (0.70, "Cmd");
                 (0.10, "Thr"); (0.60, "OneVOne"); (0.10, "Pun"); (0.40, "Com"); (0.30, "Ecc");

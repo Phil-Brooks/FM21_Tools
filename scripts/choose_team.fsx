@@ -10,8 +10,8 @@ do HTML.loadPlayers path
 //let div1 = "England (Sky Bet League One)"
 //let div = "England (Sky Bet Championship)"
 //let div = "England (Premier Division)"
-//let div = "Holland (Eredivisie)"
-let div = "France (Ligue 1 Uber Eats)"
+let div = "Holland (Eredivisie)"
+//let div = "France (Ligue 1 Uber Eats)"
 
 //TEMP
 let clbs = DIVISION.clubsInDivision div 

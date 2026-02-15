@@ -31,10 +31,10 @@ type DivisionTests() =
 
     [<Test>]
     member _.``allDivisions returns sorted distinct non-empty based values`` () =
-        let p1 = mkPlayer "P1" "ST" [ ("Fin", 10) ] (Some "DivB") None
-        let p2 = mkPlayer "P2" "MC" [ ("Pas", 10) ] (Some "DivA") None
+        let p1 = mkPlayer "P1" "ST (C)" [ ("Fin", 10) ] (Some "DivB") None
+        let p2 = mkPlayer "P2" "M (C)" [ ("Pas", 10) ] (Some "DivA") None
         let p3 = mkPlayer "P3" "GK" [ ("Ref", 10) ] None None // no Based -> ignored
-        let p4 = mkPlayer "P4" "ST" [ ("Fin", 11) ] (Some "DivB") None // duplicate Based
+        let p4 = mkPlayer "P4" "ST (C)" [ ("Fin", 11) ] (Some "DivB") None // duplicate Based
         HTML.AllPlayers <- [ p1; p2; p3; p4 ]
 
         let divs = DIVISION.allDivisions()
@@ -42,8 +42,8 @@ type DivisionTests() =
 
     [<Test>]
     member _.``clubsInDivision returns sorted distinct clubs for a division`` () =
-        let a1 = mkPlayer "A1" "ST" [ ("Fin", 12) ] (Some "D1") (Some "ClubX")
-        let a2 = mkPlayer "A2" "MC" [ ("Pas", 12) ] (Some "D1") (Some "ClubA")
+        let a1 = mkPlayer "A1" "ST (C)" [ ("Fin", 12) ] (Some "D1") (Some "ClubX")
+        let a2 = mkPlayer "A2" "M (C)" [ ("Pas", 12) ] (Some "D1") (Some "ClubA")
         let a3 = mkPlayer "A3" "GK" [ ("Ref", 12) ] (Some "D1") (Some "ClubX")
         let other = mkPlayer "O1" "ST" [ ("Fin", 12) ] (Some "D2") (Some "ClubOther")
         HTML.AllPlayers <- [ a1; a2; a3; other ]
@@ -53,9 +53,9 @@ type DivisionTests() =
 
     [<Test>]
     member _.``playersInClub returns players for given division and club`` () =
-        let pA1 = mkPlayer "P-A1" "ST" [ ("Fin", 12) ] (Some "Div1") (Some "TheClub")
-        let pA2 = mkPlayer "P-A2" "MC" [ ("Pas", 12) ] (Some "Div1") (Some "TheClub")
-        let pB1 = mkPlayer "P-B1" "ST" [ ("Fin", 12) ] (Some "Div1") (Some "OtherClub")
+        let pA1 = mkPlayer "P-A1" "ST (C)" [ ("Fin", 12) ] (Some "Div1") (Some "TheClub")
+        let pA2 = mkPlayer "P-A2" "M (C)" [ ("Pas", 12) ] (Some "Div1") (Some "TheClub")
+        let pB1 = mkPlayer "P-B1" "ST (C)" [ ("Fin", 12) ] (Some "Div1") (Some "OtherClub")
         HTML.AllPlayers <- [ pA1; pA2; pB1 ]
 
         let players = DIVISION.playersInClub "Div1" "TheClub"
@@ -68,16 +68,16 @@ type DivisionTests() =
     member _.``clubTeams and bestClub prefer complete teams over incomplete ones`` () =
         // GoodClub: provide 11 players (same pool as TeamTests to produce a full team)
         let sk = mkPlayer "SK" "GK" [ ("Ref",20); ("Han",19); ("Pos",18); ("Kic",15) ] (Some "DivX") (Some "GoodClub")
-        let iwbR = mkPlayer "IWB_R" "RB" [ ("Pas",18); ("Tec",17); ("Cro",16); ("Pac",17) ] (Some "DivX") (Some "GoodClub")
-        let iwbL = mkPlayer "IWB_L" "LB" [ ("Pas",17); ("Tec",16); ("Cro",15); ("Pac",16) ] (Some "DivX") (Some "GoodClub")
-        let bpdA = mkPlayer "BPD_A" "CB" [ ("Pas",19); ("Tec",18); ("Cmp",17); ("Tck",14) ] (Some "DivX") (Some "GoodClub")
-        let bpdB = mkPlayer "BPD_B" "CB" [ ("Pas",18); ("Tec",17); ("Cmp",16); ("Tck",15) ] (Some "DivX") (Some "GoodClub")
-        let wgr = mkPlayer "WGR" "MR" [ ("Cro",19); ("Pac",18); ("Acc",18); ("Dri",15) ] (Some "DivX") (Some "GoodClub")
-        let iwl = mkPlayer "IWL" "ML" [ ("Pas",18); ("Tec",17); ("Dri",16); ("OtB",15) ] (Some "DivX") (Some "GoodClub")
-        let bwm = mkPlayer "BWM" "MC" [ ("Tck",19); ("Mar",18); ("Agg",17); ("Sta",16) ] (Some "DivX") (Some "GoodClub")
-        let ap  = mkPlayer "AP"  "MC" [ ("Pas",10); ("Tec",19); ("OtB",18); ("Cmp",17) ] (Some "DivX") (Some "GoodClub")
-        let afa = mkPlayer "AFA" "ST" [ ("Pac",19); ("Acc",18); ("Fin",19); ("Dri",14) ] (Some "DivX") (Some "GoodClub")
-        let tma = mkPlayer "TMA" "ST" [ ("Fin",18); ("Pac",17); ("Acc",17); ("Hea",15) ] (Some "DivX") (Some "GoodClub")
+        let iwbR = mkPlayer "IWB_R" "D (R)" [ ("Pas",18); ("Tec",17); ("Cro",16); ("Pac",17) ] (Some "DivX") (Some "GoodClub")
+        let iwbL = mkPlayer "IWB_L" "D (L)" [ ("Pas",17); ("Tec",16); ("Cro",15); ("Pac",16) ] (Some "DivX") (Some "GoodClub")
+        let bpdA = mkPlayer "BPD_A" "D (C)" [ ("Pas",19); ("Tec",18); ("Cmp",17); ("Tck",14) ] (Some "DivX") (Some "GoodClub")
+        let bpdB = mkPlayer "BPD_B" "D (C)" [ ("Pas",18); ("Tec",17); ("Cmp",16); ("Tck",15) ] (Some "DivX") (Some "GoodClub")
+        let wgr = mkPlayer "WGR" "M (R)" [ ("Cro",19); ("Pac",18); ("Acc",18); ("Dri",15) ] (Some "DivX") (Some "GoodClub")
+        let iwl = mkPlayer "IWL" "M (L)" [ ("Pas",18); ("Tec",17); ("Dri",16); ("OtB",15) ] (Some "DivX") (Some "GoodClub")
+        let bwm = mkPlayer "BWM" "M (C)" [ ("Tck",19); ("Mar",18); ("Agg",17); ("Sta",16) ] (Some "DivX") (Some "GoodClub")
+        let ap  = mkPlayer "AP"  "M (C)" [ ("Pas",10); ("Tec",19); ("OtB",18); ("Cmp",17) ] (Some "DivX") (Some "GoodClub")
+        let afa = mkPlayer "AFA" "ST (C)" [ ("Pac",19); ("Acc",18); ("Fin",19); ("Dri",14) ] (Some "DivX") (Some "GoodClub")
+        let tma = mkPlayer "TMA" "ST (C)" [ ("Fin",18); ("Pac",17); ("Acc",17); ("Hea",15) ] (Some "DivX") (Some "GoodClub")
         let goodPool = [ sk; iwbR; iwbL; bpdA; bpdB; wgr; iwl; bwm; ap; afa; tma ]
 
         // BadClub: only a single player -> incomplete team
@@ -105,16 +105,16 @@ type DivisionTests() =
 
         // Now use the GoodClub full team from previous test
         let sk = mkPlayer "SK" "GK" [ ("Ref",20); ("Han",19); ("Pos",18); ("Kic",15) ] (Some "DFull") (Some "SoloClub")
-        let iwbR = mkPlayer "IWB_R" "RB" [ ("Pas",18); ("Tec",17); ("Cro",16); ("Pac",17) ] (Some "DFull") (Some "SoloClub")
-        let iwbL = mkPlayer "IWB_L" "LB" [ ("Pas",17); ("Tec",16); ("Cro",15); ("Pac",16) ] (Some "DFull") (Some "SoloClub")
-        let bpdA = mkPlayer "BPD_A" "CB" [ ("Pas",19); ("Tec",18); ("Cmp",17); ("Tck",14) ] (Some "DFull") (Some "SoloClub")
-        let bpdB = mkPlayer "BPD_B" "CB" [ ("Pas",18); ("Tec",17); ("Cmp",16); ("Tck",15) ] (Some "DFull") (Some "SoloClub")
-        let wgr = mkPlayer "WGR" "MR" [ ("Cro",19); ("Pac",18); ("Acc",18); ("Dri",15) ] (Some "DFull") (Some "SoloClub")
-        let iwl = mkPlayer "IWL" "ML" [ ("Pas",18); ("Tec",17); ("Dri",16); ("OtB",15) ] (Some "DFull") (Some "SoloClub")
-        let bwm = mkPlayer "BWM" "MC" [ ("Tck",19); ("Mar",18); ("Agg",17); ("Sta",16) ] (Some "DFull") (Some "SoloClub")
-        let ap  = mkPlayer "AP"  "MC" [ ("Pas",10); ("Tec",19); ("OtB",18); ("Cmp",17) ] (Some "DFull") (Some "SoloClub")
-        let afa = mkPlayer "AFA" "ST" [ ("Pac",19); ("Acc",18); ("Fin",19); ("Dri",14) ] (Some "DFull") (Some "SoloClub")
-        let tma = mkPlayer "TMA" "ST" [ ("Fin",18); ("Pac",17); ("Acc",17); ("Hea",15) ] (Some "DFull") (Some "SoloClub")
+        let iwbR = mkPlayer "IWB_R" "D (R)" [ ("Pas",18); ("Tec",17); ("Cro",16); ("Pac",17) ] (Some "DFull") (Some "SoloClub")
+        let iwbL = mkPlayer "IWB_L" "D (L)" [ ("Pas",17); ("Tec",16); ("Cro",15); ("Pac",16) ] (Some "DFull") (Some "SoloClub")
+        let bpdA = mkPlayer "BPD_A" "D (C)" [ ("Pas",19); ("Tec",18); ("Cmp",17); ("Tck",14) ] (Some "DFull") (Some "SoloClub")
+        let bpdB = mkPlayer "BPD_B" "D (C)" [ ("Pas",18); ("Tec",17); ("Cmp",16); ("Tck",15) ] (Some "DFull") (Some "SoloClub")
+        let wgr = mkPlayer "WGR" "M (R)" [ ("Cro",19); ("Pac",18); ("Acc",18); ("Dri",15) ] (Some "DFull") (Some "SoloClub")
+        let iwl = mkPlayer "IWL" "M (L)" [ ("Pas",18); ("Tec",17); ("Dri",16); ("OtB",15) ] (Some "DFull") (Some "SoloClub")
+        let bwm = mkPlayer "BWM" "M (C)" [ ("Tck",19); ("Mar",18); ("Agg",17); ("Sta",16) ] (Some "DFull") (Some "SoloClub")
+        let ap  = mkPlayer "AP"  "M (C)" [ ("Pas",10); ("Tec",19); ("OtB",18); ("Cmp",17) ] (Some "DFull") (Some "SoloClub")
+        let afa = mkPlayer "AFA" "ST (C)" [ ("Pac",19); ("Acc",18); ("Fin",19); ("Dri",14) ] (Some "DFull") (Some "SoloClub")
+        let tma = mkPlayer "TMA" "ST (C)" [ ("Fin",18); ("Pac",17); ("Acc",17); ("Hea",15) ] (Some "DFull") (Some "SoloClub")
         HTML.AllPlayers <- [ sk; iwbR; iwbL; bpdA; bpdB; wgr; iwl; bwm; ap; afa; tma ]
 
         let averages = DIVISION.averageRatingsByRole "DFull"

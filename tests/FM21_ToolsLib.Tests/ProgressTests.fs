@@ -22,11 +22,11 @@ type ProgressTests() =
     [<Test>]
     member _.``progressClub produces numeric progress for matched players and N/A for new players, numeric entries first`` () =
         // Old version of the player (lower rating)
-        let oldP = mkPlayer "Foo" "ST" [ ("Pac",10); ("Acc",10); ("Fin",10); ("Dri",10) ]
+        let oldP = mkPlayer "Foo" "ST (C)" [ ("Pac",10); ("Acc",10); ("Fin",10); ("Dri",10) ]
         // New version of the same player (higher rating)
-        let newP = mkPlayer "Foo" "ST" [ ("Pac",14); ("Acc",14); ("Fin",14); ("Dri",14) ]
+        let newP = mkPlayer "Foo" "ST (C)" [ ("Pac",14); ("Acc",14); ("Fin",14); ("Dri",14) ]
         // A player only present in current MyPlayers (no previous rating)
-        let onlyNew = mkPlayer "Bar" "MC" [ ("Pas",12); ("Tec",12); ("OtB",12); ("Cmp",12) ]
+        let onlyNew = mkPlayer "Bar" "M (C)" [ ("Pas",12); ("Tec",12); ("OtB",12); ("Cmp",12) ]
 
         // Build RoleRatedPlayer entries for OldPlayers (mimic loadOldPlayers behaviour)
         let oldRR =
@@ -87,14 +87,14 @@ type ProgressTests() =
             }
 
         // Old players
-        let oldA = mkPlayerWithClub "Alice" "ST" [ ("Pac",10); ("Acc",10); ("Fin",10); ("Dri",10) ] "OldFC"
-        let oldB = mkPlayerWithClub "Bob"   "ST" [ ("Pac",15); ("Acc",15); ("Fin",15); ("Dri",15) ] "OldFC"
-        let oldC = mkPlayerWithClub "Charlie" "ST" [ ("Pac",12); ("Acc",12); ("Fin",12); ("Dri",12) ] "OldFC"
+        let oldA = mkPlayerWithClub "Alice" "ST (C)" [ ("Pac",10); ("Acc",10); ("Fin",10); ("Dri",10) ] "OldFC"
+        let oldB = mkPlayerWithClub "Bob"   "ST (C)" [ ("Pac",15); ("Acc",15); ("Fin",15); ("Dri",15) ] "OldFC"
+        let oldC = mkPlayerWithClub "Charlie" "ST (C)" [ ("Pac",12); ("Acc",12); ("Fin",12); ("Dri",12) ] "OldFC"
 
         // Current players (Alice big improvement, Charlie small improvement, Bob slight drop)
-        let curA = mkPlayerWithClub "Alice" "ST" [ ("Pac",20); ("Acc",20); ("Fin",20); ("Dri",20) ] "NewFC"
-        let curB = mkPlayerWithClub "Bob"   "ST" [ ("Pac",13); ("Acc",13); ("Fin",13); ("Dri",13) ] "NewFC"
-        let curC = mkPlayerWithClub "Charlie" "ST" [ ("Pac",13); ("Acc",13); ("Fin",13); ("Dri",13) ] "NewFC"
+        let curA = mkPlayerWithClub "Alice" "ST (C)" [ ("Pac",20); ("Acc",20); ("Fin",20); ("Dri",20) ] "NewFC"
+        let curB = mkPlayerWithClub "Bob"   "ST (C)" [ ("Pac",13); ("Acc",13); ("Fin",13); ("Dri",13) ] "NewFC"
+        let curC = mkPlayerWithClub "Charlie" "ST (C)" [ ("Pac",13); ("Acc",13); ("Fin",13); ("Dri",13) ] "NewFC"
 
         let toRR p =
             match ROLE.bestRoleRatedPlayer p with
