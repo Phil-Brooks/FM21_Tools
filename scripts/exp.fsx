@@ -12,7 +12,7 @@ HTML.loadSctPlayers sctpath
 
 today <- DateTime(2022, 3, 31)
 
-let yngs = SCOUT.getYng "TMA" 60 29000 24
+let yngs = SCOUT.getYng "BPD" 60 29000 30
 
 //SKD
 //IWBR

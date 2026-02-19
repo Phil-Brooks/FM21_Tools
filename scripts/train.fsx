@@ -2,13 +2,52 @@
 
 open FM21_ToolsLib
 
-let div = "England (Sky Bet Championship)"
-let path = "../data/all.html"
-do HTML.loadPlayers path
+//let div = "England (Sky Bet Championship)"
+//let path = "../data/all.html"
+//do HTML.loadPlayers path
 
-let mypath = "../data/my8.html"
+let mypath = "../data/my.html"
 HTML.loadMyPlayers mypath
-printfn "Loaded %d players from %s" (List.length HTML.MyPlayers) path
+printfn "Loaded %d players from %s" (List.length HTML.MyPlayers) mypath
+
+let rrls = 
+    HTML.MyPlayers
+    |>List.map (fun p -> p.Name , ROLE.ZAZroleRatingsForPlayer p )
+
+//val rrls: (string * (string * float) list) list =
+//   ("Alexander Schlager", [("SKS", 68.02631579)]);
+//   ("Matheus", [("SKS", 69.21052632)])]
+
+//   ("Ronaël Pierre-Gabriel", [("IWBR", 67.43589744); ("IWBL", 67.43589744)]);
+
+//   ("Youssouf Koné", [("IWBL", 66.66666667)]);
+
+//   ("Jean-Clair Todibo",  [("BPD", 72.34177215); ("DLP", 70.0); ("MCA", 65.35211268)]);
+//   ("Dan-Axel Zagadou", [("BPD", 74.24050633); ("IWBL", 66.21794872)]);
+//   ("José Luis Pasquali", [("BPD", 71.13924051); ("IWBR", 66.66666667); ("DLP", 66.17647059)]);
+
+//   ("Krystian Bielik",  [("DLP", 75.98039216); ("BPD", 74.87341772); ("MCA", 68.52112676)]);
+
+//   ("Mateu Morey", [("IWBR", 71.98717949); ("MR", 71.57534247)]);
+
+//   ("Alberto Moreno", [("ML", 67.46575342); ("IWBL", 66.08974359)]);
+
+//   ("Ömer Beyaz", [("MCA", 69.15492958); ("AMSS", 67.72727273)]);
+//   ("Hannibal", [("MCA", 74.57746479); ("AMSS", 69.09090909)]);
+//   ("Orkun Kökçü", [("MCA", 70.35211268); ("AMSS", 64.36363636); ("MR", 58.83561644)]);
+
+//   ("Shiloh 't Zand",  [("AMSS", 70.18181818); ("MCA", 68.30985915); ("ML", 64.8630137)]); 
+//   ("Matheusinho",   [("MCA", 69.57746479); ("AMSS", 69.0); ("ML", 60.47945205); ("MR", 60.47945205)]);
+//   ("Juanjo Echeverría", [("AMSS", 70.81818182); ("MCA", 70.56338028); ("MR", 58.01369863)]);
+
+//   ("Santiago Ascacíbar", [("MCA", 56.69014085); ("DLP", 55.49019608)]);
+//   ("Robert Piris Da Motta", [("BPD", 60.63291139); ("MCA", 57.6056338); ("DLP", 56.66666667)]);
+//   ("Borja Garcés", []);
+//   TRN ("Gio-Renys Felicia", [("ML", 61.23287671); ("MR", 61.23287671)]);
+//   TRN ("Rafa Mir", [("ML", 58.42465753); ("MR", 58.42465753)]);
+//   TRN ("Cristian Olivera", [("MR", 64.52054795)]);
+//   ("Ljubomir Denkovski", [("MCA", 66.12676056); ("AMSS", 63.54545455)]);
+//   TRN ("Folarin Balogun", [("MR", 55.34246575)]);
 
 let brls = 
     HTML.MyPlayers
@@ -27,63 +66,3 @@ let wkas2 =
     |>List.map (fun brp -> if brp.IsSome then ROLE.secondWeakestRelevantAttributeForPlayer brp.Value else None)
     |>List.sortBy (fun o -> match o with Some (_,v,_,_) -> v | None -> "")
 
-//val wkas: (string * string * string * int) option list =
-//  [Some ("TMA", "Adam Idah", "Pas", 11);
-//   Some ("IWBL", "Adrien Truffert", "Dri", 9);
-//   Some ("WAR", "Aidan Fitzpatrick", "Fin", 10);
-//   Some ("BPD", "Dan-Axel Zagadou", "Agg", 6);
-//   Some ("AP", "Emiliano Buendía", "Sta", 13);
-//   Some ("BWM", "Jacob Sørensen", "Acc", 10);
-//   Some ("BWM", "James McCarthy", "Acc", 9);
-//   Some ("AFA", "Janis Antiste", "Bal", 9);
-//   Some ("AFA", "João Pedro", "Fin", 12);
-//   Some ("AP", "Kieran Dowell", "Pac", 12);
-//   Some ("IWBR", "Kieran Trippier", "Dri", 10);
-//   Some ("BPD", "Luis Binks", "Acc", 7);
-//   Some ("IWBR", "Max Aarons", "Cro", 10);
-//   Some ("AP", "Maxime Lopez", "OtB", 13);
-//   Some ("IWL", "Michael Levy", "Fin", 3); Some ("BWM", "Mo Bešić", "Acc", 11);
-//   Some ("BPD", "Nathan Collins", "Pas", 12);
-//   Some ("TMA", "Oscar Thorn", "Pas", 8);
-//   Some ("TMA", "Pietro Pellegri", "Pas", 11);
-//   Some ("AP", "Rekeem Harper", "Pac", 13);
-//   Some ("SKD", "Rick Jonkers", "Ecc", 5);
-//   Some ("IWBR", "Sam Byram", "Str", 9);
-//   Some ("AP", "Shane Hutchinson", "Ant", 8);
-//   Some ("BWM", "Sivert Mannsverk", "Cmp", 10);
-//   Some ("BWM", "Sol Hamilton", "Mar", 9);
-//   Some ("AP", "Spencer Ginty", "Fla", 8);
-//   Some ("AP", "Thiago Almada", "Pac", 13); Some ("SKD", "Tim Krul", "Pac", 3);
-//   Some ("WAR", "Willem Geubbels", "Cro", 11);
-//   Some ("IWBL", "Xavi Quintillà", "Str", 9);
-//   Some ("IWBL", "Youssouf Koné", "Dri", 12)]
-//val wkas2: (string * string * string * int) option list =
-//  [Some ("TMA", "Adam Idah", "Dri", 12);
-//   Some ("IWBL", "Adrien Truffert", "Tec", 12);
-//   Some ("WAR", "Aidan Fitzpatrick", "OtB", 11);
-//   Some ("BPD", "Dan-Axel Zagadou", "Acc", 10);
-//   Some ("AP", "Emiliano Buendía", "Acc", 14);
-//   Some ("BWM", "Jacob Sørensen", "Dec", 12);
-//   Some ("BWM", "James McCarthy", "Sta", 10);
-//   Some ("AFA", "Janis Antiste", "Sta", 10);
-//   Some ("AFA", "João Pedro", "OtB", 13);
-//   Some ("AP", "Kieran Dowell", "OtB", 13);
-//   Some ("IWBR", "Kieran Trippier", "Dec", 12);
-//   Some ("BPD", "Luis Binks", "Pac", 8);
-//   Some ("IWBR", "Max Aarons", "Pas", 12);
-//   Some ("AP", "Maxime Lopez", "Fla", 13);
-//   Some ("IWL", "Michael Levy", "Cmp", 5); Some ("BWM", "Mo Bešić", "Str", 12);
-//   Some ("BPD", "Nathan Collins", "Tec", 12);
-//   Some ("TMA", "Oscar Thorn", "Dri", 9);
-//   Some ("TMA", "Pietro Pellegri", "Hea", 12);
-//   Some ("AP", "Rekeem Harper", "Cmp", 14);
-//   Some ("SKD", "Rick Jonkers", "Cmd", 10);
-//   Some ("IWBR", "Sam Byram", "Cro", 11);
-//   Some ("AP", "Shane Hutchinson", "Dri", 9);
-//   Some ("BWM", "Sivert Mannsverk", "Acc", 12);
-//   Some ("BWM", "Sol Hamilton", "Dec", 10);
-//   Some ("AP", "Spencer Ginty", "Pac", 8);
-//   Some ("AP", "Thiago Almada", "Ant", 14); Some ("SKD", "Tim Krul", "Ecc", 8);
-//   Some ("WAR", "Willem Geubbels", "Pas", 11);
-//   Some ("IWBL", "Xavi Quintillà", "Dri", 10);
-//   Some ("IWBL", "Youssouf Koné", "Cmp", 12)]

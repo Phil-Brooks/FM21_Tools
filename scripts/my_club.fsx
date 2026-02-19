@@ -7,7 +7,7 @@ let div = "Holland (Eredivisie)"
 let path = @"D:\Github\FM21_Tools\data\all.html"
 do HTML.loadPlayers path
 
-let mypath = @"D:\Github\FM21_Tools\data\my9.html"
+let mypath = @"D:\Github\FM21_Tools\data\my.html"
 HTML.loadMyPlayers mypath
 printfn "Loaded %d players from %s" (List.length HTML.MyPlayers) path
 
@@ -27,40 +27,32 @@ let cmp2 = MY_CLUB.getSecondTeamComparisonToDivision div
 let cmp3 = MY_CLUB.getThirdTeamComparisonToDivision div
 
 //val cmp: string list =
-//  ["SKD: Alexander Schlager -> player 69.78 vs avg 63.35 -> delta 6.43";
-//   "IWBR: Lutsharel Geertruida -> player 62.88 vs avg 60.92 -> delta 1.97";
-//   "IWBL: Tyrell Malacia -> player 67.69 vs avg 61.89 -> delta 5.80";
-//   "BPD1: Jesus -> player 67.03 vs avg 63.66 -> delta 3.37";
-//   "BPD2: Fabian Schär -> player 66.90 (no division avg)";
-//   "WAR: Luis Sinisterra -> player 71.21 vs avg 69.28 -> delta 1.93";
-//   "IWL: Gio-Renys Felicia -> player 67.01 vs avg 64.59 -> delta 2.43";
-//   "BWM: Aliou Traoré -> player 63.89 vs avg 61.86 -> delta 2.03";
-//   "AP: Ömer Beyaz -> player 69.01 vs avg 65.61 -> delta 3.40";
-//   "AFA: Adam Hlozek -> player 70.35 vs avg 63.69 -> delta 6.67";
-//   "TMA: Rafa Mir -> player 69.17 vs avg 61.59 -> delta 7.58";
-//   "Team average: 67.72 vs Division average: 63.64 -> delta 4.16"]
+//  ["SKD: Matheus -> player 70.29 vs avg 63.35 -> delta 6.94";
+//   "IWBR: Mateu Morey -> player 71.99 vs avg 60.84 -> delta 11.15";
+//   "IWBL: Ronaël Pierre-Gabriel -> player 67.44 vs avg 61.82 -> delta 5.62";
+//   "BPD1: Krystian Bielik -> player 74.87 vs avg 63.21 -> delta 11.66";
+//   "BPD2: Dan-Axel Zagadou -> player 74.24 (no division avg)";
+//   "WAR: Cristian Olivera -> player 71.74 vs avg 69.28 -> delta 2.46";
+//   "IWL: Matheusinho -> player 71.57 vs avg 64.59 -> delta 6.98";
+//   "BWM: Santiago Ascacíbar -> player 73.68 vs avg 63.78 -> delta 9.90";
+//   "AP: Hannibal -> player 74.58 vs avg 65.50 -> delta 9.07";
+//   "AFA: Juanjo Echeverría -> player 74.58 vs avg 63.95 -> delta 10.63";
+//   "TMA: Rafa Mir -> player 71.81 vs avg 61.60 -> delta 10.21";
+//   "Team average: 72.43 vs Division average: 63.79 -> delta 8.46"]
 //val cmp2: string list =
-//  ["SKD: Lucas Cañizares -> player 62.35 vs avg 63.35 -> delta -1.00";
-//   "IWBR: Mimeirhel Benita -> player 56.15 vs avg 60.92 -> delta -4.76";
-//   "IWBL: Sean Roughan -> player 61.54 vs avg 61.89 -> delta -0.36";
-//   "BPD1: Lukas Mai -> player 64.18 vs avg 63.66 -> delta 0.52";
-//   "BPD2: Luca Palmiero -> player 57.66 (no division avg)";
-//   "WAR: Cristian Olivera -> player 68.26 vs avg 69.28 -> delta -1.02";
-//   "IWL: Shiloh 't Zand -> player 66.12 vs avg 64.59 -> delta 1.53";
-//   "BWM: Xian Emmers -> player 57.85 vs avg 61.86 -> delta -4.02";
-//   "AP: Mark Diemers -> player 67.39 vs avg 65.61 -> delta 1.78";
-//   "AFA: Folarin Balogun -> player 65.49 vs avg 63.69 -> delta 1.81";
-//   "TMA: Bradley Fink -> player 61.81 vs avg 61.59 -> delta 0.22";
-//   "Team average: 62.62 vs Division average: 63.64 -> delta -0.53"]
+//  ["SKD: Alexander Schlager -> player 69.85 vs avg 63.35 -> delta 6.50";
+//   "IWBR: José Luis Pasquali -> player 66.67 vs avg 60.84 -> delta 5.83";
+//   "IWBL: Youssouf Koné -> player 66.67 vs avg 61.82 -> delta 4.85";
+//   "BPD1: Jean-Clair Todibo -> player 72.34 vs avg 63.21 -> delta 9.13";
+//   "BPD2: Robert Piris Da Motta -> player 60.63 (no division avg)";
+//   "WAR: Gio-Renys Felicia -> player 71.67 vs avg 69.28 -> delta 2.39";
+//   "IWL: Shiloh 't Zand -> player 71.34 vs avg 64.59 -> delta 6.76";
+//   "BWM: Orkun Kökçü -> player 52.71 vs avg 63.78 -> delta -11.07";
+//   "AP: Ömer Beyaz -> player 72.32 vs avg 65.50 -> delta 6.82";
+//   "AFA: Borja Garcés -> player 73.94 vs avg 63.95 -> delta 9.99";
+//   "TMA: Ljubomir Denkovski -> player 66.94 vs avg 61.60 -> delta 5.35";
+//   "Team average: 67.74 vs Division average: 63.79 -> delta 4.65"]
 //val cmp3: string list =
-//  ["SKD: Tein Troost -> player 59.04 vs avg 63.35 -> delta -4.31";
-//   "IWBL: Callum Doyle -> player 51.79 vs avg 61.89 -> delta -10.10";
-//   "BPD1: Wouter Burger -> player 57.59 vs avg 63.66 -> delta -6.06";
-//   "BPD2: Morgan Zouan -> player 54.68 (no division avg)";
-//   "WAR: Christian Conteh -> player 66.06 vs avg 69.28 -> delta -3.22";
-//   "IWL: Nicola Dalmonte -> player 64.70 vs avg 64.59 -> delta 0.12";
-//   "BWM: Lars de Blok -> player 57.22 vs avg 61.86 -> delta -4.64";
-//   "AP: Orkun Kökçü -> player 67.32 vs avg 65.61 -> delta 1.71";
-//   "AFA: Peque -> player 64.23 vs avg 63.69 -> delta 0.54";
-//   "TMA: Ilyas el Moussaoui -> player 59.58 vs avg 61.59 -> delta -2.01";
-//   "Team average: 60.22 vs Division average: 63.95 -> delta -3.11"]
+//  ["IWBL: Alberto Moreno -> player 66.09 vs avg 61.82 -> delta 4.27";
+//   "WAR: Folarin Balogun -> player 66.14 vs avg 69.28 -> delta -3.14";
+//   "Team average: 66.11 vs Division average: 65.55 -> delta 0.56"]

@@ -4,15 +4,15 @@
 
 open FM21_ToolsLib
 
-let sctpath = "../data/sct7.html"
+let sctpath = "../data/sct.html"
 HTML.loadSctPlayers sctpath
 
 //let path = "../data/all.html"
 //do PROGRESS.loadOldPlayers path
 
-today <- DateTime(2021, 3, 31)
+today <- DateTime(2024, 3, 31)
 
-let yngs = SCOUT.getYng "TMA" 60 15000 20
+let yngs = SCOUT.getYng "BPD" 70 29000 32
 
 //SKD
 //IWBR
@@ -30,7 +30,7 @@ let bests = SCOUT.getBest "AFA" 62 1
 
 
 
-let lls = SCOUT.getLnLst "SKD" 62.0 29000
+let lls = SCOUT.getLnLst "AFA" 62.0 29000
 
-let tls = SCOUT.getTrLst "BWM" 64.0 19000
+let tls = SCOUT.getTrLst "BPD" 64.0 19000
 
