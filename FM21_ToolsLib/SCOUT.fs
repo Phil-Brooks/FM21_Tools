@@ -18,6 +18,12 @@ module SCOUT =
             "INVERTED WING BACK (R)", ROLE.roleRatingInvertedWingBackSupportRight; "IWBR", ROLE.roleRatingInvertedWingBackSupportRight
             "INVERTED WING BACK (L)", ROLE.roleRatingInvertedWingBackSupportLeft; "IWBL", ROLE.roleRatingInvertedWingBackSupportLeft
             "SWEEPER KEEPER", ROLE.roleRatingSweeperKeeperDefend; "SKD", ROLE.roleRatingSweeperKeeperDefend
+            "SKS", ROLE.roleRatingSweeperKeeperSupport; "SWEEPER KEEPER (SUPPORT)", ROLE.roleRatingSweeperKeeperSupport
+            "DEEP LYING PLAYMAKER (SUPPORT)", ROLE.roleRatingDeepLyingPlaymakerSupport; "DLP", ROLE.roleRatingDeepLyingPlaymakerSupport
+            "CENTRAL MIDFIELDER (ATTACK)", ROLE.roleRatingCentralMidfielderAttack; "MCA", ROLE.roleRatingCentralMidfielderAttack
+            "DEFENSIVE WINGER (SUPPORT) LEFT", ROLE.roleRatingDefensiveWingerSupportLeft; "ML", ROLE.roleRatingDefensiveWingerSupportLeft
+            "DEFENSIVE WINGER (SUPPORT) RIGHT", ROLE.roleRatingDefensiveWingerSupportRight; "MR", ROLE.roleRatingDefensiveWingerSupportRight
+            "SHADOW STRIKER (ATTACK)", ROLE.roleRatingShadowStrikerAttack; "AMSS", ROLE.roleRatingShadowStrikerAttack
         ]
 
     let private norm (s: string) = if isNull s then "" else s.Trim().ToUpperInvariant()

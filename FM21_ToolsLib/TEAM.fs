@@ -66,6 +66,55 @@ module TEAM =
             TargetManAttack = tmaPos
         }
 
+    /// Build a ZAZ formation team: SKS,IWBR,IWBL,BPD1,BPD2,DLP,MR,ML,MCA,AMSS1,AMSS2
+    let buildZAZTeam (players: Player list) : Team =
+        let pool0 = players
+
+        let sk, pool1 = pickN ROLE.bestSweeperKeepersSupport 1 pool0
+        let skPos = match sk |> List.tryHead with | Some (n,r,p) -> mkAssigned "SKS" n r p | None -> mkUnassigned "SKS"
+
+        let iwbR, pool2 = pickN ROLE.bestInvertedWingBacksSupportRight 1 pool1
+        let iwbRPos = match iwbR |> List.tryHead with | Some (n,r,p) -> mkAssigned "IWBR" n r p | None -> mkUnassigned "IWBR"
+
+        let iwbL, pool3 = pickN ROLE.bestInvertedWingBacksSupportLeft 1 pool2
+        let iwbLPos = match iwbL |> List.tryHead with | Some (n,r,p) -> mkAssigned "IWBL" n r p | None -> mkUnassigned "IWBL"
+
+        let bpd, pool4 = pickN ROLE.bestBallPlayingDefenders 2 pool3
+        let bpd1Pos = match bpd |> List.tryItem 0 with | Some (n,r,p) -> mkAssigned "BPD1" n r p | None -> mkUnassigned "BPD1"
+        let bpd2Pos = match bpd |> List.tryItem 1 with | Some (n,r,p) -> mkAssigned "BPD2" n r p | None -> mkUnassigned "BPD2"
+
+        let dlp, pool5 = pickN ROLE.bestDeepLyingPlaymakersSupport 1 pool4
+        let dlpPos = match dlp |> List.tryHead with | Some (n,r,p) -> mkAssigned "DLP" n r p | None -> mkUnassigned "DLP"
+
+        // MR (right defensive/wing) and ML (left defensive/wing)
+        let mr, pool6 = pickN ROLE.bestDefensiveWingersSupportRight 1 pool5
+        let mrPos = match mr |> List.tryHead with | Some (n,r,p) -> mkAssigned "MR" n r p | None -> mkUnassigned "MR"
+
+        let ml, pool7 = pickN ROLE.bestDefensiveWingersSupportLeft 1 pool6
+        let mlPos = match ml |> List.tryHead with | Some (n,r,p) -> mkAssigned "ML" n r p | None -> mkUnassigned "ML"
+
+        let mca, pool8 = pickN ROLE.bestCentralMidfieldersAttack 1 pool7
+        let mcaPos = match mca |> List.tryHead with | Some (n,r,p) -> mkAssigned "MCA" n r p | None -> mkUnassigned "MCA"
+
+        let amss, _ = pickN ROLE.bestShadowStrikersAttack 2 pool8
+        let amss1Pos = match amss |> List.tryItem 0 with | Some (n,r,p) -> mkAssigned "AMSS1" n r p | None -> mkUnassigned "AMSS1"
+        let amss2Pos = match amss |> List.tryItem 1 with | Some (n,r,p) -> mkAssigned "AMSS2" n r p | None -> mkUnassigned "AMSS2"
+
+        // Map ZAZ roles into the existing Team record fields. Some field names differ but will hold the ZAZ roles.
+        {
+            SweeperKeeper = skPos
+            InvertedWingBackRight = iwbRPos
+            InvertedWingBackLeft = iwbLPos
+            BallPlayingDef1 = bpd1Pos
+            BallPlayingDef2 = bpd2Pos
+            WingerAttackRight = mrPos
+            InvertedWingerLeft = mlPos
+            BallWinningMidfielderSupport = dlpPos
+            AdvancedPlaymakerSupport = mcaPos
+            AdvancedForwardAttack = amss1Pos
+            TargetManAttack = amss2Pos
+        }
+
     let teamAsPositionNameOptions (t: Team) =
         let toTupleFromField canonicalRoleName (pOpt: RoleRatedPlayer option) =
             let roleName = match pOpt with | Some r -> r.RoleName | None -> canonicalRoleName
