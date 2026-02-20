@@ -60,6 +60,8 @@ module ROLE =
     let getRelevantAttributesForRole (roleName: string) : string list =
         if roleName.StartsWith("BPD", StringComparison.InvariantCultureIgnoreCase) then
             attrsBallPlayingDefender
+        elif roleName.StartsWith("AMSS", StringComparison.InvariantCultureIgnoreCase) then
+            attrsShadowStrikerAttack
         else
             match roleName with
             | "TMA" -> attrsTargetManAttack
@@ -76,7 +78,6 @@ module ROLE =
             | "IWBL" -> attrsInvertedWingBackSupportLeft
             | "SKD" -> attrsSweeperKeeperDefend
             | "SKS" -> attrsSweeperKeeperSupport
-            | "AMSS" -> attrsShadowStrikerAttack
             // default: no relevant attributes known
             | _ -> []
 

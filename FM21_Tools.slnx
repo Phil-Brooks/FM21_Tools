@@ -10,6 +10,7 @@
     <File Path="scripts/load_all.fsx" />
     <File Path="scripts/my_club.fsx" />
     <File Path="scripts/my_club_prog.fsx" />
+    <File Path="scripts/my_club_zaz.fsx" />
     <File Path="scripts/roles.fsx" />
     <File Path="scripts/scout.fsx" />
     <File Path="scripts/train.fsx" />
