@@ -49,9 +49,24 @@ module DIVISION =
             let scoreOpt = TEAM.teamScoreOption team
             (clubName, team, scoreOpt))
 
+    /// ZAZ variants: build team + score for each club using ZAZ formation
+    let clubTeamsZAZ div =
+        let clubs = clubsInDivision div
+        clubs
+        |> List.map (fun clubName ->
+            let pool = playersInClub div clubName
+            let team = TEAM.buildZAZTeam pool
+            let scoreOpt = TEAM.teamScoreOption team
+            (clubName, team, scoreOpt))
+
     // pick best club by preferring complete teams (Some score) and using -1.0 for incomplete
     let bestClub div =
         (clubTeams div)
+        |> List.maxBy (fun (_, team, scoreOpt) -> Option.defaultValue -1.0 scoreOpt)
+
+    /// Best club for ZAZ formation
+    let bestClubZAZ div =
+        (clubTeamsZAZ div)
         |> List.maxBy (fun (_, team, scoreOpt) -> Option.defaultValue -1.0 scoreOpt)
 
 
@@ -69,7 +84,7 @@ module DIVISION =
         let iwbR = fieldPair t.InvertedWingBackRight "IWBR"
         let iwbL = fieldPair t.InvertedWingBackLeft "IWBL"
         let bpd1 = fieldPair t.BallPlayingDef1 "BPD1"
-        let bpd2 = fieldPair t.BallPlayingDef1 "BPD2"
+        let bpd2 = fieldPair t.BallPlayingDef2 "BPD2"
         let wgr = fieldPair t.WingerAttackRight "WAR"
         let iwL = fieldPair t.InvertedWingerLeft "IWL"
         let bwm = fieldPair t.BallWinningMidfielderSupport "BWM"
@@ -78,6 +93,27 @@ module DIVISION =
         let tma = fieldPair t.TargetManAttack "TMA"
 
         [ sweeper; iwbR; iwbL; bpd1; bpd2; wgr; iwL; bwm; ap; afa; tma ]
+
+    // ZAZ team role ratings (SKS,IWBR,IWBL,BPD1,BPD2,DLP,MR,ML,MCA,AMSS1,AMSS2)
+    let private teamRoleRatingsZAZ (t: Team) : (string * float option) list =
+        let fieldPair (opt: RoleRatedPlayer option) canonical =
+            match opt with
+            | Some r -> (r.RoleName, Some r.Rating)
+            | None -> (canonical, None)
+
+        let sweeper = fieldPair t.SweeperKeeper "SKS"
+        let iwbR = fieldPair t.InvertedWingBackRight "IWBR"
+        let iwbL = fieldPair t.InvertedWingBackLeft "IWBL"
+        let bpd1 = fieldPair t.BallPlayingDef1 "BPD1"
+        let bpd2 = fieldPair t.BallPlayingDef2 "BPD2"
+        let dlp = fieldPair t.BallWinningMidfielderSupport "DLP"
+        let mr = fieldPair t.WingerAttackRight "MR"
+        let ml = fieldPair t.InvertedWingerLeft "ML"
+        let mca = fieldPair t.AdvancedPlaymakerSupport "MCA"
+        let amss1 = fieldPair t.AdvancedForwardAttack "AMSS1"
+        let amss2 = fieldPair t.TargetManAttack "AMSS2"
+
+        [ sweeper; iwbR; iwbL; bpd1; bpd2; dlp; mr; ml; mca; amss1; amss2 ]
 
     /// For the given division, compute the average rating for every role across
     /// the teams built for each club in that division.
@@ -96,6 +132,35 @@ module DIVISION =
             let agg =
                 teams
                 |> List.collect teamRoleRatings
+                |> List.fold (fun (m: Map<string, float list>) (role, rOpt) ->
+                    let existing = defaultArg (Map.tryFind role m) []
+                    match rOpt with
+                    | Some v -> Map.add role (v :: existing) m
+                    | None -> m) Map.empty
+
+            // compute averages in canonical order
+            roleOrder
+            |> List.map (fun role ->
+                match Map.tryFind role agg with
+                | None -> (role, None)
+                | Some [] -> (role, None)
+                | Some vals ->
+                    let avg = List.sum vals / float (List.length vals)
+                    (role, Some avg))
+
+    /// Average ratings by role for ZAZ formation
+    let averageRatingsByRoleZAZ (division: string) : (string * float option) list =
+        let teams = clubTeamsZAZ division |> List.map (fun (_, team, _) -> team)
+        if List.isEmpty teams then
+            []
+        else
+            // preserve canonical role ordering from the TEAM definition by using first team
+            let roleOrder = teamRoleRatingsZAZ (List.head teams) |> List.map fst
+
+            // aggregate ratings into role -> float list (skip None)
+            let agg =
+                teams
+                |> List.collect teamRoleRatingsZAZ
                 |> List.fold (fun (m: Map<string, float list>) (role, rOpt) ->
                     let existing = defaultArg (Map.tryFind role m) []
                     match rOpt with
